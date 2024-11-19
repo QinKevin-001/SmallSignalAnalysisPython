@@ -1,5 +1,5 @@
 import numpy as np
-from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
+from lib import ssmodel_droopPlant_infinite
 from plott import plott
 
 def main_droopPlant_infinite():
