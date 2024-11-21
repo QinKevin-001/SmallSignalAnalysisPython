@@ -12,6 +12,8 @@ def eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary):
 
     # Modal Analysis
     eigs, Rvmat = linalg.eig(Asys)  # Returns eigenvalues and right eigenvectors
+    Lvmat = np.linalg.inv(Rvmat)
+    Pmat = Rvmat * Lvmat.T
     maxRealValue = np.max(np.real(eigs))
     eigenvalueAnalysisResults['eigs'] = eigs
     eigenvalueAnalysisResults['maxRealValue'] = maxRealValue
@@ -37,25 +39,26 @@ def eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary):
             ]
 
             # Participation Factor Analysis
+            participationFactorModei = Pmat[:, i]
             participationFactorData = [
                 ["State Location", "Participation Factor in Complex", "Participation Factor in Magnitude", "Dominant State Name", "Dominant Subpart"]
             ]
 
             # Calculate participation factors
-            for k, rv in enumerate(Rvmat[:, i]):
-                pf_magnitude = abs(rv)
+            for k, pf in enumerate(participationFactorModei):
+                pf_magnitude = abs(pf)
                 if pf_magnitude >= dominantParticipationFactorBoundary:
                     participationFactorData.append([
-                        k,
-                        rv,
+                        k+1,
+                        pf,
                         pf_magnitude,
-                        ssVariables[k],
-                        None  # Placeholder for dominant subpart
+                        ssVariables[k][0],
+                        ssVariables[k][1]
                     ])
 
             modalAnalysis[5] = participationFactorData
             subPartsInfo = set(row[4] for row in participationFactorData[1:])
-            modalAnalysis[6] = ' & '.join(filter(None, subPartsInfo))
+            modalAnalysis[6] = ' & '.join(subPartsInfo)
 
             eigenvalueAnalysisResults['modalAnalysis'].append(modalAnalysis)
 

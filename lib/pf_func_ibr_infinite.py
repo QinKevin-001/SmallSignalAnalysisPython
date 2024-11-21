@@ -28,7 +28,7 @@ def pf_func_ibr_infinite(x, parasIBR):
     P2 = np.real(S2)
     Q2 = np.imag(S2)
 
-    f = np.zeros(2)  # Correct the shape to 1D
+    f = np.zeros(2, )  # Correct the shape to 1D
     f[0] = (wset - w) / mp + Pset - P2
     f[1] = (Vset - Vabs2) / mq + Qset - Q2
 

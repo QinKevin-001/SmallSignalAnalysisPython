@@ -81,10 +81,16 @@ def flatten_column_major(testResults):
     unique_types2 = set(type(item[0]) for item in numeric_column_vector)
     print("Unique data types in the numeric output list:", unique_types2)
 
-    # Save to CSV
+    # Save to CSV, formatting complex numbers as "a+bj"
     with open('python.csv', 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerows(column_vector)
+        for row in numeric_column_vector:
+            # Format complex numbers as "a+bj"
+            formatted_row = [
+                str(value).replace('(', '').replace(')', '') if isinstance(value, complex) else value
+                for value in row
+            ]
+            csv_writer.writerow(formatted_row)
 
         print("Filtered and saved column vector to CSV.")
 

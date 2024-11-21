@@ -63,15 +63,16 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     x = sp.Matrix([theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
 
+    # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
-    BwSym = f.jacobian([wcom])
+    BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
     CwSym = winv.diff(x)
 
     # Ensure steadyStateValuesX and steadyStateValuesU are 1D arrays
-    steadyStateValuesX = steadyStateValuesX.flatten()
-    steadyStateValuesU = steadyStateValuesU.flatten()
+    steadyStateValuesX = np.array(steadyStateValuesX).flatten()
+    steadyStateValuesU = np.array(steadyStateValuesU).flatten()
 
     # Substitute steady-state values
     subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
@@ -82,9 +83,9 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     Cw = CwSym.subs(subs_dict).evalf()
 
     if isRef == 0:
-        Cw = sp.zeros(1, 13)
+        Cw = sp.zeros(1, len(stateVariables))
 
-    # Output
+    # Convert symbolic matrices to numerical arrays
     stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),
