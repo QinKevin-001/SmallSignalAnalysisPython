@@ -1,7 +1,8 @@
 import numpy as np
 from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
-from plott import plott
 
+from plott import plott
+from toCSV import flatten_column_major
 
 def main_droop_infinite():
     # Parameters
@@ -45,7 +46,9 @@ def main_droop_infinite():
             pfExitFlag
         ])
 
-    plott(testResults)
+    #plott(testResults)
+    #flatten_column_major(testResults)
+
 
 if __name__ == "__main__":
     main_droop_infinite()
