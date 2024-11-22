@@ -82,7 +82,7 @@ def flatten_column_major(testResults):
     print("Unique data types in the numeric output list:", unique_types2)
 
     # Save to CSV, formatting complex numbers as "a+bj"
-    with open('python.csv', 'w', newline='') as csvfile:
+    with open('Python.csv', 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         for row in numeric_column_vector:
             # Format complex numbers as "a+bj"

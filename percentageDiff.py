@@ -48,38 +48,8 @@ percentage_diff = data.apply(lambda row: percentage_difference_complex(row[colum
 # Raw percentage differences list
 percentage_diff_list_raw = percentage_diff.tolist()
 
-# Calculate bounds before truncation (raw data)
-q1_raw = np.percentile(percentage_diff_list_raw, 25)
-q3_raw = np.percentile(percentage_diff_list_raw, 75)
-iqr_raw = q3_raw - q1_raw
-lower_bound_raw = q1_raw - 1.5 * iqr_raw
-upper_bound_raw = q3_raw + 1.5 * iqr_raw
-
 # Clean the list (remove NaN values)
 percentage_diff_list_clean = [x for x in percentage_diff_list_raw if not np.isnan(x)]
-
-# Calculate bounds after truncation (clean data)
-q1_clean = np.percentile(percentage_diff_list_clean, 25)
-q3_clean = np.percentile(percentage_diff_list_clean, 75)
-iqr_clean = q3_clean - q1_clean
-lower_bound_clean = q1_clean - 1.5 * iqr_clean
-upper_bound_clean = q3_clean + 1.5 * iqr_clean
-
-# Debugging outputs
-print(f"Before Truncation -> Q1: {q1_raw}, Q3: {q3_raw}, IQR: {iqr_raw}")
-print(f"Before Truncation -> Lower Bound: {lower_bound_raw}, Upper Bound: {upper_bound_raw}")
-print(f"After Truncation -> Q1: {q1_clean}, Q3: {q3_clean}, IQR: {iqr_clean}")
-print(f"After Truncation -> Lower Bound: {lower_bound_clean}, Upper Bound: {upper_bound_clean}")
-
-# Compare bounds to check for differences
-if (lower_bound_raw != lower_bound_clean) or (upper_bound_raw != upper_bound_clean):
-    print("Bounds have changed after truncation.")
-else:
-    print("Bounds remain the same after truncation.")
-
-# Filter data to exclude outliers
-non_outliers = (percentage_diff >= lower_bound_clean) & (percentage_diff <= upper_bound_clean)
-percentage_diff_no_outliers = percentage_diff[non_outliers]
 
 # Plotting the percentage difference
 plt.figure(figsize=(10, 6))
@@ -91,18 +61,3 @@ plt.legend()
 plt.grid(True)
 output_plot = 'percentage_difference_complex_plot.png'
 plt.savefig(output_plot)
-
-# Plotting the percentage difference without outliers
-if not percentage_diff_no_outliers.empty:
-    plt.figure(figsize=(10, 6))
-    plt.plot(percentage_diff_no_outliers, label='Percentage Difference (No Outliers)', marker='o')
-    plt.xlabel('Index')
-    plt.ylabel('Percentage Difference (%)')
-    plt.title('Percentage Difference (Magnitude) Excluding Outliers')
-    plt.legend()
-    plt.grid(True)
-    output_plot_no_outliers = 'percentage_difference_no_outliers_plot.png'
-    plt.savefig(output_plot_no_outliers)
-else:
-    print("No data points to plot for non-outliers.")
-    output_plot_no_outliers = None
