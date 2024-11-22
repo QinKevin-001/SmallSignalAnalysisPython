@@ -43,6 +43,7 @@ def main_droop_infinite():
         ])
 
     plott(testResults)
+    #flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droop_infinite()

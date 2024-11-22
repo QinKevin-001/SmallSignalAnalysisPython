@@ -1,3 +1,5 @@
+#Test confirmed
+
 import numpy as np
 import sympy as sp
 
@@ -43,12 +45,16 @@ def ssmodel_droopSimplified(wbase, paras_inverter, steady_state_values_x, steady
 
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
-    BwSym = f.jacobian(wcom)
+    BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
-    CwSym = sp.diff(winv, x)
+    CwSym = winv.diff(x)
+
+    # Ensure steadyStateValuesX and steadyStateValuesU are 1D arrays
+    steady_state_values_x = np.array(steady_state_values_x).flatten()
+    steady_state_values_u = np.array(steady_state_values_u).flatten()
 
     # Substitute steady-state values
-    subs_dict = dict(zip(list(x) + list(u), steady_state_values_x + steady_state_values_u))
+    subs_dict = dict(zip(list(x) + list(u), np.concatenate((steady_state_values_x, steady_state_values_u))))
     A = Asym.subs(subs_dict).evalf()
     B = Bsym.subs(subs_dict).evalf()
     Bw = BwSym.subs(subs_dict).evalf()
@@ -56,16 +62,16 @@ def ssmodel_droopSimplified(wbase, paras_inverter, steady_state_values_x, steady
     Cw = CwSym.subs(subs_dict).evalf()
 
     if not is_ref:
-        Cw = sp.zeros(1, 5)
+        Cw = sp.zeros(1, len(state_variables))
 
     # Output
     state_matrix = {
-        'A': np.array(A).astype(np.float64),
-        'B': np.array(B).astype(np.float64),
-        'Bw': np.array(Bw).astype(np.float64),
-        'C': np.array(C).astype(np.float64),
-        'Cw': np.array(Cw).astype(np.float64),
-        'ss_variables': state_variables
+        'A': np.array(A).astype(float),
+        'B': np.array(B).astype(float),
+        'Bw': np.array(Bw).astype(float),
+        'C': np.array(C).astype(float),
+        'Cw': np.array(Cw).astype(float),
+        'ssVariables': state_variables
     }
 
     return state_matrix
