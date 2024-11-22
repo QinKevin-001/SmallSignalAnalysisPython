@@ -1,6 +1,12 @@
+#Test confirmed
+
+#Critical imports
 import numpy as np
 from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
+
+#Optional imports (plotting & file export)
 from plott import plott
+from toCSV import flatten_column_major
 
 def main_droopPlant_infinite():
     # Parameters
@@ -46,6 +52,7 @@ def main_droopPlant_infinite():
         ])
 
     plott(testResults)
+    #flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droopPlant_infinite()
