@@ -88,6 +88,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
 
+    # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian([wcom])
@@ -109,7 +110,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     if isRef == 0:
         Cw = sp.zeros(1, 20)
 
-    # Output
+    # Convert symbolic matrices to numerical arrays
     stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),

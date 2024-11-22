@@ -1,3 +1,5 @@
+#Test confirmed
+
 import numpy as np
 
 def pf_func_ibr_infinite(x, parasIBR):
@@ -13,9 +15,9 @@ def pf_func_ibr_infinite(x, parasIBR):
     imagUnit = 1j
     w = 1
     theta1 = 0
-    theta2 = x[0]  # Corrected indexing for 1D array
+    theta2 = x[0]
     Vabs1 = 1
-    Vabs2 = x[1]  # Corrected indexing for 1D array
+    Vabs2 = x[1]
 
     Zc = Rc + imagUnit * w * Lc
 
@@ -28,7 +30,7 @@ def pf_func_ibr_infinite(x, parasIBR):
     P2 = np.real(S2)
     Q2 = np.imag(S2)
 
-    f = np.zeros(2, )  # Correct the shape to 1D
+    f = np.zeros(2, )
     f[0] = (wset - w) / mp + Pset - P2
     f[1] = (Vset - Vabs2) / mq + Qset - Q2
 

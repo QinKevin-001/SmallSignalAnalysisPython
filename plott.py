@@ -1,3 +1,5 @@
+#Test confirmed
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,11 +12,11 @@ def plott(testResults):
 
     for i in range(totalNum):
         eigsi = testResults[i + 1][1]  # Extract eigenvalues list for each parameter set
-        print(f"Parameter set {i + 1}, mp: {testResults[i + 1][0]}")  # Print the parameter set details
+        #print(f"Parameter set {i + 1}, mp: {testResults[i + 1][0]}")  # Print the parameter set details
 
         for eig in eigsi:  # Loop over each eigenvalue in the list
             # Print the real and imaginary parts of the eigenvalue being plotted
-            print(f"Eigenvalue: Real part = {np.real(eig)}, Imaginary part = {np.imag(eig)}")
+            #print(f"Eigenvalue: Real part = {np.real(eig)}, Imaginary part = {np.imag(eig)}")
 
             plt.plot(
                 np.real(eig),

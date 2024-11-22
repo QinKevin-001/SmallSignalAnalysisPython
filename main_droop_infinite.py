@@ -1,3 +1,5 @@
+#Test confirmed
+
 #Critical imports
 import numpy as np
 from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
@@ -39,10 +41,8 @@ def main_droop_infinite():
             eigenvalueAnalysisResults['modalAnalysis'],
             pfExitFlag
         ])
-    print(len(testResults))
-    #plott(testResults)
-    flatten_column_major(testResults)
 
+    plott(testResults)
 
 if __name__ == "__main__":
     main_droop_infinite()
