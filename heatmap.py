@@ -8,7 +8,7 @@ import plotly.express as px
 def heatmap(testResults):
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])  # Number of modes available in the results
+    mode_range = len(testResults[1][4]) - 1 # Number of modes available in the results
 
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
