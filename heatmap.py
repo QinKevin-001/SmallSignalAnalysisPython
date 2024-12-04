@@ -13,13 +13,13 @@ def heatmap(testResults):
 
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])   # Number of modes available in the results
+    mode_range = len(testResults[1][4]) - 1 # Number of modes available in the results
 
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)  # Get index of selected parameter
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode -1 # Adjust for zero-based indexing
+    mode_index = selected_mode - 1 # Adjust for zero-based indexing
 
     # Extracting data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
@@ -82,9 +82,9 @@ def heatmap(testResults):
     # Heatmap for Each Parameter
     st.subheader("Heatmap of Participation Factors for All Modes (Per Parameter)")
     heatmap_data = []
-    max_state_count = len(state_variables)  # Always map to predefined states
+    max_state_count = len(state_variables)  # Always map to 13 predefined states
 
-    # Prepare heatmap data for all modes
+    # Prepare heatmap data
     for mode_idx in range(mode_range):
         try:
             mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
@@ -99,7 +99,6 @@ def heatmap(testResults):
                     st.warning(f"Skipping invalid participation factor entry: {entry}")
             heatmap_data.append(mode_values)
         except (IndexError, ValueError):
-            st.warning(f"Mode {mode_idx + 1} data is missing or malformed.")
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
     # X-axis: Modes, Y-axis: State Variables
