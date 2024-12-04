@@ -43,7 +43,7 @@ def main_droop_infinite():
             pfExitFlag
         ])
 
-    #plott(testResults)
+    plott(testResults)
     heatmap(testResults)
     flatten_column_major(testResults)
 
