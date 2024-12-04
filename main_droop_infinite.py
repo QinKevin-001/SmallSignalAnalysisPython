@@ -44,8 +44,8 @@ def main_droop_infinite():
         ])
 
     plott(testResults)
-    heatmap()
-    #flatten_column_major(testResults)
+    heatmap(testResults)
+    flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droop_infinite()
