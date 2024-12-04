@@ -82,9 +82,9 @@ def heatmap(testResults):
     # Heatmap for Each Parameter
     st.subheader("Heatmap of Participation Factors for All Modes (Per Parameter)")
     heatmap_data = []
-    max_state_count = len(state_variables)  # Always map to 13 predefined states
+    max_state_count = len(state_variables)  # Always map to predefined states
 
-    # Prepare heatmap data
+    # Prepare heatmap data for all modes
     for mode_idx in range(mode_range):
         try:
             mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
@@ -99,6 +99,7 @@ def heatmap(testResults):
                     st.warning(f"Skipping invalid participation factor entry: {entry}")
             heatmap_data.append(mode_values)
         except (IndexError, ValueError):
+            st.warning(f"Mode {mode_idx + 1} data is missing or malformed.")
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
     # X-axis: Modes, Y-axis: State Variables
