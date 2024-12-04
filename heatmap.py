@@ -48,10 +48,15 @@ def heatmap(testResults):
         return
 
     try:
-        state_locations = [entry[0] for entry in participation_factors]
-        factor_magnitudes = [entry[2] for entry in participation_factors]
-        dominant_state_names = [state_variables[int(loc) - 1] for loc in state_locations]  # Map to full state names
-    except (IndexError, ValueError, TypeError):
+        # Filter participation factors to skip headers or malformed entries
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    except (IndexError, ValueError, TypeError) as e:
         st.error("Error mapping state locations to dominant state names.")
         st.write("State Locations:", state_locations)
         st.write("Participation Factors:", participation_factors)
