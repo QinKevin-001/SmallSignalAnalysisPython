@@ -5,7 +5,7 @@ import plotly.express as px
 
 
 # Function to parse and display data based on testResults
-def display_analysis(testResults):
+def heatmap(testResults):
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
     mode_range = len(testResults[1][4])  # Number of modes available in the results
