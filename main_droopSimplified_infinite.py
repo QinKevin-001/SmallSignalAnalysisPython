@@ -11,7 +11,6 @@ from toCSV import flatten_column_major
 def main_droopSimplified_infinite():
     # Parameters
     wbase = 2 * np.pi * 60
-
     parasIBR = {
         'Pset': 1.0, 'Qset': 0.0,  # setpoints
         'wset': 1.0, 'Vset': 1.0,  # setpoints
@@ -39,8 +38,8 @@ def main_droopSimplified_infinite():
             pfExitFlag  # Participation factor exit flag
         ])
 
-    #plott(testResults)
-    flatten_column_major(testResults)
+    plott(testResults)
+    #flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droopSimplified_infinite()

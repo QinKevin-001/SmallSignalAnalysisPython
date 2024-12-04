@@ -11,7 +11,6 @@ from toCSV import flatten_column_major
 def main_droopPlant_infinite():
     # Parameters
     wbase = 2 * np.pi * 60
-
     parasIBR = {
         'PsetPlant': 1.0, 'QsetPlant': 0.0,  # plant-level setpoints
         'wsetPlant': 1.0, 'VsetPlant': 1.0,  # plant-level setpoints
@@ -40,7 +39,6 @@ def main_droopPlant_infinite():
         # Small-signal Stability Analysis
         dominantParticipationFactorBoundary = 0.10
         Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = ssmodel_droopPlant_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
-
         # Output
         testResults.append([
             parasIBR['PsetPlant'],

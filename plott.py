@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import streamlit as st
 
 def plott(testResults):
     """
@@ -34,3 +35,7 @@ def plott(testResults):
     plt.gca().tick_params(axis='both', which='major', labelsize=14)
     plt.tight_layout()
     plt.show()
+
+    # Display the plot in Streamlit
+    st.pyplot(plt)
+    plt.close()  # Close the figure after displaying
