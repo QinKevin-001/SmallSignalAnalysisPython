@@ -16,7 +16,7 @@ def heatmap(testResults):
 
     # Sidebar for mode selection
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode - 1  # Mode index for accessing data
+    mode_index = selected_mode  # Mode index for accessing data
 
     # Extracting values for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
