@@ -1,0 +1,5 @@
+scipy
+sympy
+seaborn
+matplotlib
+plotly
