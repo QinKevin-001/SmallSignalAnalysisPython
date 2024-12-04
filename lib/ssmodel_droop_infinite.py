@@ -30,13 +30,11 @@ def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
     ssVariables = stateMatrix['ssVariables']
     # Assigning labels to the state variables
     if isinstance(ssVariables, list):
-        # Convert to a mutable list of lists
-        ssVariables = [list(row) for row in ssVariables]
-        for row in ssVariables:
-            row[1] = 'IBR'
+        # Ensure ssVariables remains a list of full strings
+        ssVariables = [[row, 'IBR'] if isinstance(row, str) else row for row in ssVariables]
     elif isinstance(ssVariables, np.ndarray):
-        # If it's a NumPy array, modify it directly
-        ssVariables[:, 1] = ['IBR'] * ssVariables.shape[0]
+        # Handle NumPy array case without splitting strings
+        ssVariables = [[var, 'IBR'] for var in ssVariables]
     else:
         raise TypeError("Unsupported type for ssVariables")
     # Eigenvalue Analysis
