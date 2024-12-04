@@ -7,6 +7,7 @@ from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
 #Optional imports (plotting & file export)
 from plott import plott
 from toCSV import flatten_column_major
+from heatmap import heatmap
 
 def main_droop_infinite():
     # Parameters
@@ -43,6 +44,7 @@ def main_droop_infinite():
         ])
 
     plott(testResults)
+    heatmap()
     #flatten_column_major(testResults)
 
 if __name__ == "__main__":
