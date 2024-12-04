@@ -5,9 +5,15 @@ import plotly.express as px
 
 # Function to parse and display data based on testResults
 def heatmap(testResults):
+    # Provided state variable mapping
+    state_variables = [
+        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
+        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+    ]
+
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4]) - 1  # Number of modes available in the results
+    mode_range = len(testResults[1][4]) -1  # Number of modes available in the results
 
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
@@ -36,6 +42,7 @@ def heatmap(testResults):
     try:
         state_locations = [entry[0] for entry in participation_factors]
         factor_magnitudes = [entry[2] for entry in participation_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]  # Map to dominant state names
     except (IndexError, TypeError):
         st.error(f"Participation factors are malformed for Parameter: {selected_parameter}, Mode: {selected_mode}")
         st.write("Participation Factors Raw Data:", participation_factors)
@@ -52,7 +59,7 @@ def heatmap(testResults):
     # Pie Chart for Selected Parameter and Mode
     st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
     pie_chart_fig = px.pie(
-        names=[f"State {loc}" for loc in state_locations],
+        names=dominant_state_names,
         values=factor_magnitudes,
         title=f"Participation Factor Distribution for Parameter {selected_parameter}, Mode {selected_mode}"
     )
@@ -61,32 +68,26 @@ def heatmap(testResults):
     # Heatmap for Each Parameter
     st.subheader("Heatmap of Participation Factors for All Modes (Per Parameter)")
     heatmap_data = []
-    max_state_count = 0  # Track maximum states across modes
+    max_state_count = len(state_variables)  # Always map to 13 predefined states
 
-    # Prepare heatmap data and handle cases with varying state locations
+    # Prepare heatmap data
     for mode_idx in range(mode_range):
         try:
             mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
-            magnitudes = [entry[2] for entry in mode_participation]
-            heatmap_data.append(magnitudes)
-            max_state_count = max(max_state_count, len(magnitudes))  # Track max number of states
+            mode_values = np.zeros(max_state_count)  # Initialize array for all states
+            for entry in mode_participation:
+                state_idx = entry[0] - 1  # Map state location to 0-based index
+                mode_values[state_idx] = entry[2]  # Assign participation factor magnitude
+            heatmap_data.append(mode_values)
         except IndexError:
-            heatmap_data.append([])  # Handle missing modes gracefully
+            heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
-    # Pad rows with zeros to ensure uniform length
-    heatmap_data_padded = [
-        row + [0] * (max_state_count - len(row)) for row in heatmap_data
-    ]
-
-    # Generate heatmap labels dynamically
-    state_labels = [f"State {i}" for i in range(max_state_count)]
+    # X-axis: Modes, Y-axis: State Variables
     mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
-
-    # Plot the heatmap
     heatmap_fig = px.imshow(
-        np.array(heatmap_data_padded),
-        x=state_labels,
-        y=mode_labels,
+        np.array(heatmap_data).T,  # Transpose to align modes (columns) and states (rows)
+        x=mode_labels,
+        y=state_variables,
         labels={"color": "Participation Factor"},
         color_continuous_scale="Blues",
         title=f"Participation Factors Heatmap for Parameter {selected_parameter}"
