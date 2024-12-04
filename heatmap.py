@@ -2,65 +2,72 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import matplotlib.pyplot as plt
-import seaborn as sns
 import math
 
-def heatmap():
-    # Example Data
-    # Replace with your actual state variables, eigenvalues, and participation matrix
-    stateVariableNames = ['P01', 'Qo1', 'phid1', 'phiq1', 'gammad1', 'gammaq1', 'iid1', 'iiq1', 'vcd1', 'vcq1', 'iod1', 'ioq1']
-    numeigs = 10
-    modeNames = [f"Mode {i}" for i in range(1, numeigs + 1)]
-    pmatrixabs = np.random.rand(len(stateVariableNames), numeigs)  # Random data for example
+# Example Data (Replace with your actual data)
+stateVariableNames = ['P01', 'Qo1', 'phid1', 'phiq1', 'gammad1', 'gammaq1', 'iid1', 'iiq1', 'vcd1', 'vcq1', 'iod1', 'ioq1']
+numeigs = 10
+modeNames = [f"Mode {i}" for i in range(1, numeigs + 1)]
+pmatrixabs = np.random.rand(len(stateVariableNames), numeigs)  # Random participation factor data for example
 
-    # Create Heatmap
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(pmatrixabs, annot=False, cmap="Blues", cbar=True, xticklabels=modeNames, yticklabels=stateVariableNames)
-    plt.xlabel("Modes")
-    plt.ylabel("State Variables")
-    plt.title("Participation Factor Heatmap")
-    st.pyplot(fig)
+# Interactive Heatmap
+st.subheader("Interactive Participation Factor Heatmap")
+df_heatmap = pd.DataFrame(pmatrixabs, index=stateVariableNames, columns=modeNames)
+fig_heatmap = px.imshow(
+    df_heatmap,
+    labels=dict(x="Modes", y="State Variables", color="Participation Factor"),
+    x=modeNames,
+    y=stateVariableNames,
+    color_continuous_scale="Blues",
+    title="Participation Factor Heatmap"
+)
+fig_heatmap.update_layout(
+    height=600,  # Adjust height for better visibility
+    xaxis_title="Modes",
+    yaxis_title="State Variables",
+    font=dict(size=14)
+)
+st.plotly_chart(fig_heatmap)  # Heatmap with hover functionality
 
-    # Create Dropdown for Mode Selection
-    mode_index = st.sidebar.selectbox(
-        "Select a Mode for Participation Factor Analysis",
-        list(range(1, numeigs + 1))
-    )
+# Sidebar for Mode Selection
+mode_index = st.sidebar.selectbox(
+    "Select a Mode for Participation Factor Analysis",
+    list(range(1, numeigs + 1))  # Dropdown for mode numbers
+)
 
-    # Generate Pie Chart for Selected Mode
-    selected_mode_column = pmatrixabs[:, mode_index - 1]
-    df = pd.DataFrame({
-        "State Variables": stateVariableNames,
-        "Participation Factor": selected_mode_column
-    })
-    df["State Variables"] = np.where(df["Participation Factor"] < 0.02, "Other States", df["State Variables"])
+# Dynamic Pie Chart
+selected_mode_column = pmatrixabs[:, mode_index - 1]  # Get participation factors for the selected mode
+df_pie = pd.DataFrame({
+    "State Variables": stateVariableNames,
+    "Participation Factor": selected_mode_column
+})
+df_pie["State Variables"] = np.where(df_pie["Participation Factor"] < 0.02, "Other States", df_pie["State Variables"])  # Group small factors
 
-    fig_pie = px.pie(
-        df,
-        names="State Variables",
-        values="Participation Factor",
-        title=f"Participation Factor Analysis for Mode {mode_index}"
-    )
+st.subheader(f"Participation Factor Analysis for Mode {mode_index}")
+fig_pie = px.pie(
+    df_pie,
+    names="State Variables",
+    values="Participation Factor",
+    title=f"Participation Factor Analysis for Mode {mode_index}",
+    color_discrete_sequence=px.colors.sequential.Blues
+)
+st.plotly_chart(fig_pie)  # Pie chart with hover functionality
 
-    # Display Pie Chart
-    st.plotly_chart(fig_pie)
+# Eigenvalue Analysis
+eigvals = np.random.randn(numeigs) + 1j * np.random.randn(numeigs)  # Random eigenvalues for example
+realpart = eigvals.real
+imagpart = eigvals.imag
+frequency = imagpart / (2 * math.pi)
+dampingratio = -realpart / np.sqrt(realpart**2 + imagpart**2)
 
-    # Generate Eigenvalue Analysis Data
-    eigvals = np.random.randn(numeigs) + 1j * np.random.randn(numeigs)  # Random complex eigenvalues for example
-    realpart = eigvals.real
-    imagpart = eigvals.imag
-    frequency = imagpart / (2 * math.pi)
-    dampingratio = -realpart / np.sqrt(realpart**2 + imagpart**2)
+# Create Eigenvalue Analysis Table
+df_eigen = pd.DataFrame({
+    "Mode": range(1, numeigs + 1),
+    "Real Part": realpart,
+    "Imaginary Part": imagpart,
+    "Frequency (Hz)": np.abs(frequency),
+    "Damping Ratio": dampingratio
+})
 
-    # Create Eigenvalue Analysis Table
-    df_eigen = pd.DataFrame({
-        "Mode": range(1, numeigs + 1),
-        "Real Part": realpart,
-        "Imaginary Part": imagpart,
-        "Frequency (Hz)": np.abs(frequency),
-        "Damping Ratio": dampingratio
-    })
-
-    st.write("Eigenvalue Analysis:")
-    st.dataframe(df_eigen)
+st.subheader("Eigenvalue Analysis")
+st.dataframe(df_eigen)
