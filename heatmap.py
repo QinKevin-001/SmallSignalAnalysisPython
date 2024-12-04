@@ -13,17 +13,21 @@ def heatmap(testResults):
 
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4]) -1  # Number of modes available in the results
+    mode_range = len(testResults[1][4]) - 1  # Number of modes available in the results
 
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)  # Get index of selected parameter
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode  # Adjust for zero-based indexing
+    mode_index = selected_mode - 1  # Adjust for zero-based indexing
 
     # Extracting data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
-    mode_data = parameter_data[4][mode_index]  # Extract mode-specific data
+    try:
+        mode_data = parameter_data[4][mode_index]  # Extract mode-specific data
+    except IndexError:
+        st.error(f"Mode data is unavailable for the selected parameter or mode.")
+        return
 
     # Eigenvalues
     try:
@@ -34,18 +38,23 @@ def heatmap(testResults):
         return
 
     # Participation Factors
-    participation_factors = mode_data[5] if len(mode_data) > 5 else []
-    if not participation_factors:
-        st.error(f"No participation factors found for Parameter: {selected_parameter}, Mode: {selected_mode}")
+    try:
+        participation_factors = mode_data[5] if len(mode_data) > 5 else []
+        if not participation_factors:
+            raise ValueError("Participation factors missing or malformed.")
+    except (IndexError, ValueError, TypeError):
+        st.error(f"Participation factors are malformed for Parameter: {selected_parameter}, Mode: {selected_mode}")
+        st.write("Mode Data:", mode_data)
         return
 
     try:
         state_locations = [entry[0] for entry in participation_factors]
         factor_magnitudes = [entry[2] for entry in participation_factors]
-        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]  # Map to dominant state names
-    except (IndexError, TypeError):
-        st.error(f"Participation factors are malformed for Parameter: {selected_parameter}, Mode: {selected_mode}")
-        st.write("Participation Factors Raw Data:", participation_factors)
+        dominant_state_names = [state_variables[int(loc) - 1] for loc in state_locations]  # Map to full state names
+    except (IndexError, ValueError, TypeError):
+        st.error("Error mapping state locations to dominant state names.")
+        st.write("State Locations:", state_locations)
+        st.write("Participation Factors:", participation_factors)
         return
 
     # Display Eigenvalue Information
@@ -79,7 +88,7 @@ def heatmap(testResults):
                 state_idx = entry[0] - 1  # Map state location to 0-based index
                 mode_values[state_idx] = entry[2]  # Assign participation factor magnitude
             heatmap_data.append(mode_values)
-        except IndexError:
+        except (IndexError, ValueError):
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
     # X-axis: Modes, Y-axis: State Variables
@@ -93,3 +102,4 @@ def heatmap(testResults):
         title=f"Participation Factors Heatmap for Parameter {selected_parameter}"
     )
     st.plotly_chart(heatmap_fig)
+
