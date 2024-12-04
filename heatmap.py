@@ -5,20 +5,18 @@ import plotly.express as px
 
 
 # Function to parse and display data based on testResults
-def heatmap(testResults):
+def display_analysis(testResults):
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])-1  # Number of modes available in the results
+    mode_range = len(testResults[1][4]) - 1 # Number of modes available in the results
 
-    # Sidebar for parameter selection
+    # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)  # Get index of selected parameter
-
-    # Sidebar for mode selection
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode  # Mode index for accessing data
+    mode_index = selected_mode - 1  # Mode index for accessing data
 
-    # Extracting values for the selected parameter and mode
+    # Extracting data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
     mode_data = parameter_data[4][mode_index]  # Extract mode-specific data
 
@@ -52,40 +50,35 @@ def heatmap(testResults):
     st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
     st.write(f"**Damping Ratio:** {mode_data[4]}")
 
-    # Create DataFrame for Participation Factors
-    participation_df = pd.DataFrame({
-        "State Location": state_locations,
-        "Participation Factor Magnitude": factor_magnitudes
-    })
+    # Pie Chart for Selected Parameter and Mode
+    st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
+    pie_chart_fig = px.pie(
+        names=[f"State {loc}" for loc in state_locations],
+        values=factor_magnitudes,
+        title=f"Participation Factor Distribution for Parameter {selected_parameter}, Mode {selected_mode}"
+    )
+    st.plotly_chart(pie_chart_fig)
 
-    # Plot Heatmap
-    st.subheader("Participation Factor Heatmap")
-    try:
-        heatmap_fig = px.imshow(
-            np.array([factor_magnitudes]),
-            x=[f"State {loc}" for loc in state_locations],
-            y=[f"Mode {selected_mode}"],
-            labels={"color": "Participation Factor"},
-            color_continuous_scale="Blues",
-            title=f"Participation Factors for Mode {selected_mode}"
-        )
-        st.plotly_chart(heatmap_fig)
-    except Exception as e:
-        st.error("Error generating heatmap.")
-        st.write(f"Details: {e}")
+    # Heatmap for Each Parameter
+    st.subheader("Heatmap of Participation Factors for All Modes (Per Parameter)")
+    heatmap_data = []
+    heatmap_labels = []
 
-    # Plot Participation Factor Bar Chart
-    st.subheader("Participation Factors Bar Chart")
-    try:
-        bar_chart_fig = px.bar(
-            participation_df,
-            x="State Location",
-            y="Participation Factor Magnitude",
-            title=f"Participation Factors for Mode {selected_mode}",
-            color="Participation Factor Magnitude",
-            color_continuous_scale="Blues"
-        )
-        st.plotly_chart(bar_chart_fig)
-    except Exception as e:
-        st.error("Error generating bar chart.")
-        st.write(f"Details: {e}")
+    for mode_idx in range(mode_range):
+        try:
+            mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
+            heatmap_data.append([entry[2] for entry in mode_participation])
+            heatmap_labels.append(f"Mode {mode_idx + 1}")
+        except IndexError:
+            heatmap_data.append([0] * len(state_locations))  # Handle missing modes gracefully
+            heatmap_labels.append(f"Mode {mode_idx + 1} (Missing Data)")
+
+    heatmap_fig = px.imshow(
+        np.array(heatmap_data),
+        x=[f"State {loc}" for loc in state_locations],
+        y=heatmap_labels,
+        labels={"color": "Participation Factor"},
+        color_continuous_scale="Blues",
+        title=f"Participation Factors Heatmap for Parameter {selected_parameter}"
+    )
+    st.plotly_chart(heatmap_fig)
