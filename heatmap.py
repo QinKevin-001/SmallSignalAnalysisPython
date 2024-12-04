@@ -90,8 +90,13 @@ def heatmap(testResults):
             mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
             mode_values = np.zeros(max_state_count)  # Initialize array for all states
             for entry in mode_participation:
-                state_idx = entry[0] - 1  # Map state location to 0-based index
-                mode_values[state_idx] = entry[2]  # Assign participation factor magnitude
+                try:
+                    # Ensure entry[0] is a valid integer and within range
+                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= max_state_count:
+                        state_idx = entry[0] - 1  # Map state location to 0-based index
+                        mode_values[state_idx] = entry[2]  # Assign participation factor magnitude
+                except (TypeError, ValueError) as e:
+                    st.warning(f"Skipping invalid participation factor entry: {entry}")
             heatmap_data.append(mode_values)
         except (IndexError, ValueError):
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
