@@ -13,13 +13,13 @@ def heatmap(testResults):
 
     # Extract the parameters and modes from testResults
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4]) - 1 # Number of modes available in the results
+    mode_range = len(testResults[1][4])  # Number of modes available in the results
 
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)  # Get index of selected parameter
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode # Adjust for zero-based indexing
+    mode_index = selected_mode - 1  # Adjust for zero-based indexing
 
     # Extracting data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
@@ -87,7 +87,8 @@ def heatmap(testResults):
     # Prepare heatmap data
     for mode_idx in range(mode_range):
         try:
-            mode_participation = parameter_data[4][mode_idx][5]  # Access participation factors for each mode
+            # Access participation factors for each mode
+            mode_participation = parameter_data[4][mode_idx][5]
             mode_values = np.zeros(max_state_count)  # Initialize array for all states
             for entry in mode_participation:
                 try:
@@ -101,7 +102,11 @@ def heatmap(testResults):
         except (IndexError, ValueError):
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
-    # X-axis: Modes, Y-axis: State Variables
+    # Adjust mode_range to include all modes and ensure alignment
+    if len(heatmap_data) < mode_range:  # Check if any mode data is missing
+        heatmap_data += [np.zeros(max_state_count)] * (mode_range - len(heatmap_data))
+
+    # X-axis: Correct mode labels
     mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
     heatmap_fig = px.imshow(
         np.array(heatmap_data).T,  # Transpose to align modes (columns) and states (rows)
@@ -112,4 +117,3 @@ def heatmap(testResults):
         title=f"Participation Factors Heatmap for Parameter {selected_parameter}"
     )
     st.plotly_chart(heatmap_fig)
-
