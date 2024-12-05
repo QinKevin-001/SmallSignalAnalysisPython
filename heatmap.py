@@ -12,7 +12,7 @@ def heatmap(testResults):
     # Extract parameters and modes
     parameter_list = [str(row[0]) for row in testResults[1:]]
     modes = testResults[1][4]  # Modes for the first parameter
-    mode_range = len(modes)  # Correct total number of modes
+    mode_range = len(modes)  # Correct total number of modes (should be 8)
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
@@ -41,13 +41,19 @@ def heatmap(testResults):
     # Participation factors
     try:
         participation_factors = mode_data[5] if len(mode_data) > 5 else []
-        valid_factors = [
-            entry for entry in participation_factors
-            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
-        ]
-        state_locations = [entry[0] for entry in valid_factors]
-        factor_magnitudes = [entry[2] for entry in valid_factors]
-        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+        if participation_factors:
+            valid_factors = [
+                entry for entry in participation_factors
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+            ]
+            state_locations = [entry[0] for entry in valid_factors]
+            factor_magnitudes = [entry[2] for entry in valid_factors]
+            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+        else:
+            valid_factors = []
+            state_locations = []
+            factor_magnitudes = []
+            dominant_state_names = []
     except (IndexError, ValueError, TypeError):
         st.error("Error parsing participation factors.")
         return
