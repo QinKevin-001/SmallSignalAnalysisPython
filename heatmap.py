@@ -11,20 +11,21 @@ def heatmap(testResults):
 
     # Extract parameters and modes
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])  # Total number of modes
+    modes = testResults[1][4]  # Modes for the first parameter
+    mode_range = len(modes)  # Correct total number of modes
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)
 
-    # Slider: Ensure range matches mode data (1-based indexing for user)
+    # Slider with exact mode range (1 to mode_range)
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
     mode_index = selected_mode - 1  # Convert to 0-based indexing for internal use
 
     # Extract data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
     try:
-        mode_data = parameter_data[4][mode_index]  # Mode data for the selected mode
+        mode_data = parameter_data[4][mode_index]  # Fetch mode-specific data
     except IndexError:
         st.error("Mode data is unavailable.")
         return
