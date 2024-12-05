@@ -14,6 +14,9 @@ def heatmap(testResults):
     modes = testResults[1][4]  # Modes for the first parameter
     mode_range = len(modes)  # Correct total number of modes (should be 8)
 
+    # DEBUG: Print mode_range to confirm it's 8
+    st.write(f"Detected mode range: {mode_range} (should be 8)")
+
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)
