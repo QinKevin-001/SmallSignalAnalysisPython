@@ -71,12 +71,15 @@ def heatmap(testResults):
 
     # Pie Chart for Selected Parameter and Mode
     st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
-    pie_chart_fig = px.pie(
-        names=dominant_state_names,
-        values=factor_magnitudes,
-        title=f"Participation Factor Distribution for Parameter {selected_parameter}, Mode {selected_mode}"
-    )
-    st.plotly_chart(pie_chart_fig)
+    if factor_magnitudes:
+        pie_chart_fig = px.pie(
+            names=dominant_state_names,
+            values=factor_magnitudes,
+            title=f"Participation Factor Distribution for Parameter {selected_parameter}, Mode {selected_mode}"
+        )
+        st.plotly_chart(pie_chart_fig)
+    else:
+        st.warning("No participation factor data available for this mode.")
 
     # Heatmap for Each Parameter
     st.subheader("Heatmap of Participation Factors for All Modes (Per Parameter)")
