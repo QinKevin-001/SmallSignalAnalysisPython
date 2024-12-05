@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import plotly.express as px
 
@@ -18,7 +17,7 @@ def heatmap(testResults):
     # Sidebar for parameter and mode selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)  # Get index of selected parameter
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
+    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)  # Correct slider range
     mode_index = selected_mode - 1  # Adjust for zero-based indexing
 
     # Extracting data for the selected parameter and mode
@@ -102,8 +101,8 @@ def heatmap(testResults):
         except (IndexError, ValueError):
             heatmap_data.append(np.zeros(max_state_count))  # Handle missing modes gracefully
 
-    # Adjust mode_range to include all modes and ensure alignment
-    if len(heatmap_data) < mode_range:  # Check if any mode data is missing
+    # Ensure heatmap_data aligns with mode labels
+    if len(heatmap_data) < mode_range:
         heatmap_data += [np.zeros(max_state_count)] * (mode_range - len(heatmap_data))
 
     # X-axis: Correct mode labels
