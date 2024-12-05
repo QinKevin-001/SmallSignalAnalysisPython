@@ -3,3 +3,5 @@ sympy
 seaborn
 matplotlib
 plotly
+numpy
+streamlit

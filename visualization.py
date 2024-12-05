@@ -63,8 +63,6 @@ def visualization(testResults):
             factor_magnitudes = [entry[2] for entry in valid_factors]
             dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
         else:
-            valid_factors = []
-            state_locations = []
             factor_magnitudes = []
             dominant_state_names = []
     except (IndexError, ValueError, TypeError):
