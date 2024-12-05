@@ -4,9 +4,14 @@ import plotly.express as px
 
 def visualization(testResults):
     # State variable mapping
+    #state_variables = [
+    #    "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
+    #    "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+    #]
     state_variables = [
-        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        "thetaPlant0", "epsilonPLL0", "wPlant0", "epsilonP0", "epsilonQ0",
+                                   "PoPlant0", "QoPlant0", "Theta0", "Po0", "Qo0", "Phid0", "Phiq0",
+                                   "Gammad0", "Gammaq0", "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
     ]
 
     # Extract parameters and modes

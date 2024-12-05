@@ -3,6 +3,7 @@
 #Critical imports
 import numpy as np
 from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
+from visualization import visualization
 
 #Optional imports (plotting & file export)
 from plott import plott
@@ -50,6 +51,7 @@ def main_droopPlant_infinite():
         ])
 
     plott(testResults)
+    visualization(testResults)
     #flatten_column_major(testResults)
 
 if __name__ == "__main__":
