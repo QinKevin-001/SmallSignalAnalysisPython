@@ -7,7 +7,7 @@ from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
 #Optional imports (plotting & file export)
 from plott import plott
 from toCSV import flatten_column_major
-from streamlit import streamlit
+from streamlit import visualization
 
 def main_droop_infinite():
     # Parameters
@@ -44,7 +44,7 @@ def main_droop_infinite():
         ])
 
     plott(testResults)
-    streamlit(testResults)
+    visualization(testResults)
     flatten_column_major(testResults)
 
 if __name__ == "__main__":

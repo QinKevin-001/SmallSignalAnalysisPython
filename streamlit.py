@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import plotly.express as px
 
-def streamlit(testResults):
+def visualization(testResults):
     # State variable mapping
     state_variables = [
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
