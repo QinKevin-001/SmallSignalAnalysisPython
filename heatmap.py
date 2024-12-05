@@ -11,20 +11,20 @@ def heatmap(testResults):
 
     # Extract parameters and modes
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])  # Total number of modes
+    mode_range = len(testResults[1][4])  # Total number of modes in the data
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)
 
-    # Slider: Ensure range matches exactly with available modes (no extra or missing modes)
+    # Correct slider range to match mode data exactly
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)  # 1-based slider
     mode_index = selected_mode - 1  # Convert to 0-based indexing for internal use
 
     # Get data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
     try:
-        mode_data = parameter_data[4][mode_index]
+        mode_data = parameter_data[4][mode_index]  # Exact mode data for the selected mode
     except IndexError:
         st.error("Mode data is unavailable.")
         return
@@ -75,20 +75,20 @@ def heatmap(testResults):
     st.subheader("Heatmap of Participation Factors for All Modes")
     heatmap_data = []
     for mode_idx in range(mode_range):
-        mode_values = np.zeros(len(state_variables))
+        mode_values = np.zeros(len(state_variables))  # Initialize all-zero participation values
         try:
             mode_participation = parameter_data[4][mode_idx][5]
             for entry in mode_participation:
                 if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                    mode_values[entry[0] - 1] = entry[2]  # Map state to 0-based index
+                    mode_values[entry[0] - 1] = entry[2]  # Map to 0-based index
         except (IndexError, ValueError):
             pass
         heatmap_data.append(mode_values)
 
     # Correct heatmap data alignment
-    mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]  # Properly aligned labels
+    mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]  # Labels aligned to 1-based mode numbering
     heatmap_fig = px.imshow(
-        np.array(heatmap_data).T,  # Transpose to align modes (columns) and states (rows)
+        np.array(heatmap_data).T,
         x=mode_labels,
         y=state_variables,
         labels={"color": "Participation Factor"},
