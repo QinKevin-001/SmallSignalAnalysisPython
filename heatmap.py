@@ -11,13 +11,15 @@ def heatmap(testResults):
 
     # Extract parameters and modes
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    mode_range = len(testResults[1][4])  # Number of modes available
+    mode_range = len(testResults[1][4])  # Total number of modes
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
     parameter_index = parameter_list.index(selected_parameter)
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)  # Mode range is 1-based
-    mode_index = selected_mode - 1  # Convert to 0-based indexing
+
+    # Slider: Ensure range matches exactly with available modes (no extra or missing modes)
+    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)  # 1-based slider
+    mode_index = selected_mode - 1  # Convert to 0-based indexing for internal use
 
     # Get data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
@@ -83,10 +85,10 @@ def heatmap(testResults):
             pass
         heatmap_data.append(mode_values)
 
-    # Create heatmap
-    mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
+    # Correct heatmap data alignment
+    mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]  # Properly aligned labels
     heatmap_fig = px.imshow(
-        np.array(heatmap_data).T,
+        np.array(heatmap_data).T,  # Transpose to align modes (columns) and states (rows)
         x=mode_labels,
         y=state_variables,
         labels={"color": "Participation Factor"},
