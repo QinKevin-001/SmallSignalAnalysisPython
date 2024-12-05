@@ -31,7 +31,7 @@ def main_droop_infinite():
         # Interested Parameter
         parasIBR['mp'] = 0.11 - 0.01 * i
         # Small-signal Stability Analysis
-        dominantParticipationFactorBoundary = 0.00001
+        dominantParticipationFactorBoundary = 0.0000000001
         Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
         # Output
         testResults.append([
