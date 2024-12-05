@@ -11,11 +11,21 @@ def heatmap(testResults):
 
     # Extract parameters and modes
     parameter_list = [str(row[0]) for row in testResults[1:]]
-    modes = testResults[1][4][1:]  # Skip the header row to get actual mode data
-    mode_range = len(modes)  # Correct total number of modes
+    mode_data_raw = testResults[1][4]  # Raw mode data, including potential headers
+
+    # DEBUG: Display the first row of the mode data
+    st.write(f"First row of mode data: {mode_data_raw[0]}")
+
+    # Check if the first row is a header
+    if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
+        modes = mode_data_raw[1:]  # Exclude the header row
+    else:
+        modes = mode_data_raw  # No header row, use all rows
+
+    mode_range = len(modes)  # Correct number of modes
 
     # DEBUG: Confirm the corrected mode range
-    st.write(f"Detected mode range: {mode_range} (should be 8)")
+    st.write(f"Detected mode range after header check: {mode_range} (should be 8)")
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
@@ -28,7 +38,7 @@ def heatmap(testResults):
     # Extract data for the selected parameter and mode
     parameter_data = testResults[parameter_index + 1]
     try:
-        mode_data = parameter_data[4][mode_index + 1]  # Skip the header row (0-based indexing)
+        mode_data = modes[mode_index]  # Fetch mode-specific data (already header-adjusted)
     except IndexError:
         st.error("Mode data is unavailable.")
         return
@@ -87,7 +97,7 @@ def heatmap(testResults):
     for mode_idx in range(mode_range):
         mode_values = np.zeros(len(state_variables))  # Initialize all-zero participation values
         try:
-            mode_participation = parameter_data[4][mode_idx + 1][5]  # Skip header row
+            mode_participation = modes[mode_idx][5]
             for entry in mode_participation:
                 if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
                     mode_values[entry[0] - 1] = entry[2]  # Map to 0-based index
