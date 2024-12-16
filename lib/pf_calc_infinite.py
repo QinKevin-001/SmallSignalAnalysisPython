@@ -1,5 +1,3 @@
-#Test confirmed
-
 import numpy as np
 
 def pf_calc_infinite(x, parasIBR):
@@ -7,12 +5,12 @@ def pf_calc_infinite(x, parasIBR):
     Lc = parasIBR['Lc']
 
     imagUnit = 1j
-
     w = 1
     theta1 = 0
-    theta2 = x[0]  # Corrected indexing
+    theta2 = x[0]
     Vabs1 = 1
-    Vabs2 = x[1]  # Corrected indexing
+    Vabs2 = x[1]
+
     Zc = Rc + imagUnit * w * Lc
     V1 = Vabs1 * np.exp(imagUnit * theta1)
     V2 = Vabs2 * np.exp(imagUnit * theta2)

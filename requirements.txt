@@ -1,7 +1,8 @@
-scipy
-sympy
+scipy~=1.13.1
+sympy~=1.13.3
 seaborn
-matplotlib
-plotly
-numpy
-streamlit
+matplotlib~=3.9.2
+plotly~=5.24.1
+numpy~=2.0.2
+streamlit~=1.40.2
+pandas~=2.2.3

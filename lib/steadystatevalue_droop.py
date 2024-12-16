@@ -1,5 +1,3 @@
-#Test confirmed
-
 import numpy as np
 import cmath
 
@@ -14,10 +12,9 @@ def steadystatevalue_droop(w, Vo, Io, parasInverter):
     Lc = parasInverter['Lc']
     KiV = parasInverter['KiV']
     KiC = parasInverter['KiC']
-
     # Calculation
     imagUnit = 1j
-    Vb = Vo - (Rc + imagUnit*w*Lc)*Io
+    Vb = Vo - (Rc + imagUnit * w * Lc) * Io
     VbD = Vb.real
     VbQ = Vb.imag
     VoAbs = abs(Vo)
@@ -26,35 +23,34 @@ def steadystatevalue_droop(w, Vo, Io, parasInverter):
     Voq = 0
     IoAbs = abs(Io)
     IoAngle = cmath.phase(Io)
-    Iod = IoAbs*np.cos(IoAngle - VoAngle)
-    Ioq = IoAbs*np.sin(IoAngle - VoAngle)
-    Po = Vod*Iod + Voq*Ioq
-    Qo = Voq*Iod - Vod*Ioq
-    Ic = Vo/(Rd + 1/(imagUnit*w*Cf))
-    Vc = Vo - Rd*Ic
+    Iod = IoAbs * np.cos(IoAngle - VoAngle)
+    Ioq = IoAbs * np.sin(IoAngle - VoAngle)
+    Po = Vod * Iod + Voq * Ioq
+    Qo = Voq * Iod - Vod * Ioq
+    Ic = Vo / (Rd + 1 / (imagUnit * w * Cf))
+    Vc = Vo - Rd * Ic
     VcAbs = abs(Vc)
     VcAngle = cmath.phase(Vc)
-    Vcd = VcAbs*np.cos(VcAngle - VoAngle)
-    Vcq = VcAbs*np.sin(VcAngle - VoAngle)
+    Vcd = VcAbs * np.cos(VcAngle - VoAngle)
+    Vcq = VcAbs * np.sin(VcAngle - VoAngle)
     Ii = Ic + Io
     IiAbs = abs(Ii)
     IiAngle = cmath.phase(Ii)
-    Iid = IiAbs*np.cos(IiAngle - VoAngle)
-    Iiq = IiAbs*np.sin(IiAngle - VoAngle)
-    Vi = Vo + (Rt + imagUnit*w*Lt)*Ii
+    Iid = IiAbs * np.cos(IiAngle - VoAngle)
+    Iiq = IiAbs * np.sin(IiAngle - VoAngle)
+    Vi = Vo + (Rt + imagUnit * w * Lt) * Ii
     ViAbs = abs(Vi)
     ViAngle = cmath.phase(Vi)
-    Vid = ViAbs*np.cos(ViAngle - VoAngle)
-    Viq = ViAbs*np.sin(ViAngle - VoAngle)
-
+    Vid = ViAbs * np.cos(ViAngle - VoAngle)
+    Viq = ViAbs * np.sin(ViAngle - VoAngle)
     # Output
     Theta0 = VoAngle
     Po0 = Po
     Qo0 = Qo
-    Phid0 = Iid/KiV
-    Phiq0 = Iiq/KiV
-    Gammad0 = (Vid + wset*Lt*Iiq)/KiC
-    Gammaq0 = (Viq - wset*Lt*Iid)/KiC
+    Phid0 = Iid / KiV
+    Phiq0 = Iiq / KiV
+    Gammad0 = (Vid + wset * Lt * Iiq) / KiC
+    Gammaq0 = (Viq - wset * Lt * Iid) / KiC
     Iid0 = Iid
     Iiq0 = Iiq
     Vcd0 = Vcd
