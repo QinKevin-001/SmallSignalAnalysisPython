@@ -1,7 +1,6 @@
 import numpy as np
 import cmath
 
-
 def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     # Parameters
     KiPLLplant = parasIBR['KiPLLplant']
