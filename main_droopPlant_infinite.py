@@ -3,8 +3,8 @@ import numpy as np
 from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
 #Optional imports (plotting & file export)
 from plott import plott
-from toCSV import flatten_column_major
 from visualization import visualization
+from Testing.toCSV import flatten_column_major
 
 def main_droopPlant_infinite():
     # Parameters

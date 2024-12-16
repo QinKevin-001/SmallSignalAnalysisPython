@@ -3,8 +3,8 @@ import numpy as np
 from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
 #Optional imports (plotting & file export)
 from plott import plott
-from toCSV import flatten_column_major
 from visualization import visualization
+from Testing.toCSV import flatten_column_major
 
 def main_droop_infinite():
     # Parameters
@@ -43,7 +43,7 @@ def main_droop_infinite():
 
     plott(testResults)
     visualization(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droop_infinite()
