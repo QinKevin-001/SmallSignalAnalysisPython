@@ -1,5 +1,8 @@
+#Test confirmed
+
 import numpy as np
 import cmath
+
 
 def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     # Parameters
@@ -21,6 +24,7 @@ def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     Lc = parasIBR['Lc']
     KiV = parasIBR['KiV']
     KiC = parasIBR['KiC']
+
     # Calculation
     VbAngle = cmath.phase(Vb)
     VbD = Vb.real
@@ -56,6 +60,7 @@ def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     ViAngle = cmath.phase(Vi)
     Vid = ViAbs * np.cos(ViAngle - VoAngle)
     Viq = ViAbs * np.sin(ViAngle - VoAngle)
+
     # Output
     thetaPlant0 = VbAngle
     epsilonPLL0 = (w - wsetPlant) / KiPLLplant
@@ -81,6 +86,7 @@ def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     steadyStateValuesX = np.array([thetaPlant0, epsilonPLL0, wPlant0, epsilonP0, epsilonQ0,
                                    PoPlant0, QoPlant0, Theta0, Po0, Qo0, Phid0, Phiq0,
                                    Gammad0, Gammaq0, Iid0, Iiq0, Vcd0, Vcq0, Iod0, Ioq0])
+
     steadyStateValuesU = np.array([VbD, VbQ, w])
 
     return steadyStateValuesX, steadyStateValuesU

@@ -1,3 +1,5 @@
+#Test confirmed
+
 import numpy as np
 import cmath
 
@@ -5,6 +7,7 @@ def steadystatevalue_droopSimplified(w, Vo, Io, parasInverter):
     # Parameters
     Rc = parasInverter['Rc']
     Lc = parasInverter['Lc']
+
     # Calculation
     imagUnit = 1j
     Vb = Vo - (Rc + imagUnit*w*Lc)*Io
@@ -20,6 +23,7 @@ def steadystatevalue_droopSimplified(w, Vo, Io, parasInverter):
     Ioq = IoAbs * np.sin(IoAngle - VoAngle)
     Po = Vod*Iod + Voq*Ioq
     Qo = Voq*Iod - Vod*Ioq
+
     # Output
     Theta0 = VoAngle
     Po0 = Po

@@ -1,3 +1,5 @@
+#Test confirmed
+
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_infinite import pf_func_ibr_infinite
@@ -9,6 +11,7 @@ from lib.eigenvalue_analysis import eigenvalue_analysis
 def ssmodel_droopSimplified_infinite(wbase, parasIBR, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([0, 1])
+    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}  # Levenberg-Marquardt equivalent options
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibr_infinite(x, parasIBR),
         x0,

@@ -5,10 +5,7 @@ import sympy as sp
 
 def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
     # Define symbolic variables
-    (thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, theta, Po, Qo, phid, phiq, gammad,
-     gammaq, iid, iiq, vcd, vcq, iod, ioq) = (
-        sp.symbols('thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant theta Po Qo phid phiq gammad'
-                   ' gammaq iid iiq vcd vcq iod ioq'))
+    thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq = sp.symbols('thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant theta Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq')
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
 
     # Parameters
@@ -41,6 +38,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     KpC = parasIBR['KpC']
     KiC = parasIBR['KiC']
     wc = parasIBR['wc']
+
     # Algebraic equations
     vbqPlant = -vbD*sp.sin(thetaPlant) + vbQ*sp.cos(thetaPlant)
     wpllPlant = KpPLLplant*vbqPlant + KiPLLplant*epsilonPLLPlant + wsetPlant
@@ -62,6 +60,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     viqRef = KpC*(iiqRef - iiq) + KiC*gammaq + wset*Lt*iid
     ioD = (iod*sp.cos(theta) - ioq*sp.sin(theta))
     ioQ = (iod*sp.sin(theta) + ioq*sp.cos(theta))
+
     # Ordinary differential equations
     f = sp.Matrix([
         wbase*(wpllPlant - wcom),
@@ -85,30 +84,34 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
         wbase*(vod - vbd - Rc*iod + winv*Lc*ioq)/Lc,
         wbase*(voq - vbq - Rc*ioq - winv*Lc*iod)/Lc
     ])
+
     # State-Space Matrices
-    stateVariables = ['thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ', 'PoPlant', 'QoPlant', 'theta',
-                      'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
-    x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, theta, Po, Qo, phid, phiq,
-                   gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
+    stateVariables = ['thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ', 'PoPlant', 'QoPlant', 'theta', 'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
+    x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
+
     # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian([wcom])
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
     CwSym = winv.diff(x)
+
     # Ensure steadyStateValuesX and steadyStateValuesU are 1D arrays
     steadyStateValuesX = steadyStateValuesX.flatten()
     steadyStateValuesU = steadyStateValuesU.flatten()
+
     # Substitute steady-state values
-    subs_dict = dict(zip(np.ravel(x).tolist() + np.ravel(u).tolist(), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
+    subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
     A = Asym.subs(subs_dict).evalf()
     B = Bsym.subs(subs_dict).evalf()
     Bw = BwSym.subs(subs_dict).evalf()
     C = Csym.subs(subs_dict).evalf()
     Cw = CwSym.subs(subs_dict).evalf()
+
     if isRef == 0:
         Cw = sp.zeros(1, 20)
+
     # Convert symbolic matrices to numerical arrays
     stateMatrix = {
         'A': np.array(A).astype(float),
