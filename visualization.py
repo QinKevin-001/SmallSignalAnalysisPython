@@ -19,7 +19,7 @@ def visualization(testResults):
     mode_data_raw = testResults[1][4]  # Raw mode data, including potential headers
 
     # DEBUG: Display the first row of the mode data
-    st.write(f"First row of mode data: {mode_data_raw[0]}")
+    #st.write(f"First row of mode data: {mode_data_raw[0]}")
 
     # Check if the first row is a header
     if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
@@ -30,7 +30,7 @@ def visualization(testResults):
     mode_range = len(modes)  # Correct number of modes
 
     # DEBUG: Confirm the corrected mode range
-    st.write(f"Detected mode range after header check: {mode_range} (should be 8)")
+    #st.write(f"Detected mode range after header check: {mode_range} (should be 8)")
 
     # Sidebar for user selection
     selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
