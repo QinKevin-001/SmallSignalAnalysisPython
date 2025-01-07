@@ -41,6 +41,5 @@ def main_droopSimplified_infinite():
     visualization(testResults)
     #flatten_column_major(testResults)
 
-
 if __name__ == "__main__":
     main_droopSimplified_infinite()
