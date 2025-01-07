@@ -32,7 +32,7 @@ def main_droopPlant_infinite():
 
     for i in range(1, 11):
         # Interested Parameter
-        parasIBR['PsetPlant'] = 0.1 * i - 0.1
+        parasIBR['PsetPlant'] = 0.1 * i
 
         # Small-signal Stability Analysis
         dominantParticipationFactorBoundary = 0.10
@@ -48,9 +48,9 @@ def main_droopPlant_infinite():
             pfExitFlag
         ])
 
-    plott(testResults)
-    visualization(testResults)
-    #flatten_column_major(testResults)
+    #plott(testResults)
+    #visualization(testResults)
+    flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droopPlant_infinite()
