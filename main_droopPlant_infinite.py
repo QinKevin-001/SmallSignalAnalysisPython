@@ -48,9 +48,9 @@ def main_droopPlant_infinite():
             pfExitFlag
         ])
 
-    #plott(testResults)
-    #visualization(testResults)
-    flatten_column_major(testResults)
+    plott(testResults)
+    visualization(testResults)
+    #flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droopPlant_infinite()
