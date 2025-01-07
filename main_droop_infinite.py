@@ -1,13 +1,10 @@
-#Test confirmed
-
 #Critical imports
 import numpy as np
 from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
-
 #Optional imports (plotting & file export)
 from plott import plott
-from toCSV import flatten_column_major
 from visualization import visualization
+from Testing.toCSV import flatten_column_major
 
 def main_droop_infinite():
     # Parameters
@@ -32,7 +29,8 @@ def main_droop_infinite():
         parasIBR['mp'] = 0.11 - 0.01 * i
         # Small-signal Stability Analysis
         dominantParticipationFactorBoundary = 0.10
-        Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
+        Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
+            ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary))
         # Output
         testResults.append([
             parasIBR['mp'],

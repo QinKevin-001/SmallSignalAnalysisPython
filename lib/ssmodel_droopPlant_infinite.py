@@ -3,15 +3,14 @@
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibrPlant_infinite import pf_func_ibrPlant_infinite
-from lib.pf_calc_infinite import pf_calc_infinite #
+from lib.pf_calc_infinite import pf_calc_infinite
 from lib.steadystatevalue_droopPlant import steadystatevalue_droopPlant
 from lib.ssmodel_droopPlant import ssmodel_droopPlant
-from lib.eigenvalue_analysis import eigenvalue_analysis #
+from lib.eigenvalue_analysis import eigenvalue_analysis
 
 def ssmodel_droopPlant_infinite(wbase, parasIBR, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([0, 1])
-    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}  # Levenberg-Marquardt equivalent options
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibrPlant_infinite(x, parasIBR),
         x0,
