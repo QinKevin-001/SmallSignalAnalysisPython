@@ -38,8 +38,9 @@ def main_droopSimplified_infinite():
             pfExitFlag  # Participation factor exit flag
         ])
 
-    plott(testResults)
-    #flatten_column_major(testResults)
+    #plott(testResults)
+    #visualization(testResults)
+    flatten_column_major(testResults)
 
 if __name__ == "__main__":
     main_droopSimplified_infinite()

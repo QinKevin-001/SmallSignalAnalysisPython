@@ -43,8 +43,8 @@ def main_droop_infinite():
             pfExitFlag
         ])
 
-    plott(testResults)
-    visualization(testResults)
+    #plott(testResults)
+    #visualization(testResults)
     flatten_column_major(testResults)
 
 if __name__ == "__main__":
