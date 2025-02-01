@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droop_infinite  # Assuming this script is properly structured as a callable function
+import main_droop_infinite  # Import simulation script without circular dependency
 
 # Variable limits
 variable_ranges = {
@@ -15,7 +15,6 @@ variable_ranges = {
     "Lc": (0.01, 1.0),
     "ωc": (2 * np.pi * 1, 2 * np.pi * 20)
 }
-
 
 def get_user_inputs():
     """Creates user input controls for variable tuning"""
@@ -33,12 +32,10 @@ def get_user_inputs():
 
     return user_params
 
-
 def run_simulation(user_params):
     """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    testResults = main_droop_infinite.run_simulation(user_params)  # Ensure function returns results
+    testResults = main_droop_infinite.main_droop_infinite(user_params)  # Fixed function call
     return testResults
-
 
 def visualization(testResults):
     """Generates plots based on testResults"""
@@ -136,7 +133,6 @@ def visualization(testResults):
     )
     st.plotly_chart(heatmap_fig)
 
-
 def main():
     """Main function to handle user input, simulation, and visualization"""
     st.title("Droop Infinite System Analysis")
@@ -146,8 +142,7 @@ def main():
     if st.sidebar.button("Run Simulation"):
         st.sidebar.write("Running simulation with updated parameters...")
         testResults = run_simulation(user_params)
-        visualization(testResults)
-
+        visualization(testResults)  # Call visualization separately
 
 if __name__ == "__main__":
     main()
