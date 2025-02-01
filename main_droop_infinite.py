@@ -6,14 +6,8 @@ from plott import plott
 from Testing.toCSV import flatten_column_major
 
 def main_droop_infinite(user_params=None):
-    """
-    Runs the small-signal stability simulation.
-    If user_params is provided, it overrides the default parameters.
-    """
     # Base angular frequency
     wbase = 2 * np.pi * 60
-
-    # Default parameters
     parasIBR = {
         'Pset': 1.0, 'Qset': 0.0,  # setpoints
         'wset': 1.0, 'Vset': 1.0,  # setpoints

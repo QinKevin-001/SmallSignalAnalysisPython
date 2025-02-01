@@ -1,9 +1,9 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droop_infinite  # Import main_droop_infinite but without circular dependency
+import main_droop_infinite  # Import simulation script without circular dependency
 
-# Variable limits
+# Variable limits (ωc rounded to two decimal places)
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
@@ -13,7 +13,7 @@ variable_ranges = {
     "mq": (0.01, 1.00),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "ωc": (2 * np.pi * 1, 2 * np.pi * 20)
+    "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded to two decimal places
 }
 
 def get_user_inputs():
@@ -26,8 +26,8 @@ def get_user_inputs():
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=(min_val + max_val) / 2.0,
-            step=(max_val - min_val) / 100
+            value=round((min_val + max_val) / 2.0, 2),  # Ensure default value is also rounded
+            step=round((max_val - min_val) / 100, 2)
         )
 
     return user_params
