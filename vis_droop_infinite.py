@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droop_infinite  # Import simulation script without circular dependency
+import main_droop_infinite  # Import main_droop_infinite but without circular dependency
 
 # Variable limits
 variable_ranges = {
@@ -34,8 +34,7 @@ def get_user_inputs():
 
 def run_simulation(user_params):
     """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    testResults = main_droop_infinite.main_droop_infinite(user_params)  # Fixed function call
-    return testResults
+    return main_droop_infinite.main_droop_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):
     """Generates plots based on testResults"""
@@ -44,7 +43,6 @@ def visualization(testResults):
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
     ]
 
-    parameter_list = [str(row[0]) for row in testResults[1:]]
     mode_data_raw = testResults[1][4]
 
     if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
@@ -54,13 +52,10 @@ def visualization(testResults):
 
     mode_range = len(modes)
 
-    selected_parameter = st.sidebar.selectbox("Select a Parameter", parameter_list)
-    parameter_index = parameter_list.index(selected_parameter)
-
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
     mode_index = selected_mode - 1
 
-    parameter_data = testResults[parameter_index + 1]
+    parameter_data = testResults[1]
     try:
         mode_data = modes[mode_index]
     except IndexError:
@@ -91,7 +86,7 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    st.header(f"Parameter: {selected_parameter} | Mode {selected_mode}")
+    st.header(f"Mode {selected_mode}")
     st.subheader("Eigenvalue Information")
     st.write(f"**Real Part:** {eigenvalue_real}")
     st.write(f"**Imaginary Part:** {eigenvalue_imag}")
@@ -103,7 +98,7 @@ def visualization(testResults):
         pie_chart_fig = px.pie(
             names=dominant_state_names,
             values=factor_magnitudes,
-            title=f"Participation Factor Distribution for Parameter {selected_parameter}, Mode {selected_mode}"
+            title=f"Participation Factor Distribution for Mode {selected_mode}"
         )
         st.plotly_chart(pie_chart_fig)
     else:
@@ -129,20 +124,17 @@ def visualization(testResults):
         y=state_variables,
         labels={"color": "Participation Factor"},
         color_continuous_scale="Blues",
-        title=f"Participation Factors Heatmap for Parameter {selected_parameter}"
+        title=f"Participation Factors Heatmap"
     )
     st.plotly_chart(heatmap_fig)
 
 def main():
-    """Main function to handle user input, simulation, and visualization"""
+    """Main function to handle user input, simulation, and visualization dynamically"""
     st.title("Droop Infinite System Analysis")
 
     user_params = get_user_inputs()
-
-    if st.sidebar.button("Run Simulation"):
-        st.sidebar.write("Running simulation with updated parameters...")
-        testResults = run_simulation(user_params)
-        visualization(testResults)  # Call visualization separately
+    testResults = run_simulation(user_params)  # Run simulation dynamically on input change
+    visualization(testResults)  # Update visualization dynamically
 
 if __name__ == "__main__":
     main()
