@@ -3,6 +3,9 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
+# Set the page to use the full width
+st.set_page_config(layout="wide")
+
 # Updated Variable Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
@@ -101,8 +104,8 @@ def visualization(testResults):
     st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
     st.write(f"**Damping Ratio:** {mode_data[4]}")
 
-    # Layout for Pie Chart and Heatmap (Side by Side)
-    col1, col2 = st.columns(2)
+    # Layout for Pie Chart and Heatmap (Full Width)
+    col1, col2 = st.columns([1, 1])  # Equal width columns
 
     with col1:
         st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
@@ -110,9 +113,10 @@ def visualization(testResults):
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title=f"Participation Factor Distribution for Mode {selected_mode}"
+                title=f"Participation Factor Distribution for Mode {selected_mode}",
+                width=700, height=500  # Adjusted size for full width
             )
-            st.plotly_chart(pie_chart_fig)
+            st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
 
@@ -137,9 +141,10 @@ def visualization(testResults):
             y=state_variables,
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
-            title=f"Participation Factors Heatmap"
+            title=f"Participation Factors Heatmap",
+            width=700, height=500  # Adjusted size for full width
         )
-        st.plotly_chart(heatmap_fig)
+        st.plotly_chart(heatmap_fig, use_container_width=True)
 
 def main():
     """Main function to handle user input, simulation, and visualization dynamically"""
