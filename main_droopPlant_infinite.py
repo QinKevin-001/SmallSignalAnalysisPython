@@ -3,19 +3,11 @@ import numpy as np
 from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
 # Optional imports (plotting & file export)
 from plott import plott
-from vis_droopPlant_infinite import visualization
 from Testing.toCSV import flatten_column_major
 
-
 def main_droopPlant_infinite(user_params=None):
-    """
-    Runs the small-signal stability simulation.
-    If user_params is provided, it overrides the default parameters.
-    """
     # Base angular frequency
     wbase = 2 * np.pi * 60
-
-    # Default parameters
     parasIBR = {
         'PsetPlant': 1.0, 'QsetPlant': 0.0,
         'wsetPlant': 1.0, 'VsetPlant': 1.0,
@@ -61,10 +53,10 @@ def main_droopPlant_infinite(user_params=None):
     ])
 
     #plott(testResults)
-    visualization(testResults)
+    # flatten_column_major(testResults)  # Uncomment if needed
 
     return testResults
 
-
 if __name__ == "__main__":
-    main_droopPlant_infinite()
+    results = main_droopPlant_infinite()
+    print(results)  # Print results when running standalone

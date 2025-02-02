@@ -1,20 +1,19 @@
 import streamlit as st
-
-# Set page layout **before any other Streamlit command**
-st.set_page_config(layout="wide")
-
 import numpy as np
 import plotly.express as px
 import main_droopPlant_infinite  # Import simulation script without circular dependency
+
+# Set page layout **before any other Streamlit command**
+st.set_page_config(layout="wide")
 
 # Updated Variable Limits
 variable_ranges = {
     "PsetPlant": (0.0, 1.0),
     "QsetPlant": (-1.0, 1.0),
-    "wsetPlant": (1.0, 1.0),
+    "ωsetPlant": (1.0, 1.0),  # Fixed
     "VsetPlant": (0.9, 1.1),
-    "mpPlant": (0.01, 1.00),  # FIXED: ADDED mpPlant
-    "mqPlant": (0.01, 1.00),  # FIXED: ADDED mqPlant
+    "mpPlant": (0.01, 1.00),
+    "mqPlant": (0.01, 1.00),
     "KpPLLplant": (0.1, 10.0),
     "KiPLLplant": (0.1, 1000.0),
     "KpPlantP": (0.1, 10.0),
@@ -23,7 +22,7 @@ variable_ranges = {
     "KiPlantQ": (0.1, 100.0),
     "wcpllPlant": (round(2 * np.pi * 50, 2), round(2 * np.pi * 1000, 2)),
     "wcPlant": (round(2 * np.pi * 0.1, 2), round(2 * np.pi * 5, 2)),
-    "ωset": (1.0, 1.0),
+    "ωset": (1.0, 1.0),  # Fixed
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
     "mq": (0.01, 1.00),
@@ -64,7 +63,9 @@ def visualization(testResults):
     """Generates plots based on testResults"""
     state_variables = [
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "ThetaPlant",
+        "epsilonPLLPlant", "wPlant", "epsilonP", "epsilonQ", "PoPlant",
+        "QoPlant"
     ]
 
     mode_data_raw = testResults[1][4]

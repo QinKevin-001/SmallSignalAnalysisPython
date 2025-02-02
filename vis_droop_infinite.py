@@ -97,13 +97,6 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    #st.header(f"Mode {selected_mode}")
-    #st.subheader("Eigenvalue Information")
-    #st.write(f"**Real Part:** {eigenvalue_real}")
-    #st.write(f"**Imaginary Part:** {eigenvalue_imag}")
-    #st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
-    #st.write(f"**Damping Ratio:** {mode_data[4]}")
-
     # Layout for Pie Chart and Heatmap (Full Width)
     col1, col2 = st.columns([1, 1])  # Equal width columns
 
