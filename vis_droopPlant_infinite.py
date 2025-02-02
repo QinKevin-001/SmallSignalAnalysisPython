@@ -13,6 +13,8 @@ variable_ranges = {
     "QsetPlant": (-1.0, 1.0),
     "ωsetPlant": (1.0, 1.0),
     "VsetPlant": (0.9, 1.1),
+    "mpPlant": (0.01, 1.00),  # FIXED: ADDED mpPlant
+    "mqPlant": (0.01, 1.00),  # FIXED: ADDED mqPlant
     "KpPLLPlant": (0.1, 10.0),
     "KiPLLPlant": (0.1, 1000.0),
     "KpPlantP": (0.1, 10.0),
