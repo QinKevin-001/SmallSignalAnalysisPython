@@ -37,7 +37,7 @@ def main_droopPlant_infinite(user_params=None):
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
 
     # Run the simulation
-    dominantParticipationFactorBoundary = 0.10
+    dominantParticipationFactorBoundary = 0.01
     Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
         ssmodel_droopPlant_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
     )
