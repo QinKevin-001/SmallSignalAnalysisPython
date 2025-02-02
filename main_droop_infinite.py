@@ -45,7 +45,7 @@ def main_droop_infinite(user_params=None):
         pfExitFlag
     ])
 
-    plott(testResults)
+    # plott(testResults)
     # flatten_column_major(testResults)  # Uncomment if needed
 
     return testResults  # Now it only returns results without calling visualization

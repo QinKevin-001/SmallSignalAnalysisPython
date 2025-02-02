@@ -97,12 +97,12 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    st.header(f"Mode {selected_mode}")
-    st.subheader("Eigenvalue Information")
-    st.write(f"**Real Part:** {eigenvalue_real}")
-    st.write(f"**Imaginary Part:** {eigenvalue_imag}")
-    st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
-    st.write(f"**Damping Ratio:** {mode_data[4]}")
+    #st.header(f"Mode {selected_mode}")
+    #st.subheader("Eigenvalue Information")
+    #st.write(f"**Real Part:** {eigenvalue_real}")
+    #st.write(f"**Imaginary Part:** {eigenvalue_imag}")
+    #st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
+    #st.write(f"**Damping Ratio:** {mode_data[4]}")
 
     # Layout for Pie Chart and Heatmap (Full Width)
     col1, col2 = st.columns([1, 1])  # Equal width columns
@@ -114,7 +114,7 @@ def visualization(testResults):
                 names=dominant_state_names,
                 values=factor_magnitudes,
                 title=f"Participation Factor Distribution for Mode {selected_mode}",
-                width=700, height=500  # Adjusted size for full width
+                width=900, height=700  # Increased size
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
@@ -142,7 +142,7 @@ def visualization(testResults):
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
             title=f"Participation Factors Heatmap",
-            width=700, height=500  # Adjusted size for full width
+            width=900, height=700  # Increased size
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
