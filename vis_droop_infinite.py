@@ -38,7 +38,7 @@ def get_user_inputs():
             min_value=min_val,
             max_value=max_val,
             value=round((min_val + max_val) / 2.0, 2),  # Default value centered
-            step=round((max_val - min_val) / 100, 2)
+            step=round((max_val - min_val) / 1000, 2)
         )
 
     return user_params
