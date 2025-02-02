@@ -13,8 +13,8 @@ variable_ranges = {
     "QsetPlant": (-1.0, 1.0),
     "wsetPlant": (1.0, 1.0),
     "VsetPlant": (0.9, 1.1),
-    "mpPlant": (0.01, 1.00),
-    "mqPlant": (0.01, 1.00),
+    "mpPlant": (0.01, 1.00),  # FIXED: ADDED mpPlant
+    "mqPlant": (0.01, 1.00),  # FIXED: ADDED mqPlant
     "KpPLLplant": (0.1, 10.0),
     "KiPLLplant": (0.1, 1000.0),
     "KpPlantP": (0.1, 10.0),
@@ -62,10 +62,6 @@ def run_simulation(user_params):
 
 def visualization(testResults):
     """Generates plots based on testResults"""
-    if not testResults or len(testResults) < 2:
-        st.warning("No valid simulation results available.")
-        return
-
     state_variables = [
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
@@ -80,12 +76,7 @@ def visualization(testResults):
 
     mode_range = len(modes)
 
-    # Ensure mode_range is valid before creating the slider
-    if mode_range == 0:
-        st.warning("No valid mode data available.")
-        return
-
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
+    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
     mode_index = selected_mode - 1
 
     parameter_data = testResults[1]
