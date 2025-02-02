@@ -60,7 +60,7 @@ def main_droopPlant_infinite(user_params=None):
         pfExitFlag
     ])
 
-    plott(testResults)
+    #plott(testResults)
     visualization(testResults)
 
     return testResults
