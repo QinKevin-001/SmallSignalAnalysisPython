@@ -101,40 +101,45 @@ def visualization(testResults):
     st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
     st.write(f"**Damping Ratio:** {mode_data[4]}")
 
-    st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
-    if factor_magnitudes:
-        pie_chart_fig = px.pie(
-            names=dominant_state_names,
-            values=factor_magnitudes,
-            title=f"Participation Factor Distribution for Mode {selected_mode}"
+    # Layout for Pie Chart and Heatmap (Side by Side)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
+        if factor_magnitudes:
+            pie_chart_fig = px.pie(
+                names=dominant_state_names,
+                values=factor_magnitudes,
+                title=f"Participation Factor Distribution for Mode {selected_mode}"
+            )
+            st.plotly_chart(pie_chart_fig)
+        else:
+            st.warning("No participation factor data available for this mode.")
+
+    with col2:
+        st.subheader("Heatmap of Participation Factors for All Modes")
+        heatmap_data = []
+        for mode_idx in range(mode_range):
+            mode_values = np.zeros(len(state_variables))
+            try:
+                mode_participation = modes[mode_idx][5]
+                for entry in mode_participation:
+                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                        mode_values[entry[0] - 1] = entry[2]
+            except (IndexError, ValueError):
+                pass
+            heatmap_data.append(mode_values)
+
+        mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
+        heatmap_fig = px.imshow(
+            np.array(heatmap_data).T,
+            x=mode_labels,
+            y=state_variables,
+            labels={"color": "Participation Factor"},
+            color_continuous_scale="Blues",
+            title=f"Participation Factors Heatmap"
         )
-        st.plotly_chart(pie_chart_fig)
-    else:
-        st.warning("No participation factor data available for this mode.")
-
-    st.subheader("Heatmap of Participation Factors for All Modes")
-    heatmap_data = []
-    for mode_idx in range(mode_range):
-        mode_values = np.zeros(len(state_variables))
-        try:
-            mode_participation = modes[mode_idx][5]
-            for entry in mode_participation:
-                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                    mode_values[entry[0] - 1] = entry[2]
-        except (IndexError, ValueError):
-            pass
-        heatmap_data.append(mode_values)
-
-    mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
-    heatmap_fig = px.imshow(
-        np.array(heatmap_data).T,
-        x=mode_labels,
-        y=state_variables,
-        labels={"color": "Participation Factor"},
-        color_continuous_scale="Blues",
-        title=f"Participation Factors Heatmap"
-    )
-    st.plotly_chart(heatmap_fig)
+        st.plotly_chart(heatmap_fig)
 
 def main():
     """Main function to handle user input, simulation, and visualization dynamically"""
