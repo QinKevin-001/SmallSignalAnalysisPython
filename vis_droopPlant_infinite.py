@@ -1,10 +1,11 @@
 import streamlit as st
+
+# Set page layout **before any other Streamlit command**
+st.set_page_config(layout="wide")
+
 import numpy as np
 import plotly.express as px
 import main_droopPlant_infinite  # Import simulation script without circular dependency
-
-# Set the page to use the full width
-st.set_page_config(layout="wide")
 
 # Updated Variable Limits
 variable_ranges = {
@@ -107,13 +108,6 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    #st.header(f"Mode {selected_mode}")
-    #st.subheader("Eigenvalue Information")
-    #st.write(f"**Real Part:** {eigenvalue_real}")
-    #st.write(f"**Imaginary Part:** {eigenvalue_imag}")
-    #st.write(f"**Frequency (Hz):** {np.abs(eigenvalue_imag / (2 * np.pi))}")
-    #st.write(f"**Damping Ratio:** {mode_data[4]}")
-
     # Layout for Pie Chart and Heatmap (Full Width)
     col1, col2 = st.columns([1, 1])  # Equal width columns
 
@@ -155,7 +149,6 @@ def visualization(testResults):
             width=900, height=700  # Increased size
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
-
 
 def main():
     """Main function to handle user input, simulation, and visualization dynamically"""
