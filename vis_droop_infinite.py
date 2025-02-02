@@ -3,7 +3,7 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
-# Variable limits (ωc rounded to two decimal places)
+# Variable Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
@@ -11,9 +11,17 @@ variable_ranges = {
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
     "mq": (0.01, 1.00),
+    "Rt": (0.01, 1.0),
+    "Lt": (0.01, 1.0),
+    "Rd": (0.0, 100.0),
+    "Cf": (0.01, 0.20),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded to two decimal places
+    "KpV": (0.1, 10.0),
+    "KiV": (0.1, 1000.0),
+    "KpC": (0.1, 10.0),
+    "KiC": (0.1, 1000.0),
+    "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
 }
 
 def get_user_inputs():
@@ -26,7 +34,7 @@ def get_user_inputs():
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),  # Ensure default value is also rounded
+            value=round((min_val + max_val) / 2.0, 2),  # Default value centered
             step=round((max_val - min_val) / 100, 2)
         )
 
