@@ -20,7 +20,7 @@ def main_droopPlant_infinite(user_params=None):
         'PsetPlant': 1.0, 'QsetPlant': 0.0,
         'wsetPlant': 1.0, 'VsetPlant': 1.0,
         'mpPlant': 0.05, 'mqPlant': 0.05,
-        'KpPLLPlant': 1.0, 'KiPLLPlant': 160,
+        'KpPLLplant': 1.0, 'KiPLLplant': 160,
         'KpPlantP': 0.10, 'KiPlantP': 6.0,
         'KpPlantQ': 0.10, 'KiPlantQ': 6.00,
         'wcpllPlant': 2 * np.pi * 100,
