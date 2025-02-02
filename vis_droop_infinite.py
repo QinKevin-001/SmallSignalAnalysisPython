@@ -3,7 +3,7 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
-# Variable Limits
+# Updated Variable Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
