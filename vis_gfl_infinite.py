@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droop_infinite  # Import simulation script without circular dependency
+import main_gfl_infinite  # Import simulation script without circular dependency
 
 # Set the page to use the full width
 st.set_page_config(layout="wide")
@@ -33,14 +33,26 @@ variable_ranges = {
 def get_user_inputs():
     """Creates user input controls for variable tuning"""
     st.sidebar.header("Simulation Parameters")
-    user_params = {}
+    user_params = {
+        "Pset": 0.1, "Qset": 0.0,
+        "wset": 1.0, "Vset": 1.0,
+        "mp": 1.00, "mq": 1.00,
+        "Rt": 0.02, "Lt": 0.10,
+        "Rd": 0.00, "Cf": 0.05,
+        "Rc": 0.10, "Lc": 0.50,
+        "KpL": 1.8, "KiL": 160 * 2,
+        "KpS": 0.2, "KiS": 5.0,
+        "KpC": 0.4, "KiC": 8.0,
+        "wcPLL": round(2 * np.pi * 100, 2),
+        "wc": round(2 * np.pi * 5, 2)
+    }
 
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),  # Default value centered
+            value=user_params[var],  # Default to predefined values
             step=round((max_val - min_val) / 1000, 2)
         )
 
@@ -48,7 +60,7 @@ def get_user_inputs():
 
 def run_simulation(user_params):
     """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    return main_droop_infinite.main_droop_infinite(user_params)  # Runs simulation automatically
+    return main_gfl_infinite.main_gfl_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):
     """Generates plots based on testResults"""
