@@ -20,8 +20,8 @@ variable_ranges = {
     "KiPlantP": (0.1, 100.0),
     "KpPlantQ": (0.1, 10.0),
     "KiPlantQ": (0.1, 100.0),
-    "wcPLLPlant": (float(2 * np.pi * 50), float(2 * np.pi * 1000)),
-    "wcPlant": (float(2 * np.pi * 0.1), float(2 * np.pi * 5)),
+    "wcPLLPlant": (round(2 * np.pi * 50, 2), round(2 * np.pi * 1000, 2)),
+    "wcPlant": (round(2 * np.pi * 0.1, 2), round(2 * np.pi * 5, 2)),
     "wset": (1.0, 1.0),
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
@@ -38,8 +38,8 @@ variable_ranges = {
     "KiS": (0.1, 1000.0),
     "KpC": (0.1, 10.0),
     "KiC": (0.1, 1000.0),
-    "wcPLL": (float(2 * np.pi * 50), float(2 * np.pi * 1000)),
-    "wc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
+    "wcPLL": (round(2 * np.pi * 50, 2), round(2 * np.pi * 1000, 2)),
+    "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))
 }
 
 # Default parameter values from `main_gflPlant_infinite.py`
