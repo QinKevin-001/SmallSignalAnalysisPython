@@ -12,6 +12,8 @@ variable_ranges = {
     "QsetPlant": (-1.0, 1.0),
     "wsetPlant": (1.0, 1.0),
     "VsetPlant": (0.9, 1.1),
+    "mpPlant": (0.01, 1.00),
+    "mqPlant": (0.01, 1.00),
     "KpPLLPlant": (0.1, 10.0),
     "KiPLLPlant": (0.1, 1000.0),
     "KpPlantP": (0.1, 10.0),
@@ -30,10 +32,13 @@ variable_ranges = {
     "Cf": (0.01, 0.20),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "KpV": (0.1, 10.0),
-    "KiV": (0.1, 1000.0),
+    "KpL": (0.1, 10.0),
+    "KiL": (0.1, 1000.0),
+    "KpS": (0.1, 10.0),
+    "KiS": (0.1, 1000.0),
     "KpC": (0.1, 10.0),
     "KiC": (0.1, 1000.0),
+    "wcPLL": (float(2 * np.pi * 50), float(2 * np.pi * 1000)),
     "wc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
 }
 
@@ -41,6 +46,7 @@ variable_ranges = {
 default_values = {
     "PsetPlant": 1.0, "QsetPlant": 0.0,
     "wsetPlant": 1.0, "VsetPlant": 1.0,
+    "mpPlant": 1.00, "mqPlant": 1.00,
     "KpPLLPlant": 1.8, "KiPLLPlant": 160,
     "KpPlantP": 0.25, "KiPlantP": 9.0,
     "KpPlantQ": 0.20, "KiPlantQ": 20.0,
@@ -51,8 +57,10 @@ default_values = {
     "Rt": 0.02, "Lt": 0.10,
     "Rd": 0.00, "Cf": 0.05,
     "Rc": 0.10, "Lc": 0.50,
-    "KpV": 1.8, "KiV": 160,
+    "KpL": 1.8, "KiL": float(160 * 2),
+    "KpS": 0.2, "KiS": 5.0,
     "KpC": 0.4, "KiC": 8.0,
+    "wcPLL": float(2 * np.pi * 100),
     "wc": float(2 * np.pi * 5)
 }
 
