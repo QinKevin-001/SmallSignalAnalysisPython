@@ -30,30 +30,35 @@ variable_ranges = {
     "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
 }
 
+# Default parameter values (matching `main_gfl_infinite.py`)
+default_values = {
+    "Pset": 0.1, "Qset": 0.0,
+    "wset": 1.0, "Vset": 1.0,
+    "mp": 1.00, "mq": 1.00,
+    "Rt": 0.02, "Lt": 0.10,
+    "Rd": 0.00, "Cf": 0.05,
+    "Rc": 0.10, "Lc": 0.50,
+    "KpL": 1.8, "KiL": 160 * 2,
+    "KpS": 0.2, "KiS": 5.0,
+    "KpC": 0.4, "KiC": 8.0,
+    "wcPLL": round(2 * np.pi * 100, 2),
+    "wc": round(2 * np.pi * 5, 2)
+}
+
 def get_user_inputs():
     """Creates user input controls for variable tuning"""
     st.sidebar.header("Simulation Parameters")
-    user_params = {
-        "Pset": 0.1, "Qset": 0.0,
-        "wset": 1.0, "Vset": 1.0,
-        "mp": 1.00, "mq": 1.00,
-        "Rt": 0.02, "Lt": 0.10,
-        "Rd": 0.00, "Cf": 0.05,
-        "Rc": 0.10, "Lc": 0.50,
-        "KpL": 1.8, "KiL": 160 * 2,
-        "KpS": 0.2, "KiS": 5.0,
-        "KpC": 0.4, "KiC": 8.0,
-        "wcPLL": round(2 * np.pi * 100, 2),
-        "wc": round(2 * np.pi * 5, 2)
-    }
+    user_params = {}  # Initialize as empty dictionary
 
     for var, (min_val, max_val) in variable_ranges.items():
+        default_value = default_values.get(var, (min_val + max_val) / 2.0)  # Fallback if missing
+
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=user_params[var],  # Default to predefined values
-            step=round((max_val - min_val) / 1000, 2)
+            value=default_value,  # Now always safe to access
+            step=round((max_val - min_val) / 1000, 4)
         )
 
     return user_params
