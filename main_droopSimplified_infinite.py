@@ -3,10 +3,9 @@ import numpy as np
 from lib.ssmodel_droopSimplified_infinite import ssmodel_droopSimplified_infinite
 #Optional imports (plotting & file export)
 from plott import plott
-from visualization import visualization
 from Testing.toCSV import flatten_column_major
 
-def main_droopSimplified_infinite():
+def main_droopSimplified_infinite(user_params=None):
     # Parameters
     wbase = 2 * np.pi * 60
     parasIBR = {
@@ -17,30 +16,36 @@ def main_droopSimplified_infinite():
         'wc': 2 * np.pi * 5  # power filter cut-off frequency
     }
 
+    # If user-defined parameters exist, update the default dictionary
+    if user_params:
+        for key in parasIBR.keys():
+            if key in user_params:
+                parasIBR[key] = user_params[key]
+
     # Column Names
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
 
-    for i in range(1, 11):
-        # Interested Parameter
-        parasIBR['wc'] = 2 * np.pi * (1.1 - 0.1 * i)
-        # Small-signal Stability Analysis
-        dominantParticipationFactorBoundary = 0.10
-        Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
-            ssmodel_droopSimplified_infinite(wbase, parasIBR, dominantParticipationFactorBoundary))
-        # Output results
-        testResults.append([
-            parasIBR['wc'],  # Interested parameter
-            eigenvalueAnalysisResults['eigs'],  # Eigenvalues
-            eigenvalueAnalysisResults['maxRealValue'],  # Maximum real part of eigenvalues
-            eigenvalueAnalysisResults['minDampingRatio'],  # Minimum damping ratio
-            eigenvalueAnalysisResults['modalAnalysis'],  # Modal analysis results
-            pfExitFlag  # Participation factor exit flag
-        ])
+    # Run the simulation for a single set of parameters
+    dominantParticipationFactorBoundary = 0.01
+    Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
+        ssmodel_droopSimplified_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
+    )
 
-    plott(testResults)
-    visualization(testResults)
+    # Store the results
+    testResults.append([
+        parasIBR,  # Store the full parameter dictionary for reference
+        eigenvalueAnalysisResults['eigs'],
+        eigenvalueAnalysisResults['maxRealValue'],
+        eigenvalueAnalysisResults['minDampingRatio'],
+        eigenvalueAnalysisResults['modalAnalysis'],
+        pfExitFlag
+    ])
+
+    #plott(testResults)
     #flatten_column_major(testResults)
 
+    return testResults  # Now it only returns results without calling visualization
 
 if __name__ == "__main__":
-    main_droopSimplified_infinite()
+    results = main_droopSimplified_infinite()
+    print(results)  # Print results when running standalone
