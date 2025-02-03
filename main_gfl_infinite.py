@@ -47,7 +47,7 @@ def main_gfl_infinite(user_params=None):
         pfExitFlag
     ])
 
-    plott(testResults)
+    #plott(testResults)
     #flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
