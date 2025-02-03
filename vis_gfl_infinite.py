@@ -38,11 +38,11 @@ default_values = {
     "Rt": 0.02, "Lt": 0.10,
     "Rd": 0.00, "Cf": 0.05,
     "Rc": 0.10, "Lc": 0.50,
-    "KpL": 1.8, "KiL": 160 * 2,
+    "KpL": 1.8, "KiL": float(160 * 2),
     "KpS": 0.2, "KiS": 5.0,
     "KpC": 0.4, "KiC": 8.0,
-    "wcPLL": round(2 * np.pi * 100, 2),
-    "wc": round(2 * np.pi * 5, 2)
+    "wcPLL": float(2 * np.pi * 100),
+    "wc": float(2 * np.pi * 5)
 }
 
 def get_user_inputs():
@@ -51,14 +51,15 @@ def get_user_inputs():
     user_params = {}  # Initialize as empty dictionary
 
     for var, (min_val, max_val) in variable_ranges.items():
-        default_value = default_values.get(var, (min_val + max_val) / 2.0)  # Fallback if missing
+        default_value = float(default_values.get(var, (min_val + max_val) / 2.0))  # Ensure float type
+        step = float((max_val - min_val) / 1000)  # Ensure step is also a float
 
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
-            min_value=min_val,
-            max_value=max_val,
-            value=default_value,  # Now always safe to access
-            step=round((max_val - min_val) / 1000, 4)
+            min_value=float(min_val),  # Convert to float to prevent mixed types error
+            max_value=float(max_val),  # Convert to float
+            value=default_value,  # Convert to float
+            step=step  # Convert to float
         )
 
     return user_params
