@@ -22,14 +22,18 @@ with tabs[0]:
     st.title("Navigation")
     selected_page = st.radio("Go to:", list(PAGES.keys()))
 
-# Dynamically import and run the selected page module
+# Dynamically import the selected page module
 module_name = PAGES[selected_page]
 
 if module_name in sys.modules:
-    module = sys.modules[module_name]  # Assign the existing module
+    module = sys.modules[module_name]  # Use existing module
     importlib.reload(module)  # Reload to ensure latest updates
 else:
     module = importlib.import_module(module_name)  # Import dynamically
 
-# Run the selected page's `main()` function
-module.main()
+# Simulation Parameters Tab
+with tabs[1]:
+    module.get_user_inputs()  # Only call the function here, not in the navigation tab
+
+# Run the selected page's `main()` function (excluding parameter input)
+module.run_simulation_and_visualization()

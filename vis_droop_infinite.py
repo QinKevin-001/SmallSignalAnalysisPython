@@ -3,9 +3,6 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
-# Set the page to use the full width
-#st.set_page_config(layout="wide")
-
 # Updated Variable Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
@@ -27,8 +24,21 @@ variable_ranges = {
     "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
 }
 
+# Default values (from `main_droop_infinite.py`)
+default_values = {
+    "Pset": 1.0, "Qset": 0.0,
+    "ωset": 1.0, "Vset": 1.0,
+    "mp": 0.05, "mq": 0.05,
+    "Rt": 0.02, "Lt": 0.10,
+    "Rd": 0.00, "Cf": 0.05,
+    "Rc": 0.10, "Lc": 0.50,
+    "KpV": 1.8, "KiV": 160,
+    "KpC": 0.4, "KiC": 8.0,
+    "ωc": float(2 * np.pi * 5)
+}
+
 def get_user_inputs():
-    """Creates user input controls for variable tuning"""
+    """Creates user input controls for variable tuning inside the 'Simulation Parameters' tab."""
     st.sidebar.header("Simulation Parameters")
     user_params = {}
 
@@ -37,18 +47,20 @@ def get_user_inputs():
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),  # Default value centered
-            step=round((max_val - min_val) / 1000, 2)
+            value=default_values[var],  # Use predefined default values
+            step=round((max_val - min_val) / 100, 3)
         )
 
+    # Store the user parameters in the session state
+    st.session_state["user_params"] = user_params
     return user_params
 
 def run_simulation(user_params):
-    """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    return main_droop_infinite.main_droop_infinite(user_params)  # Runs simulation automatically
+    """Runs the simulation using the parameters selected by the user."""
+    return main_droop_infinite.main_droop_infinite(user_params)
 
 def visualization(testResults):
-    """Generates plots based on testResults"""
+    """Generates plots based on testResults."""
     state_variables = [
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
@@ -107,7 +119,7 @@ def visualization(testResults):
                 names=dominant_state_names,
                 values=factor_magnitudes,
                 title=f"Participation Factor Distribution for Mode {selected_mode}",
-                width=900, height=700  # Increased size
+                width=1000, height=800  # Increased size
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
@@ -135,17 +147,22 @@ def visualization(testResults):
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
             title=f"Participation Factors Heatmap",
-            width=900, height=700  # Increased size
+            width=1000, height=800  # Increased size
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-def main():
-    """Main function to handle user input, simulation, and visualization dynamically"""
-    st.title("Droop Infinite System Analysis")
+def run_simulation_and_visualization():
+    """Runs the simulation and updates the visualization dynamically."""
+    user_params = st.session_state.get("user_params", None)
 
-    user_params = get_user_inputs()
-    testResults = run_simulation(user_params)  # Run simulation dynamically on input change
-    visualization(testResults)  # Update visualization dynamically
+    if user_params is not None:
+        testResults = run_simulation(user_params)
+        visualization(testResults)
+
+def main():
+    """Main function to handle user input, simulation, and visualization dynamically."""
+    st.title("Droop Infinite System Analysis")
+    run_simulation_and_visualization()  # Run only simulation & visualization
 
 if __name__ == "__main__":
     main()
