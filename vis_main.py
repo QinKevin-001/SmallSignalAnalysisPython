@@ -14,9 +14,13 @@ PAGES = {
     "GFL Plant Infinite": "vis_gflPlant_infinite"
 }
 
-# Sidebar navigation
-st.sidebar.title("Navigation")
-selected_page = st.sidebar.radio("Go to:", list(PAGES.keys()))
+# Create sidebar tabs
+tabs = st.sidebar.tabs(["Navigation", "Simulation Parameters"])
+
+# Navigation Tab
+with tabs[0]:
+    st.title("Navigation")
+    selected_page = st.radio("Go to:", list(PAGES.keys()))
 
 # Dynamically import and run the selected page module
 module_name = PAGES[selected_page]
