@@ -3,7 +3,7 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
-# Updated Variable Limits
+# Updated Variable Limits (Ensuring All Floats)
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
@@ -21,19 +21,19 @@ variable_ranges = {
     "KiV": (0.1, 1000.0),
     "KpC": (0.1, 10.0),
     "KiC": (0.1, 1000.0),
-    "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
+    "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))  # Rounded float values
 }
 
-# Default values (from `main_droop_infinite.py`)
+# Default values (Ensuring All Floats)
 default_values = {
-    "Pset": 1.0, "Qset": 0.0,
-    "ωset": 1.0, "Vset": 1.0,
-    "mp": 0.05, "mq": 0.05,
-    "Rt": 0.02, "Lt": 0.10,
-    "Rd": 0.00, "Cf": 0.05,
-    "Rc": 0.10, "Lc": 0.50,
-    "KpV": 1.8, "KiV": 160,
-    "KpC": 0.4, "KiC": 8.0,
+    "Pset": float(1.0), "Qset": float(0.0),
+    "ωset": float(1.0), "Vset": float(1.0),
+    "mp": float(0.05), "mq": float(0.05),
+    "Rt": float(0.02), "Lt": float(0.10),
+    "Rd": float(0.00), "Cf": float(0.05),
+    "Rc": float(0.10), "Lc": float(0.50),
+    "KpV": float(1.8), "KiV": float(160.0),
+    "KpC": float(0.4), "KiC": float(8.0),
     "ωc": float(2 * np.pi * 5)
 }
 
@@ -45,10 +45,10 @@ def get_user_inputs():
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
-            min_value=min_val,
-            max_value=max_val,
-            value=default_values[var],  # Use predefined default values
-            step=round((max_val - min_val) / 100, 3)
+            min_value=float(min_val),  # Ensure min is a float
+            max_value=float(max_val),  # Ensure max is a float
+            value=float(default_values[var]),  # Ensure default is a float
+            step=round((float(max_val) - float(min_val)) / 100, 3)  # Step should be a float
         )
 
     # Store the user parameters in the session state
@@ -86,8 +86,8 @@ def visualization(testResults):
         return
 
     try:
-        eigenvalue_real = np.real(parameter_data[1][mode_index])
-        eigenvalue_imag = np.imag(parameter_data[1][mode_index])
+        eigenvalue_real = float(np.real(parameter_data[1][mode_index]))
+        eigenvalue_imag = float(np.imag(parameter_data[1][mode_index]))
     except IndexError:
         st.error("Eigenvalue data is unavailable.")
         return
@@ -100,7 +100,7 @@ def visualization(testResults):
                 if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
             ]
             state_locations = [entry[0] for entry in valid_factors]
-            factor_magnitudes = [entry[2] for entry in valid_factors]
+            factor_magnitudes = [float(entry[2]) for entry in valid_factors]
             dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
         else:
             factor_magnitudes = []
@@ -129,12 +129,12 @@ def visualization(testResults):
         st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = []
         for mode_idx in range(mode_range):
-            mode_values = np.zeros(len(state_variables))
+            mode_values = np.zeros(len(state_variables), dtype=float)
             try:
                 mode_participation = modes[mode_idx][5]
                 for entry in mode_participation:
                     if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        mode_values[entry[0] - 1] = entry[2]
+                        mode_values[entry[0] - 1] = float(entry[2])
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
