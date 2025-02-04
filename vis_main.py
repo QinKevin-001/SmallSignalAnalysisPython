@@ -1,8 +1,9 @@
 import streamlit as st
 import importlib
 import sys
+import os  # Needed to check if images exist
 
-# Set page layout at the beginning
+# Set page layout (must be the first Streamlit command)
 st.set_page_config(layout="wide")
 
 # Define available visualization pages
@@ -43,7 +44,15 @@ if selected_page == "Main Page":
     for case, description in case_descriptions.items():
         st.subheader(case)
         st.write(description)
-        st.image(f"images/{case.replace(' ', '_').lower()}.png", width=600)  # Ensure images exist
+
+        # Construct the image path
+        image_path = f"images/{case.replace(' ', '_').lower()}.png"
+
+        # Check if the image exists before loading it
+        if os.path.exists(image_path):
+            st.image(image_path, width=600)
+        else:
+            st.warning(f"Image for '{case}' not found: {image_path}")
 
 else:
     # Dynamically load the selected script

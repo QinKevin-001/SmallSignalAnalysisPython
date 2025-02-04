@@ -3,7 +3,7 @@ import numpy as np
 import plotly.express as px
 import main_droop_infinite  # Import simulation script
 
-# Updated Variable Limits (Ensuring All Floats)
+# Updated Variable Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
@@ -39,21 +39,23 @@ default_values = {
 
 
 def get_user_inputs():
-    """Creates user input controls for variable tuning."""
-    st.header("Simulation Parameters")
-    user_params = {}
+    """Creates user input controls for variable tuning inside a separate tab."""
+    sim_param_tab = st.sidebar.tabs(["Simulation Parameters"])[0]
+    with sim_param_tab:
+        st.header("Simulation Parameters")
+        user_params = {}
 
-    for var, (min_val, max_val) in variable_ranges.items():
-        user_params[var] = st.number_input(
-            f"{var} ({min_val} to {max_val})",
-            min_value=float(min_val),
-            max_value=float(max_val),
-            value=float(default_values[var]),
-            step=round((float(max_val) - float(min_val)) / 100, 3)
-        )
+        for var, (min_val, max_val) in variable_ranges.items():
+            user_params[var] = st.number_input(
+                f"{var} ({min_val} to {max_val})",
+                min_value=float(min_val),
+                max_value=float(max_val),
+                value=float(default_values[var]),
+                step=round((float(max_val) - float(min_val)) / 100, 3)
+            )
 
-    st.session_state["user_params"] = user_params
-    return user_params
+        st.session_state["user_params"] = user_params
+        return user_params
 
 
 def run_simulation(user_params):
@@ -72,8 +74,11 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    selected_mode = st.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode - 1
+    # Move mode selection inside the Simulation Parameters Tab
+    sim_param_tab = st.sidebar.tabs(["Simulation Parameters"])[0]
+    with sim_param_tab:
+        selected_mode = st.slider("Select a Mode", 1, mode_range, 1)
+        mode_index = selected_mode - 1
 
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
@@ -110,15 +115,7 @@ def visualization(testResults):
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
 
-def run_simulation_and_visualization():
-    """Runs simulation and updates visualization dynamically."""
-    user_params = st.session_state.get("user_params", None)
-    if user_params:
-        visualization(run_simulation(user_params))
-
-
 def main():
-    """Main function to run the simulation and visualization."""
     st.title("Droop Infinite System Analysis")
     run_simulation_and_visualization()
 
