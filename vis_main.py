@@ -2,11 +2,12 @@ import streamlit as st
 import importlib
 import sys
 
-# Set page layout (must be the first Streamlit command)
+# Set page layout at the beginning
 st.set_page_config(layout="wide")
 
 # Define available visualization pages
 PAGES = {
+    "Main Page": "vis_main",
     "Droop Infinite": "vis_droop_infinite",
     "Droop Plant Infinite": "vis_droopPlant_infinite",
     "Droop Simplified Infinite": "vis_droopSimplified_infinite",
@@ -14,26 +15,49 @@ PAGES = {
     "GFL Plant Infinite": "vis_gflPlant_infinite"
 }
 
-# Create sidebar tabs
-tabs = st.sidebar.tabs(["Navigation", "Simulation Parameters"])
+# Sidebar tabs
+nav_tab, sim_param_tab = st.sidebar.tabs(["Navigation", "Simulation Parameters"])
 
 # Navigation Tab
-with tabs[0]:
-    st.title("Navigation")
-    selected_page = st.radio("Go to:", list(PAGES.keys()))
+with nav_tab:
+    st.header("Navigation")
+    selected_page = st.radio("Select Analysis Type", list(PAGES.keys()))
 
-# Dynamically import the selected page module
-module_name = PAGES[selected_page]
+# Main Page Content
+if selected_page == "Main Page":
+    st.title("Power System Stability Analysis")
+    st.write("""
+    This tool allows users to analyze different power system cases. 
+    Select a case from the navigation tab to view simulations.
+    """)
 
-if module_name in sys.modules:
-    module = sys.modules[module_name]  # Use existing module
-    importlib.reload(module)  # Reload to ensure latest updates
+    # Case explanations with images
+    case_descriptions = {
+        "Droop Infinite": "A droop-controlled inverter connected to an infinite bus.",
+        "Droop Plant Infinite": "A plant-level droop controller interacting with an infinite bus.",
+        "Droop Simplified Infinite": "A simplified droop control model.",
+        "GFL Infinite": "A Grid-Following (GFL) inverter connected to an infinite bus.",
+        "GFL Plant Infinite": "A GFL plant interacting with an infinite bus."
+    }
+
+    for case, description in case_descriptions.items():
+        st.subheader(case)
+        st.write(description)
+        st.image(f"images/{case.replace(' ', '_').lower()}.png", width=600)  # Ensure images exist
+
 else:
-    module = importlib.import_module(module_name)  # Import dynamically
+    # Dynamically load the selected script
+    module_name = PAGES[selected_page]
 
-# Simulation Parameters Tab
-with tabs[1]:
-    module.get_user_inputs()  # Only call the function here, not in the navigation tab
+    if module_name in sys.modules:
+        module = sys.modules[module_name]
+        importlib.reload(module)
+    else:
+        module = importlib.import_module(module_name)
 
-# Run the selected page's `main()` function (excluding parameter input)
-module.run_simulation_and_visualization()
+    # Simulation Parameters Tab
+    with sim_param_tab:
+        module.get_user_inputs()  # Load the parameter input UI
+
+    # Run the selected visualization (excluding parameter input)
+    module.run_simulation_and_visualization()
