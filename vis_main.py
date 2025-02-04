@@ -19,14 +19,13 @@ st.sidebar.title("Navigation")
 selected_page = st.sidebar.radio("Go to:", list(PAGES.keys()))
 
 # Dynamically import and run the selected page module
-if selected_page in PAGES:
-    module_name = PAGES[selected_page]
+module_name = PAGES[selected_page]
 
-    # Check if module is already loaded to prevent reloading conflicts
-    if module_name in sys.modules:
-        importlib.reload(sys.modules[module_name])  # Reload the module if it has been previously loaded
-    else:
-        module = importlib.import_module(module_name)  # Import the correct script dynamically
+if module_name in sys.modules:
+    module = sys.modules[module_name]  # Assign the existing module
+    importlib.reload(module)  # Reload to ensure latest updates
+else:
+    module = importlib.import_module(module_name)  # Import dynamically
 
-    # Run the selected page's `main()` function
-    module.main()
+# Run the selected page's `main()` function
+module.main()
