@@ -4,7 +4,7 @@ import plotly.express as px
 import main_droopPlant_infinite  # Import simulation script without circular dependency
 
 # Set page layout **before any other Streamlit command**
-st.set_page_config(layout="wide")
+#st.set_page_config(layout="wide")
 
 # Updated Variable Limits
 variable_ranges = {

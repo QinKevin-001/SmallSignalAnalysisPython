@@ -4,7 +4,7 @@ import plotly.express as px
 import main_droop_infinite  # Import simulation script without circular dependency
 
 # Set the page to use the full width
-st.set_page_config(layout="wide")
+#st.set_page_config(layout="wide")
 
 # Updated Variable Limits
 variable_ranges = {
