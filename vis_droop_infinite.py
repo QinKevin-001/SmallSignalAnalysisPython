@@ -24,7 +24,7 @@ variable_ranges = {
     "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
 }
 
-# Default values
+# Default values from `main_droop_infinite.py`
 default_values = {
     "Pset": float(1.0), "Qset": float(0.0),
     "ωset": float(1.0), "Vset": float(1.0),
@@ -113,6 +113,13 @@ def visualization(testResults):
         heatmap_fig = px.imshow(np.array(heatmap_data).T, x=[f"Mode {i + 1}" for i in range(mode_range)],
                                 y=state_variables, width=1000, height=800)
         st.plotly_chart(heatmap_fig, use_container_width=True)
+
+
+def run_simulation_and_visualization():
+    """Runs the simulation and visualization process."""
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)  # Run simulation dynamically
+    visualization(testResults)  # Update visualization dynamically
 
 
 def main():
