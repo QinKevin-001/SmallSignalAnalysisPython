@@ -1,4 +1,5 @@
 import streamlit as st
+import importlib
 
 # Set page layout **before any other Streamlit command**
 st.set_page_config(layout="wide")
@@ -16,11 +17,7 @@ PAGES = {
 st.sidebar.title("Navigation")
 selected_page = st.sidebar.radio("Go to:", list(PAGES.keys()))
 
-# Dynamically load the selected page
-st.sidebar.write(f"**Current Selection:** {selected_page}")
-
-# Run the selected visualization script
+# Dynamically import and run the selected page module
 if selected_page in PAGES:
-    script = PAGES[selected_page]
-    st.experimental_rerun()  # Ensures page updates dynamically
-    exec(open(f"{script}.py").read())  # Dynamically run the selected file
+    module = importlib.import_module(PAGES[selected_page])  # Import the correct script dynamically
+    module.main()  # Call its main() function
