@@ -46,7 +46,7 @@ def main_gflPlant_infinite(user_params=None):
 
     # Store the results
     testResults.append([
-        parasIBR,  # Store the full parameter dictionary for reference
+        parasIBR,
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -57,8 +57,8 @@ def main_gflPlant_infinite(user_params=None):
     #plott(testResults)
     #flatten_column_major(testResults)
 
-    return testResults
+    return testResults # Testing Purposes
 
 if __name__ == "__main__":
     results = main_gflPlant_infinite()
-    print(results)
+    print(results) # Testing Purposes
