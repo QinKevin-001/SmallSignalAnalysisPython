@@ -42,9 +42,10 @@ def get_user_inputs():
     """Creates user input controls for variable tuning inside the Simulation Parameters tab."""
     user_params = {}
 
-    # Use only the first tab for simulation parameters
-    sim_param_tab = st.sidebar.tabs(["Simulation Parameters"])[0]
-    with sim_param_tab:
+    # Use main content tabs instead of sidebar.tabs()
+    tabs = st.tabs(["Simulation Parameters", "Results"])
+
+    with tabs[0]:  # Simulation Parameters Tab
         st.header("Simulation Parameters")
         for var, (min_val, max_val) in variable_ranges.items():
             user_params[var] = st.number_input(
@@ -52,7 +53,8 @@ def get_user_inputs():
                 min_value=float(min_val),
                 max_value=float(max_val),
                 value=float(default_values[var]),
-                step=round((float(max_val) - float(min_val)) / 100, 3)
+                step=round((float(max_val) - float(min_val)) / 100, 3),
+                key=f"input_{var}"  # Ensure unique key to avoid duplicate errors
             )
 
     # Store user params in session state
@@ -76,45 +78,47 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Move mode selection inside the Simulation Parameters Tab
-    sim_param_tab = st.sidebar.tabs(["Simulation Parameters"])[0]
-    with sim_param_tab:
-        selected_mode = st.slider("Select a Mode", 1, mode_range, 1)
+    # Use the second tab for visualization
+    tabs = st.tabs(["Simulation Parameters", "Results"])
+    with tabs[1]:  # Results Tab
+        st.header("Simulation Results")
+
+        selected_mode = st.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
         mode_index = selected_mode - 1
 
-    try:
-        eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
-        eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
+        try:
+            eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
+            eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
+        except IndexError:
+            st.error("Eigenvalue data is unavailable.")
+            return
 
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
+        participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+        valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
 
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+        factor_magnitudes = [entry[1] for entry in valid_factors]
+        dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
-    col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1, 1])
 
-    with col1:
-        st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
-        if factor_magnitudes:
-            pie_chart_fig = px.pie(names=dominant_state_names, values=factor_magnitudes, width=1000, height=800)
-            st.plotly_chart(pie_chart_fig, use_container_width=True)
+        with col1:
+            st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
+            if factor_magnitudes:
+                pie_chart_fig = px.pie(names=dominant_state_names, values=factor_magnitudes, width=1000, height=800)
+                st.plotly_chart(pie_chart_fig, use_container_width=True)
 
-    with col2:
-        st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        with col2:
+            st.subheader("Heatmap of Participation Factors for All Modes")
+            heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
 
-        for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+            for mode_idx in range(mode_range):
+                for entry in modes[mode_idx][5]:
+                    if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                        heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
 
-        heatmap_fig = px.imshow(np.array(heatmap_data).T, x=[f"Mode {i + 1}" for i in range(mode_range)],
-                                y=state_variables, width=1000, height=800)
-        st.plotly_chart(heatmap_fig, use_container_width=True)
+            heatmap_fig = px.imshow(np.array(heatmap_data).T, x=[f"Mode {i + 1}" for i in range(mode_range)],
+                                    y=state_variables, width=1000, height=800)
+            st.plotly_chart(heatmap_fig, use_container_width=True)
 
 
 def run_simulation_and_visualization():
