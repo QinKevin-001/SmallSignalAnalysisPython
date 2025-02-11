@@ -45,9 +45,11 @@ def get_user_inputs():
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
-    with st.expander("Simulation Parameters", expanded=True):
+    user_params = {}
+
+    # Create a Simulation Parameters Tab
+    with st.sidebar.expander("Simulation Parameters", expanded=True):
         st.subheader("Tune Parameters")
-        user_params = {}
 
         for var, (min_val, max_val) in variable_ranges.items():
             user_params[var] = st.number_input(
@@ -59,8 +61,8 @@ def get_user_inputs():
                 key=f"param_{var}"  # Unique key for each parameter
             )
 
-        st.session_state["user_params"] = user_params
-        return user_params
+    st.session_state["user_params"] = user_params
+    return user_params
 
 
 def run_simulation(user_params):
@@ -79,10 +81,9 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Ensure mode selection inside results tab
-    tabs = st.tabs(["Simulation Parameters", "Results"])
-    with tabs[1]:  # Results Tab
-        st.header("Simulation Results")
+    # Create Results Tab
+    with st.expander("Simulation Results", expanded=True):
+        st.subheader("Results")
 
         selected_mode = st.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
         mode_index = selected_mode - 1

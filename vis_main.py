@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 
 # Define available visualization pages
 PAGES = {
-    "Main Page": "vis_main",
+    "Main Page": None,
     "Droop Infinite": "vis_droop_infinite",
     "Droop Plant Infinite": "vis_droopPlant_infinite",
     "Droop Simplified Infinite": "vis_droopSimplified_infinite",
@@ -16,20 +16,15 @@ PAGES = {
     "GFL Plant Infinite": "vis_gflPlant_infinite"
 }
 
-# Sidebar tabs
-nav_tab, sim_param_tab = st.sidebar.tabs(["Navigation", "Simulation Parameters"])
+# Sidebar navigation
+selected_page = st.sidebar.radio("Select Analysis Type", list(PAGES.keys()))
 
-# Navigation Tab
-with nav_tab:
-    st.header("Navigation")
-    selected_page = st.radio("Select Analysis Type", list(PAGES.keys()))
-
-# Main Page Content
+# ----------------- 📌 Main Page Content ----------------- #
 if selected_page == "Main Page":
     st.title("Power System Stability Analysis")
     st.write("""
     This tool allows users to analyze different power system cases. 
-    Select a case from the navigation tab to view simulations.
+    Select a case from the navigation panel to view simulations.
     """)
 
     # Case explanations with images
@@ -54,19 +49,15 @@ if selected_page == "Main Page":
         else:
             st.warning(f"Image for '{case}' not found: {image_path}")
 
+# ----------------- 📌 Load Selected Page ----------------- #
 else:
-    # Dynamically load the selected script
     module_name = PAGES[selected_page]
 
     if module_name in sys.modules:
         module = sys.modules[module_name]
-        importlib.reload(module)
+        importlib.reload(module)  # Reload in case of updates
     else:
         module = importlib.import_module(module_name)
 
-    # Simulation Parameters Tab
-    with sim_param_tab:
-        module.get_user_inputs()  # Load the parameter input UI
-
-    # Run the selected visualization (excluding parameter input)
-    module.run_simulation_and_visualization()
+    # Call the selected module's main() function, which internally handles parameter tuning
+    module.main()
