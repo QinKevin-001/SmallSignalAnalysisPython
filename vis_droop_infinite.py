@@ -39,12 +39,13 @@ default_values = {
 
 
 def get_user_inputs():
-    """Creates user input controls for variable tuning inside a separate tab."""
+    """Creates user input controls for variable tuning inside the Simulation Parameters tab."""
+    user_params = {}
+
+    # Use only the first tab for simulation parameters
     sim_param_tab = st.sidebar.tabs(["Simulation Parameters"])[0]
     with sim_param_tab:
         st.header("Simulation Parameters")
-        user_params = {}
-
         for var, (min_val, max_val) in variable_ranges.items():
             user_params[var] = st.number_input(
                 f"{var} ({min_val} to {max_val})",
@@ -54,8 +55,9 @@ def get_user_inputs():
                 step=round((float(max_val) - float(min_val)) / 100, 3)
             )
 
-        st.session_state["user_params"] = user_params
-        return user_params
+    # Store user params in session state
+    st.session_state["user_params"] = user_params
+    return user_params
 
 
 def run_simulation(user_params):
@@ -117,7 +119,7 @@ def visualization(testResults):
 
 def run_simulation_and_visualization():
     """Runs the simulation and visualization process."""
-    user_params = get_user_inputs()
+    user_params = get_user_inputs()  # Load parameters in Simulation Parameters tab
     testResults = run_simulation(user_params)  # Run simulation dynamically
     visualization(testResults)  # Update visualization dynamically
 
