@@ -26,37 +26,41 @@ variable_ranges = {
 
 # Default values from `main_droop_infinite.py`
 default_values = {
-    "Pset": float(1.0), "Qset": float(0.0),
-    "ωset": float(1.0), "Vset": float(1.0),
-    "mp": float(0.05), "mq": float(0.05),
-    "Rt": float(0.02), "Lt": float(0.10),
-    "Rd": float(0.00), "Cf": float(0.05),
-    "Rc": float(0.10), "Lc": float(0.50),
-    "KpV": float(1.8), "KiV": float(160.0),
-    "KpC": float(0.4), "KiC": float(8.0),
+    "Pset": 1.0, "Qset": 0.0,
+    "ωset": 1.0, "Vset": 1.0,
+    "mp": 0.05, "mq": 0.05,
+    "Rt": 0.02, "Lt": 0.10,
+    "Rd": 0.00, "Cf": 0.05,
+    "Rc": 0.10, "Lc": 0.50,
+    "KpV": 1.8, "KiV": 160.0,
+    "KpC": 0.4, "KiC": 8.0,
     "ωc": float(2 * np.pi * 5)
 }
 
 
 def get_user_inputs():
-    """Creates user input controls inside the Simulation Parameters tab, preventing duplicate keys."""
+    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
 
+    # Ensure session state is initialized
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
     with st.expander("Simulation Parameters", expanded=True):
         st.subheader("Tune Parameters")
+        user_params = {}
+
         for var, (min_val, max_val) in variable_ranges.items():
-            st.session_state["user_params"][var] = st.number_input(
+            user_params[var] = st.number_input(
                 f"{var} ({min_val} to {max_val})",
                 min_value=float(min_val),
                 max_value=float(max_val),
-                value=st.session_state["user_params"][var],  # Ensure correct default value
+                value=float(st.session_state["user_params"].get(var, default_values[var])),
                 step=round((float(max_val) - float(min_val)) / 100, 3),
-                key=f"param_{var}"  # Ensure unique key per parameter
+                key=f"param_{var}"  # Unique key for each parameter
             )
 
-    return st.session_state["user_params"]
+        st.session_state["user_params"] = user_params
+        return user_params
 
 
 def run_simulation(user_params):
