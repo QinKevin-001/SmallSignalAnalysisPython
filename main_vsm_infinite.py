@@ -1,6 +1,9 @@
 #critical imports
-
+import numpy as np
+from lib.ssmodel_vsm_infinite import ssmodel_vsm_infinite
 #optional imports
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_vsm_infinite(user_params=None):
     #parameters
@@ -13,7 +16,7 @@ def main_vsm_infinite(user_params=None):
         'Rd':0.00, 'Cf':0.05,   #LCL filter
         'Rc':0.10, 'Lc':0.50,   #LCL filter
         'J':10.0,   #intertia constant
-        'K':12.0    #reactive loop control parameter
+        'K':12.0,    #reactive loop control parameter
         'tauf': 0.01    #power filter time constant
     }
 
