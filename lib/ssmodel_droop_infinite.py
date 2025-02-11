@@ -8,7 +8,6 @@ from lib.steadystatevalue_droop import steadystatevalue_droop
 from lib.ssmodel_droop import ssmodel_droop
 from lib.eigenvalue_analysis import eigenvalue_analysis
 
-
 def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([0, 1])
