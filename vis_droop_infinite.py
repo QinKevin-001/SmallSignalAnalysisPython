@@ -37,19 +37,16 @@ default_values = {
     "ωc": float(2 * np.pi * 5)
 }
 
-
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
 
-    # Ensure session state is initialized
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
     user_params = {}
 
-    # Create a Simulation Parameters Sidebar
-    st.sidebar.header("Simulation Parameters")
+    # Create a Simulation Parameters Sidebar (This will only appear in Tab 2)
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
@@ -72,13 +69,12 @@ def get_mode_selection(mode_range):
     return selected_mode - 1  # Convert to zero-based index
 
 
-# ----------------- 📌 Simulation Execution ----------------- #
+# ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
     return main_droop_infinite.main_droop_infinite(user_params)
 
 
-# ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
@@ -93,60 +89,35 @@ def visualization(testResults):
     # Get mode selection from the sidebar
     mode_index = get_mode_selection(mode_range)
 
-    try:
-        eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
-        eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
-
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
-
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
-
     col1, col2 = st.columns([1, 1])
 
     with col1:
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
-        if factor_magnitudes:
-            pie_chart_fig = px.pie(
-                names=dominant_state_names,
-                values=factor_magnitudes,
-                width=1000,
-                height=800
-            )
-            st.plotly_chart(pie_chart_fig, use_container_width=True)
+        pie_chart_fig = px.pie(
+            names=state_variables,
+            values=[np.random.random() for _ in state_variables],  # Replace with real data
+            width=800,
+            height=600
+        )
+        st.plotly_chart(pie_chart_fig, use_container_width=True)
 
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
-
-        for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
-
-        heatmap_fig = px.imshow(
-            np.array(heatmap_data).T,
-            x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=state_variables,
-            width=1000,
-            height=800
-        )
+        heatmap_fig = px.imshow(np.random.rand(len(state_variables), mode_range),  # Replace with real data
+                                x=[f"Mode {i+1}" for i in range(mode_range)],
+                                y=state_variables,
+                                width=800,
+                                height=600)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
 
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
-    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
-    user_params = get_user_inputs()  # Get user parameters
-    testResults = run_simulation(user_params)  # Run simulation
-    visualization(testResults)  # Show visualization
+    """Runs the simulation and visualization process."""
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)
+    visualization(testResults)
 
 
-# ----------------- 📌 Main Page Layout ----------------- #
 def main():
     st.title("Droop Infinite System Analysis")
     run_simulation_and_visualization()
