@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 
 # Define available visualization pages
 PAGES = {
-    "Main Page": None,
+    "Main Page": "vis_main",
     "Droop Infinite": "vis_droop_infinite",
     "Droop Plant Infinite": "vis_droopPlant_infinite",
     "Droop Simplified Infinite": "vis_droopSimplified_infinite",
@@ -16,15 +16,20 @@ PAGES = {
     "GFL Plant Infinite": "vis_gflPlant_infinite"
 }
 
-# Sidebar navigation
-selected_page = st.sidebar.radio("Select Analysis Type", list(PAGES.keys()))
+# ----------------- 📌 Sidebar: Separate Tabs for Navigation & Parameters ----------------- #
+tab1, tab2 = st.sidebar.tabs(["Navigation", "Simulation Parameters"])
 
-# ----------------- 📌 Main Page Content ----------------- #
+# Navigation Tab (Tab 1)
+with tab1:
+    st.header("Navigation")
+    selected_page = st.radio("Select Analysis Type", list(PAGES.keys()), key="nav_selection")
+
+# Main Page Content
 if selected_page == "Main Page":
     st.title("Power System Stability Analysis")
     st.write("""
     This tool allows users to analyze different power system cases. 
-    Select a case from the navigation panel to view simulations.
+    Select a case from the **Navigation Tab** to view simulations.
     """)
 
     # Case explanations with images
@@ -49,15 +54,19 @@ if selected_page == "Main Page":
         else:
             st.warning(f"Image for '{case}' not found: {image_path}")
 
-# ----------------- 📌 Load Selected Page ----------------- #
 else:
+    # Dynamically load the selected script
     module_name = PAGES[selected_page]
 
     if module_name in sys.modules:
         module = sys.modules[module_name]
-        importlib.reload(module)  # Reload in case of updates
+        importlib.reload(module)
     else:
         module = importlib.import_module(module_name)
 
-    # Call the selected module's main() function, which internally handles parameter tuning
-    module.main()
+    # Simulation Parameters Tab (Tab 2)
+    with tab2:
+        module.get_user_inputs()  # Load the parameter input UI
+
+    # Run the selected visualization (excluding parameter input)
+    module.run_simulation_and_visualization()
