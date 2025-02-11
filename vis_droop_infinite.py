@@ -39,27 +39,24 @@ default_values = {
 
 
 def get_user_inputs():
-    """Creates user input controls for variable tuning inside the Simulation Parameters tab."""
-    user_params = {}
+    """Creates user input controls inside the Simulation Parameters tab, preventing duplicate keys."""
 
-    # Use main content tabs instead of sidebar.tabs()
-    tabs = st.tabs(["Simulation Parameters", "Results"])
+    if "user_params" not in st.session_state:
+        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
-    with tabs[0]:  # Simulation Parameters Tab
-        st.header("Simulation Parameters")
+    with st.expander("Simulation Parameters", expanded=True):
+        st.subheader("Tune Parameters")
         for var, (min_val, max_val) in variable_ranges.items():
-            user_params[var] = st.number_input(
+            st.session_state["user_params"][var] = st.number_input(
                 f"{var} ({min_val} to {max_val})",
                 min_value=float(min_val),
                 max_value=float(max_val),
-                value=float(default_values[var]),
+                value=st.session_state["user_params"][var],  # Ensure correct default value
                 step=round((float(max_val) - float(min_val)) / 100, 3),
-                key=f"input_{var}"  # Ensure unique key to avoid duplicate errors
+                key=f"param_{var}"  # Ensure unique key per parameter
             )
 
-    # Store user params in session state
-    st.session_state["user_params"] = user_params
-    return user_params
+    return st.session_state["user_params"]
 
 
 def run_simulation(user_params):
@@ -78,7 +75,7 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Use the second tab for visualization
+    # Ensure mode selection inside results tab
     tabs = st.tabs(["Simulation Parameters", "Results"])
     with tabs[1]:  # Results Tab
         st.header("Simulation Results")
@@ -122,8 +119,8 @@ def visualization(testResults):
 
 
 def run_simulation_and_visualization():
-    """Runs the simulation and visualization process."""
-    user_params = get_user_inputs()  # Load parameters in Simulation Parameters tab
+    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
+    user_params = get_user_inputs()  # Ensure parameters are managed properly
     testResults = run_simulation(user_params)  # Run simulation dynamically
     visualization(testResults)  # Update visualization dynamically
 
