@@ -57,18 +57,23 @@ if selected_page == "Main Page":
         if os.path.exists(image_path):
             st.image(image_path, width=600)
         else:
-            st.warning(f"Image for '{case}' not found: {image_path}")
+            st.warning(f"⚠️ Image for '{case}' not found: {image_path}")
 
 # ----------------- 📌 Load the Selected Page ----------------- #
 else:
     module_name = PAGES[selected_page]
 
     if module_name:
-        if module_name in sys.modules:
-            module = sys.modules[module_name]
-            importlib.reload(module)  # Reload to reflect any updates
-        else:
-            module = importlib.import_module(module_name)
+        try:
+            if module_name in sys.modules:
+                module = sys.modules[module_name]
+                importlib.reload(module)  # Reload to reflect any updates
+            else:
+                module = importlib.import_module(module_name)
 
-        # Call the selected module's main() function, which internally handles parameter tuning
-        module.main()
+            # Call the selected module's main() function, which internally handles parameter tuning
+            module.main()
+        except ModuleNotFoundError:
+            st.error(f"⚠️ The module `{module_name}` was not found. Ensure it is in the project directory.")
+        except AttributeError:
+            st.error(f"⚠️ The module `{module_name}` does not have a `main()` function. Check the module structure.")
