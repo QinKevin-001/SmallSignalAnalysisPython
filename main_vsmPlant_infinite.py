@@ -9,7 +9,7 @@ def main_vsmPlant_infinite(user_params=None):
     #parameters
     wbase = 2 * np.pi * 60
     parasIBR = {
-        'PsetPlant':0.1, 'Qset':0.1, #plant-level setpoints
+        'PsetPlant':0.1, 'QsetPlant':0.1, #plant-level setpoints
         'wsetPlant':1.0, 'VsetPlant':1.0,  #plant-level setpoints
         'mpPlant':0.05, 'mqPlant':0.05,   #plant-level droop gains
         'KpPLLplant':1.8, 'KiPLLplant':160,  #plant-level PLL PI gains
