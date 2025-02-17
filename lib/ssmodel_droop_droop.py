@@ -56,12 +56,16 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
     # Combine state variables
     ssVariables = np.concatenate((stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLoad['ssVariables']))
 
-    # Assign IBR1, IBR2, and Load labels
-    ssVariables = np.array(ssVariables, dtype=object)
-    ssVariables[:, 1] = [
-        'IBR1'] * len(stateMatrix1['ssVariables']) + [
-        'IBR2'] * len(stateMatrix2['ssVariables']) + [
-        'Load'] * len(stateMatrixLoad['ssVariables'])
+    # Ensure ssVariables is a 2D array (reshape to have 2 columns)
+    if len(ssVariables.shape) == 1:
+        ssVariables = ssVariables.reshape(-1, 1)  # Convert to 2D with 1 column
+
+    # Now, append a second column with IBR1, IBR2, Load labels
+    labels = (['IBR1'] * len(stateMatrix1['ssVariables']) +
+              ['IBR2'] * len(stateMatrix2['ssVariables']) +
+              ['Load'] * len(stateMatrixLoad['ssVariables']))
+
+    ssVariables = np.column_stack((ssVariables, labels))
 
     # Remove first row/column from system matrix and variables (consistent with MATLAB version)
     Asys = Asys[1:, 1:]
