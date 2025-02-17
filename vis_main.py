@@ -16,7 +16,8 @@ PAGES = {
     "Droop Simplified Infinite": "vis_droopSimplified_infinite",
     "GFL Infinite": "vis_gfl_infinite",
     "GFL Plant Infinite": "vis_gflPlant_infinite",
-    "VSM Infinite": "vis_vsm_infinite"
+    "VSM Infinite": "vis_vsm_infinite",
+    "VSM Plant Infinite": "vis_vsmPlant_infinite"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
@@ -41,7 +42,8 @@ if selected_page == "Main Page":
         "Droop Simplified Infinite": "A simplified droop control model.",
         "GFL Infinite": "A Grid-Following (GFL) inverter connected to an infinite bus.",
         "GFL Plant Infinite": "A GFL plant interacting with an infinite bus.",
-        "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus."
+        "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
+        "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus."
     }
 
     for case, description in case_descriptions.items():
