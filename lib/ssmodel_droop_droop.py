@@ -48,9 +48,9 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
 
     # Construct the overall system matrix
     Asys = np.block([
-        [A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1, B1 @ Ngen2 @ C2, B1 @ Nload],
-        [Bw2 @ Cw1 + B2 @ Ngen1 @ C1, A2 + B2 @ Ngen2 @ C2, B2 @ Nload],
-        [Bloadw @ Cw1 + Bload @ Ngen1 @ C1, Bload @ Ngen2 @ C2, Aload + Bload @ Nload]
+        [A1 + Bw1 * Cw1 + B1 * Ngen1 * C1, B1 * Ngen2 * C2, B1 * Nload],
+        [Bw2 * Cw1 + B2 * Ngen1 * C1, A2 + B2 * Ngen2 * C2, B2 * Nload],
+        [Bloadw * Cw1 + Bload * Ngen1 * C1, Bload * Ngen2 * C2, Aload + Bload * Nload]
     ])
 
     # Combine state variables
