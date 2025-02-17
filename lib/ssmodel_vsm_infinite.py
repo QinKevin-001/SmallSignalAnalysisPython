@@ -4,8 +4,8 @@ import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_infinite import pf_func_ibr_infinite
 from lib.pf_calc_infinite import pf_calc_infinite
-from lib.steadystatevalue_droop import steadystatevalue_vsm
-from lib.ssmodel_droop import ssmodel_vsm
+from lib.steadystatevalue_vsm import steadystatevalue_vsm
+from lib.ssmodel_vsm import ssmodel_vsm
 from lib.eigenvalue_analysis import eigenvalue_analysis
 
 def ssmodel_vsm_infinite(wbase,parasIBR,dominantParticipationFactorBoundary):
