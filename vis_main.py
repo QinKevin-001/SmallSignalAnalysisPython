@@ -16,7 +16,7 @@ PAGES = {
     "Droop Simplified Infinite": "vis_droopSimplified_infinite",
     "GFL Infinite": "vis_gfl_infinite",
     "GFL Plant Infinite": "vis_gflPlant_infinite",
-    "VSM Infinite": "vis_vsm"
+    "VSM Infinite": "vis_vsm_infinite"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
