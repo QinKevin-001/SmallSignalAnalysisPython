@@ -61,13 +61,21 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
     Nline1Gen, Nline2Gen = -Rx * np.eye(2), -Rx * np.eye(2)
     Nline1Load, Nline2Load, Nload = Rx * np.eye(2), Rx * np.eye(2), -Rx * np.eye(2)
 
-    ## **System Matrix Construction**
+    # Fix Bw1 @ Cw1 by transposing Cw1
+    Bw1_Cw1 = Bw1 @ Cw1.T  # Now has shape (20, 20)
+
+    # Ensure B1 @ Ngen1 @ C1 has shape (20,20)
+    B1_Ngen1_C1 = B1 @ Ngen1 @ C1  # This is correct
+
+    # Now construct Asys correctly
     Asys = np.block([
-        [A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1, np.zeros((A1.shape[0], A2.shape[0])), B1 @ Nline1Gen, np.zeros((A1.shape[0], Aline2.shape[0])), np.zeros((A1.shape[0], Aload.shape[0]))],
-        [Bw2 @ Cw1, A2 + B2 @ Ngen2 @ C2, np.zeros((A2.shape[0], Aline1.shape[0])), B2 @ Nline2Gen, np.zeros((A2.shape[0], Aload.shape[0]))],
-        [Bwline1 @ Cw1 + B1line1 @ Ngen1 @ C1, np.zeros((Aline1.shape[0], A2.shape[0])), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load, B2line1 @ Nline2Load, B2line1 @ Nload],
-        [Bwline2 @ Cw1, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load, Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
-        [Bwload @ Cw1, np.zeros((Aload.shape[0], A2.shape[0])), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
+        [A1 + Bw1_Cw1 + B1_Ngen1_C1, np.zeros((20, 20)), B1 @ Nline1Gen, np.zeros((20, 2)), np.zeros((20, 2))],
+        [Bw2 @ Cw1.T, A2 + B2 @ Ngen2 @ C2, np.zeros((20, 2)), B2 @ Nline2Gen, np.zeros((20, 2))],
+        [Bwline1 @ Cw1.T + B1line1 @ Ngen1 @ C1, np.zeros((2, 20)), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load,
+         B2line1 @ Nline2Load, B2line1 @ Nload],
+        [Bwline2 @ Cw1.T, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load,
+         Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
+        [Bwload @ Cw1.T, np.zeros((2, 20)), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
     ])
 
     ## **State Variable Labels**
