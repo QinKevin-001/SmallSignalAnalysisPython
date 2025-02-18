@@ -85,7 +85,7 @@ def visualization(testResults):
     valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors if 1 <= entry[0] <= len(state_variables)]
 
     col1, col2 = st.columns([1, 1])
 
