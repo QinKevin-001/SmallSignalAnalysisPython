@@ -43,8 +43,6 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
     # Extract matrices
     A1, B1, Bw1, C1, Cw1 = stateMatrix1['A'], stateMatrix1['B'], stateMatrix1['Bw'], stateMatrix1['C'], stateMatrix1['Cw']
     A2, B2, Bw2, C2 = stateMatrix2['A'], stateMatrix2['B'], stateMatrix2['Bw'], stateMatrix2['C']
-    Aline1, B1line1, B2line1, Bwline1 = stateMatrixLine1['A'], stateMatrixLine1['B1'], stateMatrixLine1['B2'], stateMatrixLine1['Bw']
-    Aline2, B1line2, B2line2, Bwline2 = stateMatrixLine2['A'], stateMatrixLine2['B1'], stateMatrixLine2['B2'], stateMatrixLine2['Bw']
     Aload, Bload, Bwload = stateMatrixLoad['A'], stateMatrixLoad['B'], stateMatrixLoad['Bw']
 
     # Define coupling matrices
@@ -60,15 +58,15 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
         [Bload @ Ngen1 @ C1, Bload @ Ngen2 @ C2, Aload + Bload @ Nload, Bwload @ Cw1.T]
     ])
 
-    # **Fixing `ssVariables` Concatenation**
-    ssVariables1 = np.array(stateMatrix1['ssVariables']).reshape(-1, 1)  # Ensure 1D
+    # Ensure `ssVariables` is a 1D List Before Concatenation
+    ssVariables1 = np.array(stateMatrix1['ssVariables']).reshape(-1, 1)
     ssVariables2 = np.array(stateMatrix2['ssVariables']).reshape(-1, 1)
     ssVariablesLoad = np.array(stateMatrixLoad['ssVariables']).reshape(-1, 1)
 
-    # **Ensure Concatenation is 1D**
+    # Ensure Concatenation is 1D
     ssVariables = np.vstack((ssVariables1, ssVariables2, ssVariablesLoad))
 
-    # Assign labels (Fixing Shape Issue)
+    # Assign labels
     categories = (
             ['IBR1'] * len(ssVariables1) +
             ['IBR2'] * len(ssVariables2) +
