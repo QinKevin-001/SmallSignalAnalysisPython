@@ -95,10 +95,6 @@ def run_simulation(user_params):
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
-    state_variables = [
-        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
-    ]
 
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
@@ -113,24 +109,17 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # 🔹 Debugging: Print mode data structure
-    st.write("DEBUG: Raw Mode Data:", modes[mode_index])
+    # 🔹 Extract participation factors
+    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
 
-    # Check if participation factors exist at expected index
-    if len(modes[mode_index]) <= 5:
-        st.error("No participation factor data found in modes[mode_index][5]. Check testResults structure.")
-        return
+    # 🔹 Debugging output
+    st.write("DEBUG: Participation Factors:", participation_factors)
 
-    participation_factors = modes[mode_index][5]  # Extract participation factor data
-
-    # 🔹 Debugging: Print raw participation factors
-    st.write("DEBUG: Raw Participation Factors:", participation_factors)
-
-    # Ensure participation factors are valid
+    # 🔹 Filter valid factors and extract **state names dynamically**
     valid_factors = [
-        (entry[0], float(entry[2]))
+        (entry[0], float(entry[2]), entry[3])  # Extracting **index, magnitude, and state name**
         for entry in participation_factors
-        if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)
+        if isinstance(entry[0], int)
     ]
 
     if not valid_factors:
@@ -138,7 +127,7 @@ def visualization(testResults):
         return
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extract state names dynamically
 
     col1, col2 = st.columns([1, 1])
 
@@ -146,7 +135,7 @@ def visualization(testResults):
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,
+                names=dominant_state_names,  # ✅ Using dynamic state names
                 values=factor_magnitudes,
                 width=1000,
                 height=800
@@ -155,17 +144,23 @@ def visualization(testResults):
 
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        heatmap_data = {}
 
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+                if isinstance(entry[0], int):
+                    state_name = entry[3]  # ✅ Extract state name dynamically
+                    if state_name not in heatmap_data:
+                        heatmap_data[state_name] = [0] * mode_range  # Initialize with zeros
+                    heatmap_data[state_name][mode_idx] = float(entry[2])
+
+        # Convert dictionary to array
+        heatmap_array = np.array(list(heatmap_data.values()))
 
         heatmap_fig = px.imshow(
-            np.array(heatmap_data).T,
+            heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=state_variables,
+            y=list(heatmap_data.keys()),  # ✅ Using dynamic state names
             width=1000,
             height=800
         )
