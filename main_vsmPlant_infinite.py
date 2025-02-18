@@ -1,12 +1,12 @@
 # Critical imports
 import numpy as np
-from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
+from lib.ssmodel_vsmPlant_infinite import ssmodel_vsmPlant_infinite
 # Optional imports (plotting & file export)
 from plott import plott
 from Testing.toCSV import flatten_column_major
 
 
-def main_droopPlant_infinite(user_params=None):
+def main_vsmPlant_infinite(user_params=None):
     # Base angular frequency
     wbase = 2 * np.pi * 60
 
@@ -51,7 +51,7 @@ def main_droopPlant_infinite(user_params=None):
 
     # Run the small-signal stability analysis
     dominantParticipationFactorBoundary = 0.01
-    Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = ssmodel_droopPlant_infinite(
+    Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = ssmodel_vsmPlant_infinite(
         wbase, parasIBR, dominantParticipationFactorBoundary
     )
 
@@ -74,5 +74,5 @@ def main_droopPlant_infinite(user_params=None):
 
 
 if __name__ == "__main__":
-    results = main_droopPlant_infinite()
+    results = main_vsmPlant_infinite()
     print(results)
