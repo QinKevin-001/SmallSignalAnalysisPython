@@ -78,17 +78,31 @@ def run_simulation(user_params):
 
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
-    """Generates plots based on testResults."""
+    """Generates plots and displays test results based on simulation output."""
     state_variables = [
         "Theta0", "Tef0", "Qof0", "Vof0", "winv0", "Psif0", "Iid0", "Iiq0",
         "Vcd0", "Vcq0", "Iod0", "Ioq0"
     ]
 
+    st.subheader("🔹 Simulation Test Results")
+
+    # Display parameters
+    with st.expander("📌 Simulation Parameters", expanded=False):
+        st.json(testResults[1][0])  # Dictionary of parameters
+
+    # Display eigenvalues
+    with st.expander("🔹 Eigenvalue Analysis", expanded=True):
+        st.write(f"**Eigenvalues:** {testResults[1][1]}")
+        st.write(f"**Max Real Value:** {testResults[1][2]}")
+        st.write(f"**Min Damping Ratio:** {testResults[1][3]}")
+        st.write(f"**Power Flow Exit Flag:** {testResults[1][5]}")
+
+    # Extract mode analysis data
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Get mode selection from the sidebar
+    # Get mode selection from sidebar
     mode_index = get_mode_selection(mode_range)
 
     try:
@@ -104,6 +118,7 @@ def visualization(testResults):
     factor_magnitudes = [entry[1] for entry in valid_factors]
     dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
+    # Visualization
     col1, col2 = st.columns([1, 1])
 
     with col1:
