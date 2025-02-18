@@ -1,3 +1,5 @@
+# Test confirmed
+
 import streamlit as st
 import numpy as np
 import plotly.express as px
@@ -90,12 +92,9 @@ def run_simulation(user_params):
     return main_droopPlant_droopPlant.main_droopPlant_droopPlant(user_params)
 
 
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
-def run_simulation_and_visualization():
-    """Runs the simulation and displays results."""
-    user_params = get_user_inputs()
-    testResults = run_simulation(user_params)
-
+# ----------------- 📌 Visualization ----------------- #
+def visualization(testResults):
+    """Generates plots based on testResults."""
     st.title("Droop Plant + Droop Plant System Analysis")
     st.write("Analyzing stability and modal response of the Droop Plant + Droop Plant system.")
 
@@ -106,5 +105,20 @@ def run_simulation_and_visualization():
     st.write(eigenvalues)
 
 
-if __name__ == "__main__":
+# ----------------- 📌 Run Simulation & Visualization ----------------- #
+def run_simulation_and_visualization():
+    """Runs the simulation and displays results."""
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)
+    visualization(testResults)
+
+
+# ----------------- 📌 Add the `main()` Function ----------------- #
+def main():
+    st.title("DroopPlant + DroopPlant System Analysis")
     run_simulation_and_visualization()
+
+
+# Ensure it runs when called from `vis_main.py`
+if __name__ == "__main__":
+    main()
