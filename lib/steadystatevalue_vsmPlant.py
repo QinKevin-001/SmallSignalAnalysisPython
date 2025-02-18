@@ -1,7 +1,8 @@
 import numpy as np
 import cmath
 
-def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
+
+def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     # Parameters
     PsetPlant = parasIBR['PsetPlant']
     QsetPlant = parasIBR['QsetPlant']
@@ -21,18 +22,21 @@ def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
     Lc = parasIBR['Lc']
 
     # Calculation
-    imagUnit = 1j
+    imagUnit = 1j  # equivalent to sqrt(-1)
+
     VbAngle = cmath.phase(Vb)
     VbD = Vb.real
     VbQ = Vb.imag
     IoD = Io.real
     IoQ = Io.imag
+
     PoPlant = VbD * IoD + VbQ * IoQ
     QoPlant = VbQ * IoD - VbD * IoQ
 
     Vo = Vb + (Rc + imagUnit * w * Lc) * Io
     VoAbs = abs(Vo)
     VoAngle = cmath.phase(Vo)
+
     IoAbs = abs(Io)
     IoAngle = cmath.phase(Io)
 
@@ -57,18 +61,19 @@ def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
     Vcq = VcAbs * np.sin(VcAngle - ViAngle)
     Iid = IiAbs * np.cos(IiAngle - ViAngle)
     Iiq = IiAbs * np.sin(IiAngle - ViAngle)
-    Vid = ViAbs * np.cos(ViAngle - ViAngle)
-    Viq = ViAbs * np.sin(ViAngle - ViAngle)
+    # Note: cos(ViAngle-ViAngle)=1 and sin(ViAngle-ViAngle)=0
+    Vid = ViAbs * np.cos(ViAngle - ViAngle)  # equals ViAbs
+    Viq = ViAbs * np.sin(ViAngle - ViAngle)  # equals 0
 
     Po = Vod * Iod + Voq * Ioq
     Qo = Voq * Iod - Vod * Ioq
 
-    # Output
+    # Output calculations
     thetaPlant0 = VbAngle
     epsilonPLL0 = (w - wsetPlant) / KiPLLplant
     wPlant0 = w
-    epsilonP0 = (Po / wset - (wset - w) / mp - PsetPlant) / KiPlantP
-    epsilonQ0 = (Qo - (Vset - VoAbs) / mq - QsetPlant) / KiPlantQ
+    epsilonP0 = (Po / wset - 1 / mp * (wset - w) - PsetPlant) / KiPlantP
+    epsilonQ0 = (Qo - 1 / mq * (Vset - VoAbs) - QsetPlant) / KiPlantQ
     PoPlant0 = PoPlant
     QoPlant0 = QoPlant
     PsetDelay0 = Po - (wset - w) / mp
@@ -87,9 +92,9 @@ def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
     Ioq0 = Ioq
 
     steadyStateValuesX = np.array([
-        thetaPlant0, epsilonPLL0, wPlant0, epsilonP0, epsilonQ0, PoPlant0, QoPlant0,
-        PsetDelay0, QsetDelay0, Theta0, Tef0, Qof0, Vof0, winv0, Psif0,
-        Iid0, Iiq0, Vcd0, Vcq0, Iod0, Ioq0
+        thetaPlant0, epsilonPLL0, wPlant0, epsilonP0, epsilonQ0,
+        PoPlant0, QoPlant0, PsetDelay0, QsetDelay0, Theta0, Tef0,
+        Qof0, Vof0, winv0, Psif0, Iid0, Iiq0, Vcd0, Vcq0, Iod0, Ioq0
     ])
 
     steadyStateValuesU = np.array([VbD, VbQ, w])
