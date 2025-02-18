@@ -1,5 +1,4 @@
 import numpy as np
-import cmath
 
 def steadystatevalue_load(w, Vb, parasLoad):
     # Parameters
