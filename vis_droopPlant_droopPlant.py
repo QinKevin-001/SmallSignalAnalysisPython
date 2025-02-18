@@ -113,20 +113,32 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # Debugging: Print participation factor indices
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    # 🔹 Debugging: Print mode data structure
+    st.write("DEBUG: Raw Mode Data:", modes[mode_index])
+
+    # Check if participation factors exist at expected index
+    if len(modes[mode_index]) <= 5:
+        st.error("No participation factor data found in modes[mode_index][5]. Check testResults structure.")
+        return
+
+    participation_factors = modes[mode_index][5]  # Extract participation factor data
+
+    # 🔹 Debugging: Print raw participation factors
+    st.write("DEBUG: Raw Participation Factors:", participation_factors)
+
+    # Ensure participation factors are valid
     valid_factors = [
         (entry[0], float(entry[2]))
         for entry in participation_factors
-        if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)  # ✅ Ensure within bounds
+        if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)
     ]
 
     if not valid_factors:
-        st.error("No valid participation factors found.")
+        st.error("No valid participation factors found. Check if participation factor indices are correct.")
         return
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]  # ✅ Fixed indexing issue
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
     col1, col2 = st.columns([1, 1])
 
@@ -147,7 +159,7 @@ def visualization(testResults):
 
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):  # ✅ Ensure within bounds
+                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
                     heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
 
         heatmap_fig = px.imshow(
@@ -158,6 +170,7 @@ def visualization(testResults):
             height=800
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
+
 
 # ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
