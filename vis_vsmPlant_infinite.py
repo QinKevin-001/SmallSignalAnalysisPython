@@ -149,7 +149,7 @@ def visualization(testResults):
 
 def main():
     """Main function to handle user inputs, simulation, and visualization."""
-    st.title("VSM Plant Infinite System Analysis")
+    st.title("VSM Plant Infinite System Analysis.")
 
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)  # Run simulation with current parameters
