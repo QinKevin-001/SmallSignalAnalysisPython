@@ -115,9 +115,9 @@ def visualization(testResults):
     # 🔹 Debugging output
     st.write("DEBUG: Participation Factors:", participation_factors)
 
-    # 🔹 Filter valid factors and extract **state names dynamically**
+    # 🔹 Extract valid factors (index, magnitude, state name)
     valid_factors = [
-        (entry[0], float(entry[2]), entry[3])  # Extracting **index, magnitude, and state name**
+        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")  # Format: "state_name (subsystem)"
         for entry in participation_factors
         if isinstance(entry[0], int)
     ]
@@ -127,7 +127,7 @@ def visualization(testResults):
         return
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extract state names dynamically
+    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extracted formatted state names
 
     col1, col2 = st.columns([1, 1])
 
@@ -135,7 +135,7 @@ def visualization(testResults):
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,  # ✅ Using dynamic state names
+                names=dominant_state_names,  # ✅ Using extracted state names
                 values=factor_magnitudes,
                 width=1000,
                 height=800
@@ -149,7 +149,7 @@ def visualization(testResults):
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
                 if isinstance(entry[0], int):
-                    state_name = entry[3]  # ✅ Extract state name dynamically
+                    state_name = f"{entry[3]} ({entry[4]})"  # ✅ Extracted state names
                     if state_name not in heatmap_data:
                         heatmap_data[state_name] = [0] * mode_range  # Initialize with zeros
                     heatmap_data[state_name][mode_idx] = float(entry[2])
@@ -160,7 +160,7 @@ def visualization(testResults):
         heatmap_fig = px.imshow(
             heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # ✅ Using dynamic state names
+            y=list(heatmap_data.keys()),  # ✅ Using extracted state names
             width=1000,
             height=800
         )
