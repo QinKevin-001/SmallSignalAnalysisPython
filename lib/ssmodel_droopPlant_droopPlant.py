@@ -13,13 +13,9 @@ from lib.eigenvalue_analysis import eigenvalue_analysis
 def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([1, 0, 0, 0, 1, 1, 1, 1])
-    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}  # Levenberg-Marquardt equivalent options
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibrPlant_ibrPlant(x, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad),
-        x0,
-        xtol=1e-6,
-        maxfev=500,
-        full_output=True
+        x0, xtol=1e-6, maxfev=500, full_output=True
     )
     pfExitFlag = ier  # fsolve exit flag
 
@@ -40,57 +36,37 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
     # Small-signal Modeling
     stateMatrix1 = ssmodel_droopPlant(wbase, parasIBR1, steadyStateValuesX1, steadyStateValuesU1, 1)
     stateMatrix2 = ssmodel_droopPlant(wbase, parasIBR2, steadyStateValuesX2, steadyStateValuesU2, 0)
-    stateMatrixLine1 = ssmodel_line(wbase, parasLine1, steadyStateValuesXLine1, steadyStateValuesULine1)
-    stateMatrixLine2 = ssmodel_line(wbase, parasLine2, steadyStateValuesXLine2, steadyStateValuesULine2)
     stateMatrixLoad = ssmodel_load(wbase, parasLoad, steadyStateValuesXLoad, steadyStateValuesULoad)
 
     # Extract matrices
     A1, B1, Bw1, C1, Cw1 = stateMatrix1['A'], stateMatrix1['B'], stateMatrix1['Bw'], stateMatrix1['C'], stateMatrix1['Cw']
     A2, B2, Bw2, C2 = stateMatrix2['A'], stateMatrix2['B'], stateMatrix2['Bw'], stateMatrix2['C']
-    Aline1, B1line1, B2line1, Bwline1 = stateMatrixLine1['A'], stateMatrixLine1['B1'], stateMatrixLine1['B2'], stateMatrixLine1['Bw']
-    Aline2, B1line2, B2line2, Bwline2 = stateMatrixLine2['A'], stateMatrixLine2['B1'], stateMatrixLine2['B2'], stateMatrixLine2['Bw']
     Aload, Bload, Bwload = stateMatrixLoad['A'], stateMatrixLoad['B'], stateMatrixLoad['Bw']
 
     # Define coupling matrices
     Rx = parasLoad['Rx']
-    Ngen1 = Rx * np.array([[1, 0], [0, 1]])
-    Nline1Gen = -Rx * np.array([[1, 0], [0, 1]])
-    Ngen2 = Rx * np.array([[1, 0], [0, 1]])
-    Nline2Gen = -Rx * np.array([[1, 0], [0, 1]])
-    Nline1Load = Rx * np.array([[1, 0], [0, 1]])
-    Nline2Load = Rx * np.array([[1, 0], [0, 1]])
-    Nload = -Rx * np.array([[1, 0], [0, 1]])
+    Ngen1 = Rx * np.eye(2)
+    Ngen2 = Rx * np.eye(2)
+    Nload = -Rx * np.eye(2)
 
-    # Construct the overall system matrix
+    # Correct Asys Construction
     Asys = np.block([
-        [A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1, np.zeros((13, 22)), B1 @ Nline1Gen, np.zeros((13, 2)), np.zeros((13, 2))],
-        [Bw2 @ Cw1.T, A2 + B2 @ Ngen2 @ C2, np.zeros((22, 2)), B2 @ Nline2Gen, np.zeros((22, 2))],
-        [Bwline1 @ Cw1.T + B1line1 @ Ngen1 @ C1, np.zeros((2, 22)), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load,
-         B2line1 @ Nline2Load, B2line1 @ Nload],
-        [Bwline2 @ Cw1.T, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load,
-         Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
-        [Bwload @ Cw1.T, np.zeros((2, 22)), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
+        [A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1, np.zeros((20, 20)), B1 @ Ngen2 @ C2, B1 @ Nload],
+        [Bw2 @ Cw1.T + B2 @ Ngen1 @ C1, A2 + B2 @ Ngen2 @ C2, np.zeros((20, 2)), B2 @ Nload],
+        [Bload @ Ngen1 @ C1, Bload @ Ngen2 @ C2, Aload + Bload @ Nload, Bwload @ Cw1.T]
     ])
 
     # Combine state variables
     ssVariables = np.concatenate(
-        (stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLine1['ssVariables'],
-         stateMatrixLine2['ssVariables'], stateMatrixLoad['ssVariables']))
+        (stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLoad['ssVariables']))
 
-    # Assign labels for IBR1, IBR2, Line1, Line2, and Load
+    # Assign labels
     ssVariables = np.array(ssVariables, dtype=object)
     ssVariables[:, 1] = (
             ['IBR1'] * len(stateMatrix1['ssVariables']) +
             ['IBR2'] * len(stateMatrix2['ssVariables']) +
-            ['Line1'] * len(stateMatrixLine1['ssVariables']) +
-            ['Line2'] * len(stateMatrixLine2['ssVariables']) +
             ['Load'] * len(stateMatrixLoad['ssVariables'])
     )
-
-    # Remove the 10th row/column (consistent with MATLAB version)
-    Asys = np.delete(Asys, 9, axis=0)  # Row
-    Asys = np.delete(Asys, 9, axis=1)  # Column
-    ssVariables = np.delete(ssVariables, 9, axis=0)
 
     # Eigenvalue Analysis
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
