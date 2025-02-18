@@ -47,7 +47,9 @@ def main_vsmPlant_infinite(user_params=None):
 
     # Override parameters with user-defined values if provided
     if user_params:
-        parasIBR.update(user_params)
+        for key in parasIBR.keys():
+            if key in user_params:
+                parasIBR[key] = user_params[key]
 
     # Run the small-signal stability analysis
     dominantParticipationFactorBoundary = 0.01
