@@ -45,7 +45,6 @@ default_values = {
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
-
     # Ensure session state is initialized
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
@@ -156,6 +155,11 @@ def run_simulation_and_visualization():
     """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
     user_params = get_user_inputs()  # Get user parameters
     testResults = run_simulation(user_params)  # Run simulation
+
+    # ----------------- NEW: Display Test Results Matrix ----------------- #
+    st.subheader("Test Results Matrix")
+    st.write(testResults)
+
     visualization(testResults)  # Show visualization
 
 
