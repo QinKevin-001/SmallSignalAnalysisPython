@@ -36,11 +36,15 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
     # Small-signal Modeling
     stateMatrix1 = ssmodel_droopPlant(wbase, parasIBR1, steadyStateValuesX1, steadyStateValuesU1, 1)
     stateMatrix2 = ssmodel_droopPlant(wbase, parasIBR2, steadyStateValuesX2, steadyStateValuesU2, 0)
+    stateMatrixLine1 = ssmodel_line(wbase, parasLine1, steadyStateValuesXLine1, steadyStateValuesULine1)
+    stateMatrixLine2 = ssmodel_line(wbase, parasLine2, steadyStateValuesXLine2, steadyStateValuesULine2)
     stateMatrixLoad = ssmodel_load(wbase, parasLoad, steadyStateValuesXLoad, steadyStateValuesULoad)
 
     # Extract matrices
     A1, B1, Bw1, C1, Cw1 = stateMatrix1['A'], stateMatrix1['B'], stateMatrix1['Bw'], stateMatrix1['C'], stateMatrix1['Cw']
     A2, B2, Bw2, C2 = stateMatrix2['A'], stateMatrix2['B'], stateMatrix2['Bw'], stateMatrix2['C']
+    Aline1, B1line1, B2line1, Bwline1 = stateMatrixLine1['A'], stateMatrixLine1['B1'], stateMatrixLine1['B2'], stateMatrixLine1['Bw']
+    Aline2, B1line2, B2line2, Bwline2 = stateMatrixLine2['A'], stateMatrixLine2['B1'], stateMatrixLine2['B2'], stateMatrixLine2['Bw']
     Aload, Bload, Bwload = stateMatrixLoad['A'], stateMatrixLoad['B'], stateMatrixLoad['Bw']
 
     # Define coupling matrices
@@ -49,26 +53,30 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
     Ngen2 = Rx * np.eye(2)
     Nload = -Rx * np.eye(2)
 
-    # Correct Asys Construction
+    # Construct the overall system matrix
     Asys = np.block([
         [A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1, np.zeros((20, 20)), B1 @ Ngen2 @ C2, B1 @ Nload],
         [Bw2 @ Cw1.T + B2 @ Ngen1 @ C1, A2 + B2 @ Ngen2 @ C2, np.zeros((20, 2)), B2 @ Nload],
         [Bload @ Ngen1 @ C1, Bload @ Ngen2 @ C2, Aload + Bload @ Nload, Bwload @ Cw1.T]
     ])
 
-    # Combine state variables
-    ssVariables = np.concatenate(
-        (stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLoad['ssVariables']))
+    # **Fixing `ssVariables` Concatenation**
+    ssVariables1 = np.array(stateMatrix1['ssVariables']).reshape(-1, 1)  # Ensure 1D
+    ssVariables2 = np.array(stateMatrix2['ssVariables']).reshape(-1, 1)
+    ssVariablesLoad = np.array(stateMatrixLoad['ssVariables']).reshape(-1, 1)
 
-    # Assign labels
-    ssVariables = np.array(ssVariables, dtype=object)
-    ssVariables[:, 1] = (
-            ['IBR1'] * len(stateMatrix1['ssVariables']) +
-            ['IBR2'] * len(stateMatrix2['ssVariables']) +
-            ['Load'] * len(stateMatrixLoad['ssVariables'])
+    # **Ensure Concatenation is 1D**
+    ssVariables = np.vstack((ssVariables1, ssVariables2, ssVariablesLoad))
+
+    # Assign labels (Fixing Shape Issue)
+    categories = (
+            ['IBR1'] * len(ssVariables1) +
+            ['IBR2'] * len(ssVariables2) +
+            ['Load'] * len(ssVariablesLoad)
     )
+    ssVariables = np.column_stack((ssVariables, np.array(categories, dtype=object)))
 
-    # Eigenvalue Analysis
+    # **Eigenvalue Analysis**
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
 
     return Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag
