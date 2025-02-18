@@ -4,7 +4,7 @@ import numpy as np
 import cmath
 
 
-def steadystatevalue_vsmpPlant(w, Vb, Io, parasIBR):
+def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
     # Parameters
     PsetPlant = parasIBR['PsetPlant']
     QsetPlant = parasIBR['QsetPlant']
