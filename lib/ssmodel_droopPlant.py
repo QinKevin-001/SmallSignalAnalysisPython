@@ -123,4 +123,3 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     }
 
     return stateMatrix
-
