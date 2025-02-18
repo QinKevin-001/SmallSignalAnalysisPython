@@ -63,11 +63,13 @@ def ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, paras
 
     # Construct the overall system matrix
     Asys = np.block([
-        [A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1, np.zeros((22, 22)), B1 @ Nline1Gen, np.zeros((22, 2)), np.zeros((22, 2))],
-        [Bw2 @ Cw1, A2 + B2 @ Ngen2 @ C2, np.zeros((22, 2)), B2 @ Nline2Gen, np.zeros((22, 2))],
-        [Bwline1 @ Cw1 + B1line1 @ Ngen1 @ C1, np.zeros((2, 22)), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load, B2line1 @ Nline2Load, B2line1 @ Nload],
-        [Bwline2 @ Cw1, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load, Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
-        [Bwload @ Cw1, np.zeros((2, 22)), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
+        [A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1, np.zeros((13, 22)), B1 @ Nline1Gen, np.zeros((13, 2)), np.zeros((13, 2))],
+        [Bw2 @ Cw1.T, A2 + B2 @ Ngen2 @ C2, np.zeros((22, 2)), B2 @ Nline2Gen, np.zeros((22, 2))],
+        [Bwline1 @ Cw1.T + B1line1 @ Ngen1 @ C1, np.zeros((2, 22)), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load,
+         B2line1 @ Nline2Load, B2line1 @ Nload],
+        [Bwline2 @ Cw1.T, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load,
+         Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
+        [Bwload @ Cw1.T, np.zeros((2, 22)), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
     ])
 
     # Combine state variables
