@@ -39,18 +39,15 @@ variable_ranges = {
     "Lline": (0.01, 1.0)
 }
 
-# Default values from `main_droopPlant_droopPlant.py`
 default_values = {key: (min_val + max_val) / 2 for key, (min_val, max_val) in variable_ranges.items()}
 
 
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
-    """Creates user input controls inside the Simulation Parameters tab."""
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
     user_params = {}
-
     st.sidebar.header("Simulation Parameters")
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
@@ -68,59 +65,71 @@ def get_user_inputs():
 
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
-    """Runs the simulation using the selected parameters."""
     return main_droopPlant_droopPlant.main_droopPlant_droopPlant(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
-    """Generates plots based on testResults."""
-    st.title("Droop Plant + Droop Plant System Analysis")
-    st.write("Analyzing stability and modal response of the Droop Plant + Droop Plant system.")
+    state_variables = [
+        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
+        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+    ]
 
-    st.subheader("Eigenvalue Analysis")
-    st.write("Real and Imaginary parts of dominant eigenvalues:")
-
-    eigenvalues = testResults[1][1]
-    st.write(eigenvalues)
-
-    st.subheader("Participation Factor Distribution")
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    if mode_range > 0:
-        participation_factors = modes[0][5] if len(modes[0]) > 5 else []
-        valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
+    mode_index = st.sidebar.slider("Select a Mode", 1, mode_range, 1) - 1
 
-        if valid_factors:
-            factor_magnitudes = [entry[1] for entry in valid_factors]
-            dominant_state_names = [f"State {entry[0]}" for entry in valid_factors]
+    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
 
+    factor_magnitudes = [entry[1] for entry in valid_factors]
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+
+    col1, col2 = st.columns([1, 1])
+
+    with col1:
+        st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
+        if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title="Participation Factors",
-                width=800,
-                height=600
+                width=1000,
+                height=800
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
+
+    with col2:
+        st.subheader("Heatmap of Participation Factors for All Modes")
+        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        for mode_idx in range(mode_range):
+            for entry in modes[mode_idx][5]:
+                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+
+        heatmap_fig = px.imshow(
+            np.array(heatmap_data).T,
+            x=[f"Mode {i + 1}" for i in range(mode_range)],
+            y=state_variables,
+            width=1000,
+            height=800
+        )
+        st.plotly_chart(heatmap_fig, use_container_width=True)
 
 
 # ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
-    """Runs the simulation and displays results."""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
 
 
-# ----------------- 📌 Main Function ----------------- #
+# ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    st.title("DroopPlant + DroopPlant System Analysis")
+    st.title("Droop Plant + Droop Plant System Analysis")
     run_simulation_and_visualization()
 
 
-# Ensure it runs when called from `vis_main.py`
 if __name__ == "__main__":
     main()
