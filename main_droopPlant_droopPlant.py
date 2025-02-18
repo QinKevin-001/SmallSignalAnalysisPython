@@ -60,7 +60,7 @@ def main_droopPlant_droopPlant(user_params=None):
 
     parasLoad = {
         'Rload': 0.90, 'Lload': 0.4358, #load parameters
-        'LoadRx': 100   #virtual resistance
+        'Rx': 100   #virtual resistance
     }
 
 
