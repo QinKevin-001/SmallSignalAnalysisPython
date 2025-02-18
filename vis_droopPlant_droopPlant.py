@@ -40,25 +40,7 @@ variable_ranges = {
 }
 
 # Default values from `main_droopPlant_droopPlant.py`
-default_values = {
-    "PsetPlant": 0.1, "QsetPlant": 0.0,
-    "ωsetPlant": 1.0, "VsetPlant": 1.0,
-    "KpPLLPlant": 1.8, "KiPLLPlant": 160.0,
-    "KpPlantP": 0.1, "KiPlantP": 6.0,
-    "KpPlantQ": 0.1, "KiPlantQ": 6.0,
-    "ωcPLLPlant": float(2 * np.pi * 100),
-    "ωcPlant": float(2 * np.pi * 1),
-    "tDelay": 0.25,
-    "Vset": 1.0, "mp": 0.05, "mq": 0.05,
-    "Rt": 0.02, "Lt": 0.10,
-    "Rd": 0.00, "Cf": 0.05,
-    "Rc": 0.10, "Lc": 0.50,
-    "KpV": 0.9, "KiV": 8.0,
-    "KpC": 0.4, "KiC": 8.0,
-    "ωc": float(2 * np.pi * 5),
-    "Rload": 0.9, "Lload": 0.4358, "Rx": 100,
-    "Rline": 0.10, "Lline": 0.50
-}
+default_values = {key: (min_val + max_val) / 2 for key, (min_val, max_val) in variable_ranges.items()}
 
 
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
@@ -102,6 +84,28 @@ def visualization(testResults):
     eigenvalues = testResults[1][1]
     st.write(eigenvalues)
 
+    st.subheader("Participation Factor Distribution")
+    mode_data_raw = testResults[1][4]
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+    mode_range = len(modes)
+
+    if mode_range > 0:
+        participation_factors = modes[0][5] if len(modes[0]) > 5 else []
+        valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
+
+        if valid_factors:
+            factor_magnitudes = [entry[1] for entry in valid_factors]
+            dominant_state_names = [f"State {entry[0]}" for entry in valid_factors]
+
+            pie_chart_fig = px.pie(
+                names=dominant_state_names,
+                values=factor_magnitudes,
+                title="Participation Factors",
+                width=800,
+                height=600
+            )
+            st.plotly_chart(pie_chart_fig, use_container_width=True)
+
 
 # ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
@@ -111,7 +115,7 @@ def run_simulation_and_visualization():
     visualization(testResults)
 
 
-# ----------------- 📌 Add the `main()` Function ----------------- #
+# ----------------- 📌 Main Function ----------------- #
 def main():
     st.title("DroopPlant + DroopPlant System Analysis")
     run_simulation_and_visualization()
