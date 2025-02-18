@@ -3,7 +3,7 @@
 import numpy as np
 import sympy as sp
 
-def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
+def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
     # Define symbolic variables
     thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof, Vof, winv, psif, iid, iiq, vcd, vcq, iod, ioq = sp.symbols(
         'thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant PsetDelay QsetDelay theta Tef Qof Vof winv psif iid iiq vcd vcq iod ioq'
