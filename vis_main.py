@@ -46,7 +46,7 @@ if selected_page == "Main Page":
         "GFL Plant Infinite": "A GFL plant interacting with an infinite bus.",
         "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
         "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus.",
-        "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load.",
+        "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load.",
         "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting."
 
     }
