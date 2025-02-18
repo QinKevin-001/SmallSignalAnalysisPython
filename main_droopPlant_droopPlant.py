@@ -1,6 +1,9 @@
 #critical imports
-
-#optional imports
+import numpy as np
+from lib.ssmodel_droopPlant_droopPlant import ssmodel_droopPlant_droopPlant
+# Optional imports (plotting & file export)
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_droopPlant_droopPlant(user_params=None):
     #parameters
@@ -95,7 +98,7 @@ def main_droopPlant_droopPlant(user_params=None):
     # Run the simulation for a single set of parameters
     dominantParticipationFactorBoundary = 0.01
     Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
-        ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad, dominantParticipationFactorBoundary)
+        ssmodel_droopPlant_droopPlant(wbase, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad, dominantParticipationFactorBoundary)
     )
 
     # Store the results

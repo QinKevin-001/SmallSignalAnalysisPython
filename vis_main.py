@@ -11,14 +11,15 @@ st.set_page_config(layout="wide")
 # Define available visualization pages
 PAGES = {
     "Main Page": None,
-    "Droop Infinite": "vis_droop_infinite",
-    "Droop Plant Infinite": "vis_droopPlant_infinite",
-    "Droop Simplified Infinite": "vis_droopSimplified_infinite",
-    "GFL Infinite": "vis_gfl_infinite",
-    "GFL Plant Infinite": "vis_gflPlant_infinite",
-    "VSM Infinite": "vis_vsm_infinite",
-    "VSM Plant Infinite": "vis_vsmPlant_infinite",
-    "Droop Droop": "vis_droop_droop"
+    "Case 01: Droop Infinite": "vis_droop_infinite",
+    "Case 02: Droop Plant Infinite": "vis_droopPlant_infinite",
+    "Case 03: Droop Simplified Infinite": "vis_droopSimplified_infinite",
+    "Case 04: GFL Infinite": "vis_gfl_infinite",
+    "Case 05: GFL Plant Infinite": "vis_gflPlant_infinite",
+    "Case 06: VSM Infinite": "vis_vsm_infinite",
+    "Case 07: VSM Plant Infinite": "vis_vsmPlant_infinite",
+    "Case 08: Droop Droop": "vis_droop_droop",
+    "Case 09: Droop Plant Droop Plant": "vis_droopPlant_droopPlant"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
@@ -45,7 +46,9 @@ if selected_page == "Main Page":
         "GFL Plant Infinite": "A GFL plant interacting with an infinite bus.",
         "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
         "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus.",
-        "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load."
+        "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load.",
+        "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting."
+
     }
 
     for case, description in case_descriptions.items():
