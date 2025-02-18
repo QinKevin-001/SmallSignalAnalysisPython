@@ -1,17 +1,20 @@
-import numpy as np
 import sympy as sp
+import numpy as np
 
 
 def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic state variables
-    thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof, Vof, winv, psif, iid, iiq, vcd, vcq, iod, ioq = sp.symbols(
-        'thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant PsetDelay QsetDelay theta Tef Qof Vof winv psif iid iiq vcd vcq iod ioq'
-    )
-    # Define symbolic input variables
-    vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
+    # Define symbolic variables
+    (thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
+     PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof, Vof,
+     winv, psif, iid, iiq, vcd, vcq, iod, ioq) = sp.symbols(
+        'thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant '
+        'PsetDelay QsetDelay theta Tef Qof Vof winv psif iid iiq vcd vcq iod ioq',
+        real=True)
 
-    # Extract parameters from parasIBR
-    PsetPlant_param = parasIBR['PsetPlant']
+    (vbD, vbQ, wcom) = sp.symbols('vbD vbQ wcom', real=True)
+
+    # Parameters from parasIBR (assumed to be a dictionary)
+    PsetPlant = parasIBR['PsetPlant']
     QsetPlant = parasIBR['QsetPlant']
     wsetPlant = parasIBR['wsetPlant']
     VsetPlant = parasIBR['VsetPlant']
@@ -44,95 +47,81 @@ def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     vbqPlant = -vbD * sp.sin(thetaPlant) + vbQ * sp.cos(thetaPlant)
     wpllPlant = KpPLLplant * vbqPlant + KiPLLplant * epsilonPLLPlant + wsetPlant
     VabsPlant = sp.sqrt(vbD ** 2 + vbQ ** 2)
-    PrefPlant = (wsetPlant - wPlant) / mpPlant + PsetPlant_param
+    PrefPlant = (wsetPlant - wPlant) / mpPlant + PsetPlant
     QrefPlant = (VsetPlant - VabsPlant) / mqPlant + QsetPlant
-    Pset = KpPlantP * (PrefPlant - PoPlant) + KiPlantP * epsilonP + PsetPlant_param
-    Qset = KpPlantQ * (QrefPlant - QoPlant) + KiPlantQ * epsilonQ + QsetPlant
+    Pset_expr = KpPlantP * (PrefPlant - PoPlant) + KiPlantP * epsilonP + PsetPlant
+    Qset_expr = KpPlantQ * (QrefPlant - QoPlant) + KiPlantQ * epsilonQ + QsetPlant
     vod = vcd + Rd * (iid - iod)
     voq = vcq + Rd * (iiq - ioq)
     vbd = vbD * sp.cos(theta) + vbQ * sp.sin(theta)
     vbq = -vbD * sp.sin(theta) + vbQ * sp.cos(theta)
     vidRef = winv * psif
-    viqRef = 0
-    ioD = (iod * sp.cos(theta) - ioq * sp.sin(theta))
-    ioQ = (iod * sp.sin(theta) + ioq * sp.cos(theta))
+    viqRef = 0  # zero reference
+    ioD = iod * sp.cos(theta) - ioq * sp.sin(theta)
+    ioQ = iod * sp.sin(theta) + ioq * sp.cos(theta)
 
-    # Ordinary differential equations (as a column vector f)
-    f = sp.Matrix([
-        wbase * (wpllPlant - wcom),  # f1
-        vbqPlant,  # f2
-        -wcpllPlant * wPlant + wcpllPlant * wpllPlant,  # f3
-        PrefPlant - PoPlant,  # f4
-        QrefPlant - QoPlant,  # f5
-        -wcPlant * PoPlant + wcPlant * (vbD * ioD + vbQ * ioQ),  # f6
-        -wcPlant * QoPlant + wcPlant * (vbQ * ioD - vbD * ioQ),  # f7
-        (1 / tDelay) * (Pset - PsetDelay),  # f8
-        (1 / tDelay) * (Qset - QsetDelay),  # f9
-        wbase * (winv - wcom),  # f10
-        (1 / tauf) * (-Tef + (vod * iod + voq * ioq) / wset),  # f11
-        (1 / tauf) * (-Qof + voq * iod - vod * ioq),  # f12
-        (1 / tauf) * (-Vof + sp.sqrt(vod ** 2 + voq ** 2)),  # f13
-        1 / J * (PsetDelay / wset - Tef + 1 / mp * (wset - winv)),  # f14
-        1 / K * (QsetDelay - Qof + 1 / mq * (Vset - Vof)),  # f15
-        wbase * (vidRef - vod - Rt * iid + winv * Lt * iiq) / Lt,  # f16
-        wbase * (viqRef - voq - Rt * iiq - winv * Lt * iid) / Lt,  # f17
-        wbase * (iid - iod + winv * Cf * vcq) / Cf,  # f18
-        wbase * (iiq - ioq - winv * Cf * vcd) / Cf,  # f19
-        wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc,  # f20
-        wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc  # f21
-    ])
+    # Ordinary differential equations (f is a 21x1 column vector)
+    f1 = wbase * (wpllPlant - wcom)
+    f2 = vbqPlant
+    f3 = -wcpllPlant * wPlant + wcpllPlant * wpllPlant
+    f4 = PrefPlant - PoPlant
+    f5 = QrefPlant - QoPlant
+    f6 = -wcPlant * PoPlant + wcPlant * (vbD * ioD + vbQ * ioQ)
+    f7 = -wcPlant * QoPlant + wcPlant * (vbQ * ioD - vbD * ioQ)
+    f8 = (Pset_expr - PsetDelay) / tDelay
+    f9 = (Qset_expr - QsetDelay) / tDelay
+    f10 = wbase * (winv - wcom)
+    f11 = (-Tef + (vod * iod + voq * ioq) / wset) / tauf
+    f12 = (-Qof + voq * iod - vod * ioq) / tauf
+    f13 = (-Vof + sp.sqrt(vod ** 2 + voq ** 2)) / tauf
+    f14 = (PsetDelay / wset - Tef + (wset - winv) / mp) / J
+    f15 = (QsetDelay - Qof + (Vset - Vof) / mq) / K
+    f16 = wbase * (vidRef - vod - Rt * iid + winv * Lt * iiq) / Lt
+    f17 = wbase * (viqRef - voq - Rt * iiq - winv * Lt * iid) / Lt
+    f18 = wbase * (iid - iod + winv * Cf * vcq) / Cf
+    f19 = wbase * (iiq - ioq - winv * Cf * vcd) / Cf
+    f20 = wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc
+    f21 = wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc
 
-    # Define state vector x and input vector u
-    x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, PoPlant, QoPlant,
-                   PsetDelay, QsetDelay, theta, Tef, Qof, Vof, winv, psif, iid, iiq, vcd, vcq, iod, ioq])
+    f = sp.Matrix([f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
+                   f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21])
+
+    # Define state and input variables
+    stateVariables = ['thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ',
+                      'PoPlant', 'QoPlant', 'PsetDelay', 'QsetDelay', 'theta', 'Tef', 'Qof',
+                      'Vof', 'winv', 'psif', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
+
+    x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
+                   PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof,
+                   Vof, winv, psif, iid, iiq, vcd, vcq, iod, ioq])
+
     u = sp.Matrix([vbD, vbQ, wcom])
 
     # Compute Jacobians
-    Asym = f.jacobian(x)
-    Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
-    BwSym = f.jacobian(sp.Matrix([wcom]))
-    Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
-    CwSym = sp.Matrix([winv]).jacobian(x)
+    A_sym = f.jacobian(x)
+    B_sym = f.jacobian([vbD, vbQ])
+    Bw_sym = f.jacobian([wcom])
+    C_sym = sp.Matrix([ioD, ioQ]).jacobian(x)
+    Cw_sym = sp.Matrix([winv]).jacobian(x)
 
-    # Ensure steadyStateValuesX and steadyStateValuesU are 1D arrays
-    steadyStateValuesX = np.array(steadyStateValuesX).flatten()
-    steadyStateValuesU = np.array(steadyStateValuesU).flatten()
+    # Substitute the steady state values and convert to numerical (float) NumPy arrays
+    subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
+    A = np.array(A_sym.subs(subs_dict)).astype(np.float64)
+    B = np.array(B_sym.subs(subs_dict)).astype(np.float64)
+    Bw = np.array(Bw_sym.subs(subs_dict)).astype(np.float64)
+    C = np.array(C_sym.subs(subs_dict)).astype(np.float64)
+    Cw = np.array(Cw_sym.subs(subs_dict)).astype(np.float64)
 
-    # Create substitution dictionary for the state and input symbols
-    all_symbols = list(x) + list(u)
-    all_values = np.concatenate((steadyStateValuesX, steadyStateValuesU))
-    subs_dict = dict(zip(all_symbols, all_values.tolist()))
-
-    # Substitute steady-state values and evaluate Jacobians numerically
-    A_sym = Asym.subs(subs_dict).evalf()
-    B_sym = Bsym.subs(subs_dict).evalf()
-    Bw_sym = BwSym.subs(subs_dict).evalf()
-    C_sym = Csym.subs(subs_dict).evalf()
-    Cw_sym = CwSym.subs(subs_dict).evalf()
-
-    # Convert symbolic matrices to NumPy arrays
-    A = np.array(A_sym.tolist()).astype(float)
-    B = np.array(B_sym.tolist()).astype(float)
-    Bw = np.array(Bw_sym.tolist()).astype(float)
-    C = np.array(C_sym.tolist()).astype(float)
-    Cw = np.array(Cw_sym.tolist()).astype(float)
-
-    # If isRef is 0, set Cw to a zero row vector with the correct dimension
     if isRef == 0:
         Cw = np.zeros((1, len(x)))
 
-    # Define state variable names (as a list)
-    stateVariables = ['thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ', 'PoPlant',
-                      'QoPlant', 'PsetDelay', 'QsetDelay', 'theta', 'Tef', 'Qof', 'Vof', 'winv',
-                      'psif', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
-
-    # Construct the stateMatrix dictionary for output
+    # Build the stateMatrix output dictionary
     stateMatrix = {
-        'A': A,
-        'B': B,
-        'Bw': Bw,
-        'C': C,
-        'Cw': Cw,
+        'A': np.array(A).astype(float),
+        'B': np.array(B).astype(float),
+        'Bw': np.array(Bw).astype(float),
+        'C': np.array(C).astype(float),
+        'Cw': np.array(Cw).astype(float),
         'ssVariables': stateVariables
     }
 
