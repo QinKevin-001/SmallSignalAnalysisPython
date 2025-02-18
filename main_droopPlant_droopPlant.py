@@ -30,7 +30,7 @@ def main_droopPlant_droopPlant(user_params=None):
     }
 
     parasIBR2 = {
-        'PsetPlant': 0.1, 'Qset': 0.0,  # plant-level setpoints
+        'PsetPlant': 0.1, 'QsetPlant': 0.0,  # plant-level setpoints
         'wsetPlant': 1.0, 'VsetPlant': 1.0,  # plant-level setpoints
         'mpPlant': 1.00, 'mqPlant': 1.00,  # plant-level droop gains
         'KpPLLplant': 1.8, 'KiPLLplant': 160,  # plant-level PLL PI gains
