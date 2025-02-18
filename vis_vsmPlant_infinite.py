@@ -36,6 +36,25 @@ variable_ranges = {
     "tauf": (0.01, 0.1)
 }
 
+# Default values from `main_vsmPlant_infinite.py`
+default_values = {
+    "PsetPlant": 0.1, "QsetPlant": 0.1,
+    "ωsetPlant": 1.0, "VsetPlant": 1.0,
+    "KpPLLPlant": 1.8, "KiPLLPlant": 160.0,
+    "KpPlantP": 0.12, "KiPlantP": 0.50,
+    "KpPlantQ": 1.25, "KiPlantQ": 5.00,
+    "ωcPLLPlant": float(2 * np.pi * 100),
+    "ωcPlant": float(2 * np.pi * 1),
+    "tDelay": 0.25,
+    "ωset": 1.0, "Vset": 1.0,
+    "mp": 0.05, "mq": 0.05,
+    "Rt": 0.02, "Lt": 0.10,
+    "Rd": 10.00, "Cf": 0.05,
+    "Rc": 0.10, "Lc": 0.50,
+    "J": 10.0, "K": 12.0,
+    "τf": 0.01
+}
+
 def get_user_inputs():
     """Creates user input controls for parameter tuning via the sidebar."""
     st.sidebar.header("Simulation Parameters")
@@ -149,7 +168,7 @@ def visualization(testResults):
 
 def main():
     """Main function to handle user inputs, simulation, and visualization."""
-    st.title("VSM Plant Infinite System Analysis.")
+    st.title("VSM Plant Infinite System Analysis")
 
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)  # Run simulation with current parameters
