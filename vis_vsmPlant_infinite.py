@@ -72,7 +72,7 @@ def get_user_inputs():
     user_params = {}
 
     for var, (min_val, max_val) in variable_ranges.items():
-        # Use the default value if available, otherwise use the mid-point
+        # Use the default value if available, otherwise use the mid-point.
         default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
@@ -182,10 +182,13 @@ def visualization(testResults):
 def main():
     """Main function to handle user inputs, simulation, and visualization."""
     st.title("VSM Plant Infinite System Analysis")
-
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)  # Run simulation with current parameters
     visualization(testResults)                # Generate updated plots
 
+# Expose the main function for multipage navigation.
 if __name__ == "__main__":
     main()
+
+# This alias ensures that when imported, the module provides a main() function.
+app = main
