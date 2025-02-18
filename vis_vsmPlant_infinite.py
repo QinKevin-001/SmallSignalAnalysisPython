@@ -189,6 +189,3 @@ def main():
 # Expose the main function for multipage navigation.
 if __name__ == "__main__":
     main()
-
-# This alias ensures that when imported, the module provides a main() function.
-app = main
