@@ -86,18 +86,34 @@ def visualization(testResults):
 
     st.subheader("🔹 Simulation Test Results")
 
-    # Display parameters
+    # ✅ Display Parameters
     with st.expander("📌 Simulation Parameters", expanded=False):
         st.json(testResults[1][0])  # Dictionary of parameters
 
-    # Display eigenvalues
+    # ✅ Display Eigenvalue Analysis
     with st.expander("🔹 Eigenvalue Analysis", expanded=True):
         st.write(f"**Eigenvalues:** {testResults[1][1]}")
         st.write(f"**Max Real Value:** {testResults[1][2]}")
         st.write(f"**Min Damping Ratio:** {testResults[1][3]}")
         st.write(f"**Power Flow Exit Flag:** {testResults[1][5]}")
 
-    # Extract mode analysis data
+    # ✅ Display Modal Analysis (NEW)
+    with st.expander("📊 Modal Analysis", expanded=True):
+        modal_analysis_data = testResults[1][4]  # Extract modal analysis results
+
+        if isinstance(modal_analysis_data, list):
+            st.write("### Mode Details:")
+            for i, mode in enumerate(modal_analysis_data[1:]):  # Skip the header row
+                mode_num = i + 1
+                st.write(f"#### Mode {mode_num}:")
+                st.write(f"  - **Eigenvalue:** {mode[1]}")
+                st.write(f"  - **Damping Ratio:** {mode[3]}")
+                st.write(f"  - **Frequency:** {mode[2]}")
+                st.write(f"  - **Participation Factors:** {mode[5] if len(mode) > 5 else 'N/A'}")
+        else:
+            st.error("Modal Analysis data is unavailable or improperly formatted.")
+
+    # ✅ Extract Mode Data for Visualization
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
@@ -118,7 +134,7 @@ def visualization(testResults):
     factor_magnitudes = [entry[1] for entry in valid_factors]
     dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
-    # Visualization
+    # ✅ Visualization
     col1, col2 = st.columns([1, 1])
 
     with col1:
