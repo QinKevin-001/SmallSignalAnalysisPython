@@ -36,23 +36,34 @@ variable_ranges = {
     "tauf": (0.01, 0.1)
 }
 
-# Default values from `main_vsmPlant_infinite.py`
+# Default values (keys updated for consistency)
 default_values = {
-    "PsetPlant": 0.1, "QsetPlant": 0.1,
-    "ωsetPlant": 1.0, "VsetPlant": 1.0,
-    "KpPLLPlant": 1.8, "KiPLLPlant": 160.0,
-    "KpPlantP": 0.12, "KiPlantP": 0.50,
-    "KpPlantQ": 1.25, "KiPlantQ": 5.00,
-    "ωcPLLPlant": float(2 * np.pi * 100),
-    "ωcPlant": float(2 * np.pi * 1),
+    "PsetPlant": 0.1,
+    "QsetPlant": 0.1,
+    "wsetPlant": 1.0,
+    "VsetPlant": 1.0,
+    "KpPLLplant": 1.8,
+    "KiPLLplant": 160.0,
+    "KpPlantP": 0.12,
+    "KiPlantP": 0.50,
+    "KpPlantQ": 1.25,
+    "KiPlantQ": 5.00,
+    "wcpllPlant": float(2 * np.pi * 100),
+    "wcPlant": float(2 * np.pi * 1),
     "tDelay": 0.25,
-    "ωset": 1.0, "Vset": 1.0,
-    "mp": 0.05, "mq": 0.05,
-    "Rt": 0.02, "Lt": 0.10,
-    "Rd": 10.00, "Cf": 0.05,
-    "Rc": 0.10, "Lc": 0.50,
-    "J": 10.0, "K": 12.0,
-    "τf": 0.01
+    "wset": 1.0,
+    "Vset": 1.0,
+    "mp": 0.05,
+    "mq": 0.05,
+    "Rt": 0.02,
+    "Lt": 0.10,
+    "Rd": 10.00,
+    "Cf": 0.05,
+    "Rc": 0.10,
+    "Lc": 0.50,
+    "J": 10.0,
+    "K": 12.0,
+    "tauf": 0.01
 }
 
 def get_user_inputs():
@@ -61,11 +72,13 @@ def get_user_inputs():
     user_params = {}
 
     for var, (min_val, max_val) in variable_ranges.items():
+        # Use the default value if available, otherwise use the mid-point
+        default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=min_val,
             max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),
+            value=default,
             step=round((max_val - min_val) / 1000, 2)
         )
 
@@ -172,7 +185,7 @@ def main():
 
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)  # Run simulation with current parameters
-    visualization(testResults)               # Generate updated plots
+    visualization(testResults)                # Generate updated plots
 
 if __name__ == "__main__":
     main()
