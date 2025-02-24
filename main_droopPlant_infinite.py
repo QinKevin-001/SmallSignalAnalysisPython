@@ -53,7 +53,7 @@ def main_droopPlant_infinite(user_params=None):
     ])
 
     #plott(testResults)
-    # flatten_column_major(testResults)  # Uncomment if needed
+    flatten_column_major(testResults)  # Uncomment if needed
 
     return testResults
 

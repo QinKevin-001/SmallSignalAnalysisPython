@@ -5,7 +5,6 @@ from lib.ssmodel_vsmPlant_infinite import ssmodel_vsmPlant_infinite
 from plott import plott
 from Testing.toCSV import flatten_column_major
 
-
 def main_vsmPlant_infinite(user_params=None):
     # Base angular frequency
     wbase = 2 * np.pi * 60
@@ -68,9 +67,9 @@ def main_vsmPlant_infinite(user_params=None):
         pfExitFlag
     ])
 
-    # Optional plotting and CSV export (uncomment if needed)
-    # plott(testResults)
-    # flatten_column_major(testResults)
+    #Optional plotting and CSV export (uncomment if needed)
+    #plott(testResults)
+    flatten_column_major(testResults)
 
     return testResults
 
