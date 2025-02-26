@@ -163,7 +163,7 @@ def run_simulation_and_visualization():
 def main():
     """Main function to handle user input, simulation, and visualization dynamically"""
     st.title("Droop Plant Infinite System Analysis")
-
+    run_simulation_and_visualization()
 
 if __name__ == "__main__":
     main()
