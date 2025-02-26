@@ -153,13 +153,17 @@ def visualization(testResults):
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
+# ----------------- 📌 Run Simulation & Visualization ----------------- #
+def run_simulation_and_visualization():
+    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
+    user_params = get_user_inputs()  # Get user parameters
+    testResults = run_simulation(user_params)  # Run simulation
+    visualization(testResults)  # Show visualization
+
 def main():
     """Main function to handle user input, simulation, and visualization dynamically"""
     st.title("Droop Plant Infinite System Analysis")
 
-    user_params = get_user_inputs()
-    testResults = run_simulation(user_params)  # Dynamic updates
-    visualization(testResults)  # Update visualization dynamically
 
 if __name__ == "__main__":
     main()
