@@ -1,3 +1,5 @@
+#Slight difference, could be from the solver difference
+#DONT TOUCH
 import numpy as np
 from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
 from plott import plott
