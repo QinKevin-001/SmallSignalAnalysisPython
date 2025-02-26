@@ -5,7 +5,7 @@ from lib.ssmodel_droopPlant_infinite import ssmodel_droopPlant_infinite
 from plott import plott
 from Testing.toCSV import flatten_column_major
 
-def main_droopSimplified_infinite(user_params=None):
+def main_droopPlant_infinite(user_params=None):
     # Define parameters exactly as in the MATLAB script:
     wbase = 2 * np.pi * 60
     parasIBR = {
