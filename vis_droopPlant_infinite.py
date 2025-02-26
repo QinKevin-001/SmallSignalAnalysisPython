@@ -22,7 +22,7 @@ variable_ranges = {
     "KiPlantQ": (0.1, 100.0),
     "wcpllPlant": (round(2 * np.pi * 50, 2), round(2 * np.pi * 1000, 2)),
     "wcPlant": (round(2 * np.pi * 0.1, 2), round(2 * np.pi * 5, 2)),
-    'tDelay': 0.25,
+    'tDelay': (0.25, 0.25), #Fixed
     "ωset": (1.0, 1.0),  # Fixed
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
@@ -40,20 +40,48 @@ variable_ranges = {
     "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))
 }
 
+default_values = {
+        'PsetPlant': 1.0,  'QsetPlant': 0.0,
+        'wsetPlant': 1.0,  'VsetPlant': 1.0,
+        'mpPlant': 0.05,   'mqPlant': 0.05,
+        'KpPLLplant': 1.8, 'KiPLLplant': 160,
+        'KpPlantP': 0.10,  'KiPlantP': 6.0,
+        'KpPlantQ': 0.10,  'KiPlantQ': 6.0,
+        'wcpllPlant': 2 * np.pi * 100, 'wcPlant': 2 * np.pi * 5,
+        'tDelay': 0.25,
+        'wset': 1.0,       'Vset': 1.0,
+        'mp': 0.05,        'mq': 0.05,
+        'Rt': 0.02,        'Lt': 0.10,
+        'Rd': 0.00,        'Cf': 0.05,
+        'Rc': 0.04,        'Lc': 0.20,
+        'KpV': 1.8,        'KiV': 16.0,
+        'KpC': 0.4,        'KiC': 12.0,
+        'wc': 2 * np.pi * 5
+    }
+
+# ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
-    """Creates user input controls for variable tuning"""
-    st.sidebar.header("Simulation Parameters")
+    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
+
+    # Ensure session state is initialized
+    if "user_params" not in st.session_state:
+        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
+
     user_params = {}
 
+    # Create a Simulation Parameters Sidebar
+    st.sidebar.header("Simulation Parameters")
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
-            min_value=min_val,
-            max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),
-            step=round((max_val - min_val) / 1000, 2)
+            min_value=float(min_val),
+            max_value=float(max_val),
+            value=float(st.session_state["user_params"].get(var, default_values[var])),
+            step=round((float(max_val) - float(min_val)) / 100, 3),
+            key=f"param_{var}"  # Unique key for each parameter
         )
 
+    st.session_state["user_params"] = user_params
     return user_params
 
 def run_simulation(user_params):
