@@ -23,7 +23,7 @@ variable_ranges = {
     "wcpllPlant": (round(2 * np.pi * 50, 2), round(2 * np.pi * 1000, 2)),
     "wcPlant": (round(2 * np.pi * 0.1, 2), round(2 * np.pi * 5, 2)),
     'tDelay': (0.25, 0.25), #Fixed
-    "ωset": (1.0, 1.0),  # Fixed
+    "wset": (1.0, 1.0),  # Fixed
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
     "mq": (0.01, 1.00),
