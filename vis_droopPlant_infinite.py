@@ -10,7 +10,7 @@ import main_droopPlant_infinite  # Import simulation script without circular dep
 variable_ranges = {
     "PsetPlant": (0.0, 1.0),
     "QsetPlant": (-1.0, 1.0),
-    "ωsetPlant": (1.0, 1.0),  # Fixed
+    "wsetPlant": (1.0, 1.0),  # Fixed
     "VsetPlant": (0.9, 1.1),
     "mpPlant": (0.01, 1.00),
     "mqPlant": (0.01, 1.00),
