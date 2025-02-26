@@ -1,11 +1,12 @@
-#Test confirmed
-
+#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, isRef):
     # Define symbolic variables
-    theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq = sp.symbols('theta Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq')
+    theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq = sp.symbols(
+        'theta Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq'
+    )
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
 
     # Parameters
@@ -60,8 +61,23 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     ioD = iod * sp.cos(theta) - ioq * sp.sin(theta)
     ioQ = iod * sp.sin(theta) + ioq * sp.cos(theta)
 
-    # State-Space Matrices
-    stateVariables = ['theta', 'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
+    # Updated state variable definition as a 2-column structure.
+    stateVariables = [
+        ['theta', ''],
+        ['Po', ''],
+        ['Qo', ''],
+        ['phid', ''],
+        ['phiq', ''],
+        ['gammad', ''],
+        ['gammaq', ''],
+        ['iid', ''],
+        ['iiq', ''],
+        ['vcd', ''],
+        ['vcq', ''],
+        ['iod', ''],
+        ['ioq', '']
+    ]
+
     x = sp.Matrix([theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
 
@@ -87,7 +103,6 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     if isRef == 0:
         Cw = sp.zeros(1, len(stateVariables))
 
-    # Convert symbolic matrices to numerical arrays
     stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),

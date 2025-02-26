@@ -1,5 +1,4 @@
-#Test confirmed
-
+#DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_infinite import pf_func_ibr_infinite
@@ -11,12 +10,12 @@ from lib.eigenvalue_analysis import eigenvalue_analysis
 def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([0, 1])
-    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}  # Levenberg-Marquardt equivalent options
+    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibr_infinite(x, parasIBR),
         x0,
-        xtol=1e-6,  # Tolerance for termination
-        maxfev=500,  # Maximum number of function evaluations
+        xtol=1e-6,
+        maxfev=500,
         full_output=True
     )
     pfExitFlag = ier  # fsolve exit flag
@@ -32,19 +31,15 @@ def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
     Asys = stateMatrix['A']
     ssVariables = stateMatrix['ssVariables']
 
-    # Assigning labels to the state variables
+    # Assign labels to the state variables (now each row is a 2-element list)
     if isinstance(ssVariables, list):
-        # Convert to a mutable list of lists
-        ssVariables = [list(row) for row in ssVariables]
         for row in ssVariables:
             row[1] = 'IBR'
     elif isinstance(ssVariables, np.ndarray):
-        # If it's a NumPy array, modify it directly
         ssVariables[:, 1] = ['IBR'] * ssVariables.shape[0]
     else:
         raise TypeError("Unsupported type for ssVariables")
 
-    # Eigenvalue Analysis
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
 
     return Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag

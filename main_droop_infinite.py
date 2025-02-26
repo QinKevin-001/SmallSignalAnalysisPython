@@ -1,3 +1,4 @@
+#DONT TOUCH
 # Critical imports
 import numpy as np
 from lib.ssmodel_droop_infinite import ssmodel_droop_infinite
@@ -16,7 +17,7 @@ def main_droop_infinite(user_params=None):
         'Rd': 0.00, 'Cf': 0.05,  # LCL filter
         'Rc': 0.04, 'Lc': 0.20,  # LCL filter
         'KpV': 1.8, 'KiV': 16.0,  # voltage loop PI gains
-        'KpC': 0.4, 'KiC': 12.0,  # current loop PI gains
+        'KpC': 0.4 * 5 * 2, 'KiC': 12.0 * 2,  # current loop PI gains
         'wc': 2 * np.pi * 5  # power filter cut-off frequency
     }
 
