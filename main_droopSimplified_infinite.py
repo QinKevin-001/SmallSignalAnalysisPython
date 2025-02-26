@@ -1,7 +1,6 @@
-#Critical imports
 import numpy as np
 from lib.ssmodel_droopSimplified_infinite import ssmodel_droopSimplified_infinite
-#Optional imports (plotting & file export)
+# Optional imports (plotting & file export)
 from plott import plott
 from Testing.toCSV import flatten_column_major
 
@@ -31,9 +30,9 @@ def main_droopSimplified_infinite(user_params=None):
         ssmodel_droopSimplified_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
     )
 
-    # Store the results
+    # Store the results: (to match MATLAB)
     testResults.append([
-        parasIBR,  # Store the full parameter dictionary for reference
+        parasIBR['wc'],
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -41,10 +40,10 @@ def main_droopSimplified_infinite(user_params=None):
         pfExitFlag
     ])
 
-    #plott(testResults)
+    # plott(testResults)
     flatten_column_major(testResults)
 
-    return testResults  # Now it only returns results without calling visualization
+    return testResults
 
 if __name__ == "__main__":
     results = main_droopSimplified_infinite()

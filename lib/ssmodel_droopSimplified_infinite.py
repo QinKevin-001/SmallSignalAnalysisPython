@@ -1,5 +1,3 @@
-#Test confirmed
-
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_infinite import pf_func_ibr_infinite
@@ -33,14 +31,22 @@ def ssmodel_droopSimplified_infinite(wbase, parasIBR, dominantParticipationFacto
     ssVariables = stateMatrix['ssVariables']
 
     # Assigning labels to the state variables
+    # Ensure that ssVariables is a list of two-element lists: [state name, 'IBR']
     if isinstance(ssVariables, list):
-        # Convert to a mutable list of lists
-        ssVariables = [list(row) for row in ssVariables]
-        for row in ssVariables:
-            row[1] = 'IBR'
+        new_ssVariables = []
+        for var in ssVariables:
+            if isinstance(var, str):
+                new_ssVariables.append([var, "IBR"])
+            elif isinstance(var, list) or isinstance(var, tuple):
+                # Wrap the first element into a two-element list with "IBR" as the second element
+                new_ssVariables.append([var[0], "IBR"])
+            else:
+                raise TypeError("Element of ssVariables is not a string or list/tuple")
+        ssVariables = new_ssVariables
     elif isinstance(ssVariables, np.ndarray):
-        # If it's a NumPy array, modify it directly
-        ssVariables[:, 1] = ['IBR'] * ssVariables.shape[0]
+        # Convert NumPy array to list and update
+        ssVariables = ssVariables.tolist()
+        ssVariables = [[row[0], "IBR"] for row in ssVariables]
     else:
         raise TypeError("Unsupported type for ssVariables")
 
