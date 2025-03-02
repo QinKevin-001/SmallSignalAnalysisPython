@@ -1,3 +1,4 @@
+#DONT TOUCH
 import numpy as np
 import cmath
 
@@ -42,7 +43,7 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     Ioq = IoAbs * np.sin(IoAngle - VoAngle)
     Po = Vod * Iod + Voq * Ioq
     Qo = Voq * Iod - Vod * Ioq
-    Ic = Vo / (Rd + 1 / (1j * w * Cf))
+    Ic = Vo / (Rd + 1/(1j * w * Cf))
     Vc = Vo - Rd * Ic
     VcAbs = abs(Vc)
     VcAngle = cmath.phase(Vc)
@@ -59,7 +60,7 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     Vid = ViAbs * np.cos(ViAngle - VoAngle)
     Viq = ViAbs * np.sin(ViAngle - VoAngle)
 
-    # Output
+    # Output steady-state values
     thetaPlant0 = VbAngle
     epsilonPLLPlant0 = (w - wsetPlant) / KiPLLplant
     wPlant0 = w
@@ -67,6 +68,11 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     epsilonQ0 = (Qo - (Vset - Vod) / mq - QsetPlant) / KiPlantQ
     PoPlant0 = PoPlant
     QoPlant0 = QoPlant
+
+    # Calculate delay states as in the MATLAB code
+    PsetDelay0 = Po - (wset - w) / mp
+    QsetDelay0 = Qo - (Vset - Vod) / mq
+
     Theta0 = VoAngle
     epsilonPLL0 = (w - wset) / KiL
     wf0 = w
@@ -83,11 +89,32 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     Iod0 = Iod
     Ioq0 = Ioq
 
+    # Build state vector with same ordering as MATLAB
     steadyStateValuesX = np.array([
-        thetaPlant0, epsilonPLLPlant0, wPlant0, epsilonP0, epsilonQ0,
-        PoPlant0, QoPlant0, Theta0, epsilonPLL0, wf0, Po0, Qo0,
-        Phid0, Phiq0, Gammad0, Gammaq0, Iid0, Iiq0, Vcd0, Vcq0,
-        Iod0, Ioq0
+        thetaPlant0,        # 1. thetaPlant0
+        epsilonPLLPlant0,   # 2. epsilonPLLPlant0
+        wPlant0,            # 3. wPlant0
+        epsilonP0,          # 4. epsilonP0
+        epsilonQ0,          # 5. epsilonQ0
+        PoPlant0,           # 6. PoPlant0
+        QoPlant0,           # 7. QoPlant0
+        PsetDelay0,         # 8. PsetDelay0
+        QsetDelay0,         # 9. QsetDelay0
+        Theta0,             # 10. Theta0
+        epsilonPLL0,        # 11. epsilonPLL0
+        wf0,                # 12. wf0
+        Po0,                # 13. Po0
+        Qo0,                # 14. Qo0
+        Phid0,              # 15. Phid0
+        Phiq0,              # 16. Phiq0
+        Gammad0,            # 17. Gammad0
+        Gammaq0,            # 18. Gammaq0
+        Iid0,               # 19. Iid0
+        Iiq0,               # 20. Iiq0
+        Vcd0,               # 21. Vcd0
+        Vcq0,               # 22. Vcq0
+        Iod0,               # 23. Iod0
+        Ioq0                # 24. Ioq0
     ])
 
     steadyStateValuesU = np.array([VbD, VbQ, w])

@@ -1,3 +1,4 @@
+#DONT TOUCH
 # Critical imports
 import numpy as np
 from lib.ssmodel_gflPlant_infinite import ssmodel_gflPlant_infinite
@@ -18,6 +19,7 @@ def main_gflPlant_infinite(user_params=None):
         'KpPlantQ': 0.20, 'KiPlantQ': 20.0,  # plant-level reactive loop PI gains
         'wcpllPlant': 2 * np.pi * 100,  # plant-level PLL frequency filter cut-off frequency
         'wcPlant': 2 * np.pi * 1,  # plant-level power filter cut-off frequency
+        'tDelay' : 0.25,
         'wset': 1.0, 'Vset': 1.0,  # inverter-level setpoints
         'mp': 1.00, 'mq': 1.00,  # inverter-level droop gains
         'Rt': 0.02, 'Lt': 0.10,  # inverter LCL filter
@@ -55,7 +57,7 @@ def main_gflPlant_infinite(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults # Testing Purposes
 
