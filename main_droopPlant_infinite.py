@@ -48,11 +48,11 @@ def main_droopPlant_infinite(user_params=None):
         pfExitFlag
     ])
 
-    flatten_column_major(testResults)
-    # Optionally, call plott(testResults)
+    #flatten_column_major(testResults)
+    #Optionally, call plott(testResults)
 
     return testResults
 
 if __name__ == "__main__":
-    results = main_droopSimplified_infinite()
+    results = main_droopPlant_infinite()
     print(results)
