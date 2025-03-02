@@ -12,12 +12,12 @@ def ssmodel_load(wbase, parasLoad, steadyStateValuesX, steadyStateValuesU):
 
     # Ordinary differential equations
     f = sp.Matrix([
-        wbase * (vbD - Rload * iloadD + wcom * Lload * iloadQ) / Lload,
-        wbase * (vbQ - Rload * iloadQ - wcom * Lload * iloadD) / Lload
+        wbase*(vbD - Rload*iloadD + wcom*Lload*iloadQ)/Lload,
+        wbase*(vbQ - Rload*iloadQ - wcom*Lload*iloadD)/Lload
     ])
 
-    # State-Space Matrices
-    stateVariables = ['$i_{loadD}$', '$i_{loadQ}$']
+    # Define state variables as a 2-column structure for consistency.
+    stateVariables = [['$i_{loadD}$', ''], ['$i_{loadQ}$', '']]
     x = sp.Matrix([iloadD, iloadQ])
     u = sp.Matrix([vbD, vbQ, wcom])
 
@@ -41,7 +41,7 @@ def ssmodel_load(wbase, parasLoad, steadyStateValuesX, steadyStateValuesU):
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),
         'Bw': np.array(Bw).astype(float),
-        'ssVariables': stateVariables
+        'ssVariables': np.array(stateVariables)
     }
 
     return stateMatrix
