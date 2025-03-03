@@ -1,12 +1,15 @@
 #critical imports
-
+import numpy as np
+from lib.ssmodel_droopPlant_vsmPlant import ssmodel_droopPlant_vsmPlant
 #optional imports
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_droopPlant_vsmPlant(user_params=None):
     #parameters
     wbase = 2 * np.pi * 60
     parasIBR1 = {
-        'PsetPlant': 0.1, 'Qset': 0.1,  # plant-level setpoints
+        'PsetPlant': 0.1, 'QsetPlant': 0.1,  # plant-level setpoints
         'wsetPlant': 1.0, 'VsetPlant': 1.0,  # plant-level setpoints
         'mpPlant': 1.00, 'mqPlant': 1.00,  # plant-level droop gains
         'KpPLLplant': 1.8/10, 'KiPLLplant': 160/10,  # plant-level PLL PI gains
@@ -27,7 +30,7 @@ def main_droopPlant_vsmPlant(user_params=None):
     }
 
     parasIBR2 = {
-        'PsetPlant': 0.1, 'Qset': 0.1,  # plant-level setpoints
+        'PsetPlant': 0.1, 'QsetPlant': 0.1,  # plant-level setpoints
         'wsetPlant': 1.0, 'VsetPlant': 1.0,  # plant-level setpoints
         'mpPlant': 1.00, 'mqPlant': 1.00,  # plant-level droop gains
         'KpPLLplant': 1.8, 'KiPLLplant': 160,  # plant-level PLL PI gains
@@ -109,7 +112,7 @@ def main_droopPlant_vsmPlant(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
