@@ -70,7 +70,7 @@ def main_vsmPlant_infinite(user_params=None):
 
     #Optional plotting and CSV export (uncomment if needed)
     #plott(testResults)
-    flatten_column_major(testResults)
+    #flatten_column_major(testResults)
 
     return testResults
 
