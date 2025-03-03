@@ -48,12 +48,23 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
     Nload = -Rx * np.array([[1, 0], [0, 1]])
 
     # Construct the overall system matrix.
-    # IMPORTANT: Remove all transpositions on Cw1.
-    Asys = np.block([
-        [A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1,      B1 @ Ngen2 @ C2,     np.zeros((13, 2))],
-        [Bw2 @ Cw1 + B2 @ Ngen1 @ C1,            A2 + B2 @ Ngen2 @ C2,  np.zeros((13, 2))],
-        [Bloadw @ Cw1 + Bload @ Ngen1 @ C1,       Bload @ Ngen2 @ C2,   Aload + Bload @ Nload]
-    ])
+    block11 = A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1  # (13, 13): Bw1 (13,1)@(1,13) = (13,13)
+    block12 = B1 @ Ngen2 @ C2  # (13, 2)@(2,2)@(2,13) = (13, 13)
+    block13 = B1 @ Nload  # (13, 2)@(2,2) = (13, 2)
+
+    block21 = Bw2 @ Cw1.T + B2 @ Ngen1 @ C1  # (13,1)@(1,13) + (13,2)@(2,2)@(2,13) = (13, 13)
+    block22 = A2 + B2 @ Ngen2 @ C2  # (13, 13) + (13,2)@(2,2)@(2,13) = (13, 13)
+    block23 = B2 @ Nload  # (13, 2)@(2,2) = (13, 2)
+
+    block31 = Bloadw @ Cw1.T + Bload @ Ngen1 @ C1  # (2,1)@(1,13) + (2,2)@(2,2)@(2,13) = (2, 13)
+    block32 = Bload @ Ngen2 @ C2  # (2,2)@(2,2)@(2,13) = (2, 13)
+    block33 = Aload + Bload @ Nload  # (2,2) + (2,2)@(2,2) = (2, 2)
+
+    # Assemble the full system matrix (Asys_full) as a block matrix.
+    row1 = np.hstack([block11, block12, block13])  # (13, 28)
+    row2 = np.hstack([block21, block22, block23])  # (13, 28)
+    row3 = np.hstack([block31, block32, block33])  # (2, 28)
+    Asys = np.vstack([row1, row2, row3])  # (28, 28)
 
     # Combine state variables from the three models.
     ssVariables = np.concatenate((stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLoad['ssVariables']))
