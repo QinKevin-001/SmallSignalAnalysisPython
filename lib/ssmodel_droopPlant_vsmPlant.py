@@ -59,14 +59,48 @@ def ssmodel_droopPlant_vsmPlant(wbase, parasIBR1, parasIBR2, parasLine1, parasLi
     Nline2Load = Rx * np.array([[1, 0], [0, 1]])
     Nload = -Rx * np.array([[1, 0], [0, 1]])
 
-    # Construct system matrix directly as in MATLAB
-    Asys = np.block([
-        [A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1, np.zeros((22, 21)), B1 @ Nline1Gen, np.zeros((22, 2)), np.zeros((22, 2))],
-        [Bw2 @ Cw1, A2 + B2 @ Ngen2 @ C2, np.zeros((21, 2)), B2 @ Nline2Gen, np.zeros((21, 2))],
-        [Bwline1 @ Cw1 + B1line1 @ Ngen1 @ C1, np.zeros((2, 21)), Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load, B2line1 @ Nline2Load, B2line1 @ Nload],
-        [Bwline2 @ Cw1, B1line2 @ Ngen2 @ C2, B2line2 @ Nline1Load, Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load, B2line2 @ Nload],
-        [Bwload @ Cw1, np.zeros((2, 21)), Bload @ Nline1Load, Bload @ Nline2Load, Aload + Bload @ Nload]
-    ])
+    # --- Row 1 Blocks (IBR1: 22 rows) ---
+    row1_block1 = A1 + Bw1 @ Cw1 + B1 @ Ngen1 @ C1  # (22×22): IBR1 self-dynamics (note: Cw1 is 1×22 so Bw1 @ Cw1 is 22×22)
+    row1_block2 = np.zeros((22, 21))  # (22×21): Zero block for IBR1-to-IBR2 coupling
+    row1_block3 = B1 @ Nline1Gen  # (22×2): Coupling from IBR1 to Line1
+    row1_block4 = np.zeros((22, 2))  # (22×2): Zero block for IBR1-to-Line2 coupling
+    row1_block5 = np.zeros((22, 2))  # (22×2): Zero block for IBR1-to-Load coupling
+    row1 = np.hstack([row1_block1, row1_block2, row1_block3, row1_block4, row1_block5])  # (22×49): Assemble Row 1
+
+    # --- Row 2 Blocks (IBR2: 21 rows) ---
+    row2_block1 = Bw2 @ Cw1  # (21×22): Bw2 (21×1) * Cw1 (1×22)
+    row2_block2 = A2 + B2 @ Ngen2 @ C2  # (21×21): IBR2 self-dynamics
+    row2_block3 = np.zeros((21, 2))  # (21×2): Zero block for IBR2-to-Load coupling
+    row2_block4 = B2 @ Nline2Gen  # (21×2): Coupling from IBR2 to Line2
+    row2_block5 = np.zeros((21, 2))  # (21×2): Zero block for IBR2-to-Load coupling
+    row2 = np.hstack([row2_block1, row2_block2, row2_block3, row2_block4, row2_block5])  # (21×49): Assemble Row 2
+
+    # --- Row 3 Blocks (Line1: 2 rows) ---
+    row3_block1 = Bwline1 @ Cw1 + B1line1 @ Ngen1 @ C1  # (2×22): Line1 coupling from IBR1
+    row3_block2 = np.zeros((2, 21))  # (2×21): Zero block for Line1-to-IBR2 coupling
+    row3_block3 = Aline1 + B1line1 @ Nline1Gen + B2line1 @ Nline1Load  # (2×2): Line1 self-dynamics & coupling
+    row3_block4 = B2line1 @ Nline2Load  # (2×2): Coupling from IBR2 to Line1 via load
+    row3_block5 = B2line1 @ Nload  # (2×2): Coupling from Line1 to Load
+    row3 = np.hstack([row3_block1, row3_block2, row3_block3, row3_block4, row3_block5])  # (2×49): Assemble Row 3
+
+    # --- Row 4 Blocks (Line2: 2 rows) ---
+    row4_block1 = Bwline2 @ Cw1  # (2×22): Line2 coupling from IBR1
+    row4_block2 = B1line2 @ Ngen2 @ C2  # (2×21): Coupling from IBR2 to Line2
+    row4_block3 = B2line2 @ Nline1Load  # (2×2): Coupling from Line1 to Line2
+    row4_block4 = Aline2 + B1line2 @ Nline2Gen + B2line2 @ Nline2Load  # (2×2): Line2 self-dynamics & coupling
+    row4_block5 = B2line2 @ Nload  # (2×2): Coupling from Line2 to Load
+    row4 = np.hstack([row4_block1, row4_block2, row4_block3, row4_block4, row4_block5])  # (2×49): Assemble Row 4
+
+    # --- Row 5 Blocks (Load: 2 rows) ---
+    row5_block1 = Bwload @ Cw1  # (2×22): Load coupling from IBR1
+    row5_block2 = np.zeros((2, 21))  # (2×21): Zero block for Load-to-IBR2 coupling
+    row5_block3 = Bload @ Nline1Load  # (2×2): Coupling from Line1 to Load
+    row5_block4 = Bload @ Nline2Load  # (2×2): Coupling from Line2 to Load
+    row5_block5 = Aload + Bload @ Nload  # (2×2): Load self-dynamics
+    row5 = np.hstack([row5_block1, row5_block2, row5_block3, row5_block4, row5_block5])  # (2×49): Assemble Row 5
+
+    # --- Assemble the overall system matrix ---
+    Asys = np.vstack([row1, row2, row3, row4, row5])  # (49×49): Overall system matrix assembled from 5 rows
 
     # Directly concatenate the ssVariables as in MATLAB
     # First, ensure all are numpy arrays
