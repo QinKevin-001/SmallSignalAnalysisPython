@@ -22,7 +22,7 @@ def main_droopPlant_vsmPlant(user_params=None):
         'mp': 0.05, 'mq': 0.05,  # inverter-level droop gains
         'Rt': 0.02, 'Lt': 0.10,  #LCL filter
         'Rd': 10.00, 'Cf': 0.05,  #LCL filter
-        'Rc': 0.10, 'Lc': 0.50,  #LCL filter
+        'Rc': 0.01, 'Lc': 0.05,  #LCL filter
         'KpV': 4.0, 'KiV': 15.0, #inverter-level voltage loop PI gains
         'KpC': 0.4, 'KiC':8.0,  #inverter-level current loop PI gains
         'wc': 2 * np.pi * 5 #inverter-level power filter cut-off frequency
