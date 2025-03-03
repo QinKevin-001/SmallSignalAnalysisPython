@@ -1,6 +1,9 @@
 #critical imports
-
-#optional imports
+import numpy as np
+from lib.ssmodel_droop_vsm import ssmodel_droop_vsm
+# Optional imports (plotting & file export)
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_droop_vsm(user_params=None):
     #parameters
@@ -33,11 +36,8 @@ def main_droop_vsm(user_params=None):
 
     parasLoad = {
         'Rload': 0.90, 'Lload': 0.4358, #load parameters
-        'LoadRx': 100   #virtual resistance
+        'Rx': 100   #virtual resistance
     }
-
-
-
 
     # If user-defined parameters exist, update the default dictionary
     if user_params:
@@ -75,7 +75,7 @@ def main_droop_vsm(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
