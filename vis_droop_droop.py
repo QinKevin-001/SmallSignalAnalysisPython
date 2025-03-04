@@ -103,10 +103,6 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # Debugging information
-    print(f"Length of state_variables: {len(state_variables)}")
-    print(f"Participation Factor Indices: {[entry[0] for entry in modes[mode_index][5] if isinstance(entry[0], int)]}")
-
     # Fix IndexError by ensuring valid indices
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
     valid_factors = [
