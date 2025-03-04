@@ -47,7 +47,7 @@ def main_droop_infinite(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Testing Purposes
 
