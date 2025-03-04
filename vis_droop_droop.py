@@ -151,6 +151,7 @@ def run_simulation_and_visualization():
     """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
     user_params = get_user_inputs()  # Get user parameters
     testResults = run_simulation(user_params)  # Run simulation
+    visualization(testResults)  # Show visualization
 
 
 # ----------------- 📌 Main Page Layout ----------------- #
