@@ -10,21 +10,22 @@ import main_droopSimplified_infinite  # Import simulation script without circula
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
-    "ωset": (1.0, 1.0),  # Fixed
+    "wset": (1.0, 1.0),  # Fixed - Changed from ωset to wset to match default_values
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
     "mq": (0.01, 1.00),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
+    "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Changed from ωc to wc
 }
+
 # Default values from `main_droop_infinite.py`
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
-        'wset': 1.0, 'Vset': 1.0,  # setpoints
-        'mp': 0.05,  'mq': 0.05,   # droop gains
-        'Rc': 0.04,  'Lc': 0.20,   # LCL filter
-        'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
+    'wset': 1.0, 'Vset': 1.0,  # setpoints
+    'mp': 0.05,  'mq': 0.05,   # droop gains
+    'Rc': 0.04,  'Lc': 0.20,   # LCL filter
+    'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
 }
 
 def get_user_inputs():
