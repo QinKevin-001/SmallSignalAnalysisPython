@@ -18,21 +18,37 @@ variable_ranges = {
     "Lc": (0.01, 1.0),
     "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
 }
+# Default values from `main_droop_infinite.py`
+default_values = {
+    'Pset': 1.0, 'Qset': 0.0,  # setpoints
+        'wset': 1.0, 'Vset': 1.0,  # setpoints
+        'mp': 0.05,  'mq': 0.05,   # droop gains
+        'Rc': 0.04,  'Lc': 0.20,   # LCL filter
+        'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
+}
 
 def get_user_inputs():
-    """Creates user input controls for variable tuning"""
-    st.sidebar.header("Simulation Parameters")
+    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
+
+    # Ensure session state is initialized
+    if "user_params" not in st.session_state:
+        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
+
     user_params = {}
 
+    # Create a Simulation Parameters Sidebar
+    st.sidebar.header("Simulation Parameters")
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
-            min_value=min_val,
-            max_value=max_val,
-            value=round((min_val + max_val) / 2.0, 2),  # Default value centered
-            step=round((max_val - min_val) / 1000, 2)
+            min_value=float(min_val),
+            max_value=float(max_val),
+            value=float(st.session_state["user_params"].get(var, default_values[var])),
+            step=round((float(max_val) - float(min_val)) / 100, 3),
+            key=f"param_{var}"  # Unique key for each parameter
         )
 
+    st.session_state["user_params"] = user_params
     return user_params
 
 def run_simulation(user_params):
