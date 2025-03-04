@@ -152,12 +152,6 @@ def run_simulation_and_visualization():
     user_params = get_user_inputs()  # Get user parameters
     testResults = run_simulation(user_params)  # Run simulation
 
-    # ----------------- NEW: Display Test Results Matrix ----------------- #
-    st.subheader("Test Results Matrix")
-    st.write(testResults)
-
-    visualization(testResults)  # Show visualization
-
 
 # ----------------- 📌 Main Page Layout ----------------- #
 def main():
