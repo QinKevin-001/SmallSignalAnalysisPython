@@ -27,14 +27,14 @@ variable_ranges = {
 # Default values from `main_droop_infinite.py`
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
-    'wset': 1.0, 'Vset': 1.0,  # setpoints
+    'ωset': 1.0, 'Vset': 1.0,  # setpoints
     'mp': 0.05, 'mq': 0.05,  # droop gains
     'Rt': 0.02, 'Lt': 0.10,  # LCL filter
     'Rd': 0.00, 'Cf': 0.05,  # LCL filter
     'Rc': 0.04, 'Lc': 0.20,  # LCL filter
     'KpV': 1.8, 'KiV': 16.0,  # voltage loop PI gains
     'KpC': 0.4 * 5 * 2, 'KiC': 12.0 * 2,  # current loop PI gains
-    'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
+    'ωc': float(2 * np.pi * 5)  # power filter cut-off frequency
 }
 
 
