@@ -88,8 +88,8 @@ def visualization(testResults):
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "IloadD", "IloadQ",
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0"
-        #"Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "IloadD", "IloadQ",
-        #"IloadD", "IloadQ"
+        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "IloadD", "IloadQ",
+        "IloadD", "IloadQ"
     ]
 
     mode_data_raw = testResults[1][4]
