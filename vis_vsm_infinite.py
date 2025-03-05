@@ -81,7 +81,7 @@ def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
         "Theta0", "Tef0", "Qof0", "Vof0", "winv0", "Psif0", "Iid0", "Iiq0",
-        "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        "Vcd0", "Vcq0", "Iod0", "Ioq0", "1", "2", "3"
     ]
 
     mode_data_raw = testResults[1][4]
