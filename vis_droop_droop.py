@@ -85,10 +85,10 @@ def run_simulation(user_params):
 def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
-        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "IloadD", "IloadQ",
-        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0", "IloadD", "IloadQ",
+        "Theta1", "Po1", "Qo1", "Phid1", "Phiq1", "Gammad1", "Gammaq1",
+        "Iid1", "Iiq1", "Vcd1", "Vcq1", "Iod1", "Ioq1", "IloadD1", "IloadQ1",
+        "Theta2", "Po2", "Qo2", "Phid2", "Phiq2", "Gammad2", "Gammaq2",
+        "Iid2", "Iiq2", "Vcd2", "Vcq2", "Iod2", "Ioq2", "IloadD2", "IloadQ2",
         "IloadD", "IloadQ"
     ]
 
