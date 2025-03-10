@@ -1,12 +1,15 @@
 #critical imports
-
-#optional imports
+import numpy as np
+from lib.ssmodel_droopPlant_sg import ssmodel_droopPlant_sg
+# Optional imports (plotting & file export)
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_droopPlant_sg(user_params=None):
     #parameters
     wbase = 2 * np.pi * 60
     parasIBR = {
-        'PsetPlant': 0.1, 'Qset': 0.0,  # plant-level setpoints
+        'PsetPlant': 0.1, 'QsetPlant': 0.0,  # plant-level setpoints
         'wsetPlant': 1.0, 'VsetPlant': 1.0,  # plant-level setpoints
         'mpPlant': 1.00, 'mqPlant': 1.00,  # plant-level droop gains
         'KpPLLplant': 1.8/10, 'KiPLLplant': 160/10,  # plant-level PLL PI gains
@@ -99,7 +102,7 @@ def main_droopPlant_sg(user_params=None):
 
     # Store the results
     testResults.append([
-        parasIBR1,  # Store the full parameter dictionary for reference
+        parasIBR,  # Store the full parameter dictionary for reference
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -108,7 +111,7 @@ def main_droopPlant_sg(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
