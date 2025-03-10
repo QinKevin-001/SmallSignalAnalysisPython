@@ -1,6 +1,9 @@
 #critical imports
-
+import numpy as np
+from lib.ssmodel_vsm_sg import ssmodel_vsm_sg
 #optional imports
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_vsm_sg(user_params=None):
     #parameters
@@ -88,7 +91,7 @@ def main_vsm_sg(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
