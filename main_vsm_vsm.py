@@ -76,7 +76,7 @@ def main_vsm_vsm(user_params=None):
     ])
 
     #plott(testResults)
-    flatten_column_major(testResults)
+    #flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
