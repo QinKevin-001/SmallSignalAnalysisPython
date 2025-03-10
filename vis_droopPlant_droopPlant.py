@@ -113,7 +113,7 @@ def visualization(testResults):
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
 
     # 🔹 Debugging output
-    st.write("DEBUG: Participation Factors:", participation_factors)
+    #st.write("DEBUG: Participation Factors:", participation_factors)
 
     # 🔹 Extract valid factors (index, magnitude, state name)
     valid_factors = [
