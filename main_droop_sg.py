@@ -1,6 +1,9 @@
 #critical imports
-
-#optional imports
+import numpy as np
+from lib.ssmodel_droop_sg import ssmodel_droop_sg
+# Optional imports (plotting & file export)
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_droop_sg(user_params=None):
     #parameters
@@ -30,13 +33,14 @@ def main_droop_sg(user_params=None):
         'Tqo1': 0.70, 'Tqo2': 0.04, #time constants
         'H': 5.0,   #inertia constant
         'D': 0.0,   #damping coefficient
+        'Kg' : 1/ 0.05,
         'T1': 0.05, 'T2': 0.00, 'T3': 0.30, 'T4':0.15, 'T5': 0.30,  #time constants
         'K1': 0.60, 'K2': 0.40, 'Ke': 200,  #Gains
         'Ta': 1.00, 'Tb': 10.0, 'Te': 0.05  #time constants
 
     }
     # Now assign Kg after 'mp' is available
-    parasSG['Kg'] = 1 / parasSG['mp']   #frequency droop parameters
+    #parasSG['Kg'] = 1 / parasSG['mp']   #frequency droop parameters
 
     parasLineSG = {
         'Rline': 0.10, 'Lline': 0.50,  # line parameters
@@ -79,7 +83,7 @@ def main_droop_sg(user_params=None):
 
     # Store the results
     testResults.append([
-        parasIBR1,  # Store the full parameter dictionary for reference
+        parasIBR,  # Store the full parameter dictionary for reference
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -88,7 +92,7 @@ def main_droop_sg(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults  # Now it only returns results without calling visualization
 
