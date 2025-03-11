@@ -69,7 +69,7 @@ def get_user_inputs():
 
 # ----------------- 📌 Sidebar: Mode Selection ----------------- #
 def get_mode_selection(mode_range):
-    """Creates a mode selection dropdown inside the sidebar."""
+    """Creates a mode selection slider inside the sidebar."""
     st.sidebar.header("Mode Selection")
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
     return selected_mode - 1  # Convert to zero-based index
@@ -84,7 +84,7 @@ def run_simulation(user_params):
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
-
+    # Extract mode data. If a header row is present, skip it.
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
@@ -98,61 +98,82 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # 🔹 Extract participation factors
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    # 🔹 Extract participation factors for the selected mode.
+    # Skip the header row if it exists (e.g., if the first element is a string or contains "State Location")
+    part_factors = modes[mode_index][5]
+    if isinstance(part_factors[0], str) or (isinstance(part_factors[0], list) and "State Location" in part_factors[0]):
+        part_factors = part_factors[1:]
 
-    # 🔹 Debugging output
-    st.write("DEBUG: Participation Factors:", participation_factors)
-    for pf in modes[mode_index][5]:
-        st.write(pf)
+    st.write("DEBUG: Participation Factors (Mode {}):".format(mode_index + 1), part_factors)
 
-    # 🔹 Extract valid factors (index, magnitude, state name)
-    valid_factors = [
-        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")  # Format: "state_name (subsystem)"
-        for entry in participation_factors
-        if isinstance(entry[0], int)
-    ]
+    # Extract valid factors with fallback for missing dominant state names.
+    valid_factors = []
+    for entry in part_factors:
+        if isinstance(entry[0], int):
+            state_name = entry[3] if entry[3] else f"UnnamedState{entry[0]}"
+            unique_label = f"PF {entry[0]}: {state_name} ({entry[4]})"
+            valid_factors.append((entry[0], float(entry[2]), unique_label))
 
     if not valid_factors:
         st.error("No valid participation factors found. Check if participation factor indices are correct.")
         return
 
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extracted formatted state names
+    factor_magnitudes = [pf[1] for pf in valid_factors]
+    dominant_state_names = [pf[2] for pf in valid_factors]
 
     col1, col2 = st.columns([1, 1])
 
+    # Pie Chart for Selected Mode
     with col1:
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,  # ✅ Using extracted state names
+                names=dominant_state_names,
                 values=factor_magnitudes,
                 width=1000,
                 height=800
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
 
+    # Heatmap across all modes
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = {}
 
+        # Process all modes
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
+            part_data = modes[mode_idx][5]
+            # Skip header row if present
+            if isinstance(part_data[0], str) or (isinstance(part_data[0], list) and "State Location" in part_data[0]):
+                part_data = part_data[1:]
+            # Optional: sort by state location (the first column)
+            part_data_sorted = sorted(part_data, key=lambda row: row[0])
+            for entry in part_data_sorted:
                 if isinstance(entry[0], int):
-                    # Include the participation factor index in the key to ensure uniqueness
-                    unique_key = f"PF {entry[0]}: {entry[3]} ({entry[4]})"
+                    state_name = entry[3] if entry[3] else f"UnnamedState{entry[0]}"
+                    unique_key = f"PF {entry[0]}: {state_name} ({entry[4]})"
                     if unique_key not in heatmap_data:
-                        heatmap_data[unique_key] = [0] * mode_range  # Initialize with zeros for each mode
+                        heatmap_data[unique_key] = [0] * mode_range
                     heatmap_data[unique_key][mode_idx] = float(entry[2])
 
-        # Convert dictionary values into an array for the heatmap
-        heatmap_array = np.array(list(heatmap_data.values()))
+        # Sort the heatmap rows based on the PF index extracted from the key
+        def pf_sort_key(key):
+            try:
+                # key format: "PF {index}: ..."
+                pf_index_str = key.split(":")[0].split()[1]
+                return int(pf_index_str)
+            except Exception:
+                return 9999
+
+        sorted_items = sorted(heatmap_data.items(), key=lambda x: pf_sort_key(x[0]))
+        sorted_keys = [item[0] for item in sorted_items]
+        sorted_values = [item[1] for item in sorted_items]
+        heatmap_array = np.array(sorted_values)
 
         heatmap_fig = px.imshow(
             heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # Now each participation factor is unique
+            y=sorted_keys,
             width=1000,
             height=800
         )
