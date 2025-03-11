@@ -85,7 +85,7 @@ def visualization(testResults):
         'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
         'theta(IBR2)', 'Po(IBR2)', 'Qo(IBR2)', 'phid(IBR2)', 'phiq(IBR2)', 'gammad(IBR2)', 'gammaq(IBR2)', 'iid(IBR2)',
         'iiq(IBR2)', 'vcd(IBR2)', 'vcq(IBR2)', 'iod(IBR2)', 'ioq(IBR2)',
-        'iloadD(Load)', 'iloadQ(Load)', 's', 's2'
+        'iloadD(Load)', 'iloadQ(Load)'
     ]
 
     # The modal analysis data is expected to be stored at index 4 of the second element.
