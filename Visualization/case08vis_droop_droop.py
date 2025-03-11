@@ -103,7 +103,7 @@ def visualization(testResults):
 
     # 🔹 Debugging output
     st.write("DEBUG: Participation Factors:", participation_factors)
-    print("DEBUG entries:", modes[mode_index][5])
+    st.write("DEBUG entries:", modes[mode_index][5])
 
     # 🔹 Extract valid factors (index, magnitude, state name)
     valid_factors = [
