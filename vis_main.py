@@ -17,7 +17,8 @@ PAGES = {
     "Case 06: VSM Infinite": "Visualization.case06vis_vsm_infinite",
     "Case 07: VSM Plant Infinite": "Visualization.case07vis_vsmPlant_infinite",
     "Case 08: Droop Droop": "Visualization.case08vis_droop_droop",
-    "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant"
+    "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant",
+    "Case 10: Droop VSM": "Visualization.case10vis_droop_vsm"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
@@ -45,7 +46,8 @@ if selected_page == "Main Page":
         "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
         "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus.",
         "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load.",
-        "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting."
+        "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting.",
+        "Droop VSM": "Droop + VSM"
     }
 
     for case, description in case_descriptions.items():
