@@ -75,7 +75,7 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
     labels = (['IBR1'] * len(stateMatrix1['ssVariables']) +
               ['IBR2'] * len(stateMatrix2['ssVariables']) +
               ['Load'] * len(stateMatrixLoad['ssVariables']))
-    ssVariables = np.column_stack((ssVariables, labels))
+    ssVariables = np.column_stack((ssVariables, np.array(labels, dtype=object)))
 
     # Remove the first row/column to mimic MATLAB's offset indexing.
     Asys = Asys[1:, 1:]
