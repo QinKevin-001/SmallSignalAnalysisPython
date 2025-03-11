@@ -12,7 +12,7 @@ from lib.ssmodel_load import ssmodel_load
 from lib.eigenvalue_analysis import eigenvalue_analysis
 
 
-def ssmodel_vsmPlant_vsmPlant(wbase, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad,
+def ssmodel_vsmPlant_sg(wbase, parasIBR1, parasIBR2, parasLine1, parasLine2, parasLoad,
                               dominantParticipationFactorBoundary):
     ## Power Flow Calculation
     x0 = np.array([1, 0, 0, 0, 1, 1, 1, 1])
