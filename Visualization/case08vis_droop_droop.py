@@ -88,10 +88,8 @@ def visualization(testResults):
         'iloadD(Load)', 'iloadQ(Load)', 's', 's2'
     ]
 
-    # The modal analysis data is expected to be stored at index 4 of the second element.
     mode_data_raw = testResults[1][4]
 
-    # If the first entry is a header, skip it.
     if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
         modes = mode_data_raw[1:]
     else:
@@ -99,11 +97,16 @@ def visualization(testResults):
 
     mode_range = len(modes)
 
-    # Allow user to select a mode for closer inspection.
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
     mode_index = selected_mode - 1
 
     parameter_data = testResults[1]
+    try:
+        mode_data = modes[mode_index]
+    except IndexError:
+        st.error("Mode data is unavailable.")
+        return
+
     try:
         eigenvalue_real = np.real(parameter_data[1][mode_index])
         eigenvalue_imag = np.imag(parameter_data[1][mode_index])
@@ -112,8 +115,7 @@ def visualization(testResults):
         return
 
     try:
-        # Participation factors are assumed to be in the 6th entry of each mode's data.
-        participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+        participation_factors = mode_data[5] if len(mode_data) > 5 else []
         if participation_factors:
             valid_factors = [
                 entry for entry in participation_factors
@@ -129,8 +131,8 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    # Layout the plots in two equal columns.
-    col1, col2 = st.columns([1, 1])
+    # Layout for Pie Chart and Heatmap (Full Width)
+    col1, col2 = st.columns([1, 1])  # Equal width columns
 
     with col1:
         st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
@@ -139,7 +141,7 @@ def visualization(testResults):
                 names=dominant_state_names,
                 values=factor_magnitudes,
                 title=f"Participation Factor Distribution for Mode {selected_mode}",
-                width=900, height=700
+                width=900, height=700  # Increased size
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
@@ -166,8 +168,8 @@ def visualization(testResults):
             y=state_variables,
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
-            title="Participation Factors Heatmap",
-            width=900, height=700
+            title=f"Participation Factors Heatmap",
+            width=900, height=700  # Increased size
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
