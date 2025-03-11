@@ -84,13 +84,13 @@ def run_simulation(user_params):
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
-    state_variables = [
-        "Theta1", "Po1", "Qo1", "Phid1", "Phiq1", "Gammad1", "Gammaq1",
-        "Iid1", "Iiq1", "Vcd1", "Vcq1", "Iod1", "Ioq1", "IloadD1", "IloadQ1",
-        "Theta2", "Po2", "Qo2", "Phid2", "Phiq2", "Gammad2", "Gammaq2",
-        "Iid2", "Iiq2", "Vcd2", "Vcq2", "Iod2", "Ioq2", "IloadD2", "IloadQ2",
-        "IloadD", "IloadQ"
-    ]
+    # state_variables = [
+    #     "Theta1", "Po1", "Qo1", "Phid1", "Phiq1", "Gammad1", "Gammaq1",
+    #     "Iid1", "Iiq1", "Vcd1", "Vcq1", "Iod1", "Ioq1", "IloadD1", "IloadQ1",
+    #     "Theta2", "Po2", "Qo2", "Phid2", "Phiq2", "Gammad2", "Gammaq2",
+    #     "Iid2", "Iiq2", "Vcd2", "Vcq2", "Iod2", "Ioq2", "IloadD2", "IloadQ2",
+    #     "IloadD", "IloadQ"
+    # ]
 
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
