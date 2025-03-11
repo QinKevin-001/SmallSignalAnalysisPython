@@ -116,7 +116,8 @@ def get_user_inputs():
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2)
+                step=round((max_val - min_val) / 1000, 2),
+                key=f"ibr1_{var}"  # Add unique key for IBR1 parameters
             )
 
     # IBR2 Parameters
@@ -131,7 +132,8 @@ def get_user_inputs():
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2)
+                step=round((max_val - min_val) / 1000, 2),
+                key=f"ibr2_{var}"  # Add unique key for IBR2 parameters
             )
 
     # Load Parameters
@@ -146,7 +148,8 @@ def get_user_inputs():
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2)
+                step=round((max_val - min_val) / 1000, 2),
+                key=f"load_{var}"  # Add unique key for load parameters
             )
 
     return user_params
@@ -200,7 +203,13 @@ def visualization(testResults):
     mode_range = len(modes)
 
     # Allow user to select a mode for closer inspection
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
+    selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1,
+        mode_range,
+        1,
+        key="mode_selector"  # Add unique key for mode selector
+    )
     mode_index = selected_mode - 1
 
     parameter_data = testResults[1]
