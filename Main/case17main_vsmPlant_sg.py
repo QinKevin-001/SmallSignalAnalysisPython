@@ -1,6 +1,9 @@
 #critical imports
-
+import numpy as np
+from lib.ssmodel_vsmPlant_sg import ssmodel_vsmPlant_sg
 #optional imports
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
 def main_vsmPlant_sg(user_params=None):
     #parameters
@@ -99,7 +102,7 @@ def main_vsmPlant_sg(user_params=None):
 
     # Store the results
     testResults.append([
-        parasIBR1,  # Store the full parameter dictionary for reference
+        parasIBR,  # Store the full parameter dictionary for reference
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
