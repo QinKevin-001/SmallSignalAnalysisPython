@@ -1,9 +1,9 @@
 # DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
-from lib.pf_func_ibrPlant_ibrPlant import pf_func_ibrPlant_ibrPlant
+from lib.pf_func_ibrPlant_sg import pf_func_ibrPlant_sg
 from lib.pf_calc_ibrPlant_ibrPlant import pf_calc_ibrPlant_ibrPlant
-from lib.steadystatevalue_vsmPlant import steadystatevalue_vsmPlant
+from lib.steadystatevalue_sg import steadystatevalue_sg
 from lib.steadystatevalue_line import steadystatevalue_line
 from lib.steadystatevalue_load import steadystatevalue_load
 from lib.ssmodel_vsmPlant import ssmodel_vsmPlant
