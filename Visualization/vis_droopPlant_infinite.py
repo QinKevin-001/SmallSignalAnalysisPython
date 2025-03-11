@@ -86,7 +86,7 @@ def get_user_inputs():
 
 def run_simulation(user_params):
     """Runs the simulation dynamically when parameters are changed"""
-    return main_droopPlant_infinite.main_droopPlant_infinite(user_params)
+    return case03main_droopPlant_infinite.main_droopPlant_infinite(user_params)
 
 def visualization(testResults):
     """Generates plots based on testResults"""

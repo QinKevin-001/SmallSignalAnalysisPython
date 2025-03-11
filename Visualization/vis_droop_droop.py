@@ -78,7 +78,7 @@ def get_mode_selection(mode_range):
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
-    return main_droop_droop.main_droop_droop(user_params)
+    return case08main_droop_droop.main_droop_droop(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #

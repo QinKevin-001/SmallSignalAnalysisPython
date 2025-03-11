@@ -54,7 +54,7 @@ def get_user_inputs():
 
 def run_simulation(user_params):
     """Calls case02main_droop_infinite.py with updated parameters and retrieves results"""
-    return main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)  # Runs simulation automatically
+    return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):
     """Generates plots based on testResults"""

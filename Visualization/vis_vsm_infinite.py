@@ -73,7 +73,7 @@ def get_mode_selection(mode_range):
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
-    return main_vsm_infinite.main_vsm_infinite(user_params)
+    return case06main_vsm_infinite.main_vsm_infinite(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #

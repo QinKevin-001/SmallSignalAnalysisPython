@@ -86,7 +86,7 @@ def get_user_inputs():
 
 def run_simulation(user_params):
     """Runs the VSM simulation with the current parameters."""
-    return main_vsmPlant_infinite.main_vsmPlant_infinite(user_params)
+    return case07main_vsmPlant_infinite.main_vsmPlant_infinite(user_params)
 
 def visualization(testResults):
     """Generates the eigenvalue and participation factor plots based on simulation output."""
