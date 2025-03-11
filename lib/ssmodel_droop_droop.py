@@ -78,9 +78,11 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
     ssVarLoad = ensure_column(stateMatrixLoad['ssVariables'])  # Load state variables as column vector
     ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLoad], axis=0)  # (TotalStates,1): Concatenate all state variables
 
-    labels = (['IBR1'] * len(stateMatrix1['ssVariables']) +
-              ['IBR2'] * len(stateMatrix2['ssVariables']) +
-              ['Load'] * len(stateMatrixLoad['ssVariables']))
+    labels = (  # Create a list of labels corresponding to each state variable
+            ['IBR1'] * ssVar1.shape[0] +
+            ['IBR2'] * ssVar2.shape[0] +
+            ['Load'] * ssVarLoad.shape[0]
+    )
     ssVariables = np.column_stack((ssVariables, np.array(labels, dtype=object)))
 
     # Remove the first row/column to mimic MATLAB's offset indexing.
