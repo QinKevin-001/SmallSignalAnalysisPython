@@ -138,18 +138,19 @@ def visualization(testResults):
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
                 if isinstance(entry[0], int):
-                    state_name = f"{entry[3]} ({entry[4]})"  # ✅ Extracted state names
-                    if state_name not in heatmap_data:
-                        heatmap_data[state_name] = [0] * mode_range  # Initialize with zeros
-                    heatmap_data[state_name][mode_idx] = float(entry[2])
+                    # Include the participation factor index in the key to ensure uniqueness
+                    unique_key = f"PF {entry[0]}: {entry[3]} ({entry[4]})"
+                    if unique_key not in heatmap_data:
+                        heatmap_data[unique_key] = [0] * mode_range  # Initialize with zeros for each mode
+                    heatmap_data[unique_key][mode_idx] = float(entry[2])
 
-        # Convert dictionary to array
+        # Convert dictionary values into an array for the heatmap
         heatmap_array = np.array(list(heatmap_data.values()))
 
         heatmap_fig = px.imshow(
             heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # ✅ Using extracted state names
+            y=list(heatmap_data.keys()),  # Now each participation factor is unique
             width=1000,
             height=800
         )
