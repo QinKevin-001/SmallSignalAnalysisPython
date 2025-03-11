@@ -75,10 +75,8 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
 
     ssVar1 = ensure_column(stateMatrix1['ssVariables'])  # IBR1 state variables as column vector
     ssVar2 = ensure_column(stateMatrix2['ssVariables'])  # IBR2 state variables as column vector
-    ssVarLine1 = ensure_column(stateMatrixLine1['ssVariables'])  # Line1 state variables as column vector
-    ssVarLine2 = ensure_column(stateMatrixLine2['ssVariables'])  # Line2 state variables as column vector
     ssVarLoad = ensure_column(stateMatrixLoad['ssVariables'])  # Load state variables as column vector
-    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLine1, ssVarLine2, ssVarLoad], axis=0)  # (TotalStates,1): Concatenate all state variables
+    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLoad], axis=0)  # (TotalStates,1): Concatenate all state variables
 
     labels = (['IBR1'] * len(stateMatrix1['ssVariables']) +
               ['IBR2'] * len(stateMatrix2['ssVariables']) +
