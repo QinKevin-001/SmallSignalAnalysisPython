@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_vsmPlant_infinite  # Import simulation script for VSM Plant Infinite
+from Main import main_vsmPlant_infinite
 
 # Set page layout if desired (uncomment to use wide layout)
 # st.set_page_config(layout="wide")

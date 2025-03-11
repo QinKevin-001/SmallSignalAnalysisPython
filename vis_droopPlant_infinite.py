@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droopPlant_infinite  # Import simulation script without circular dependency
+from Main import main_droopPlant_infinite
 
 # Set page layout **before any other Streamlit command**
 #st.set_page_config(layout="wide")

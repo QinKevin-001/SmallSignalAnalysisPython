@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_droopPlant_droopPlant  # Import simulation script
+from Main import main_droopPlant_droopPlant
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {

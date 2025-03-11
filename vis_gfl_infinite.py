@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-import main_gfl_infinite  # Import simulation script without circular dependency
+from Main import main_gfl_infinite
 
 # Set the page to use the full width
 #st.set_page_config(layout="wide")
