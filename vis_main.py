@@ -20,7 +20,7 @@ PAGES = {
     "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant",
     "Case 10: Droop VSM": "Visualization.case10vis_droop_vsm",
     "Case 11: Droop Plant VSM Plant": "Visualization.case11vis_droopPlant_vsmPlant",
-    "Case 12: VSM VSM": "Visualization.case12vis_vsm_Vsm",
+    "Case 12: VSM VSM": "Visualization.case12vis_vsm_vsm",
     "Case 13: VSM Plant VSM Plant": "Visualization.case13vis_vsmPlant_vsmPlant",
     "Case 14: Droop SG": "Visualization.case14vis_droop_sg",
     "Case 15: Droop Plant SG": "Visualization.case15vis_droopPlant_sg",
