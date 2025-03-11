@@ -3,8 +3,12 @@ import numpy as np
 import plotly.express as px
 from Main import case08main_droop_droop
 
-# ----------------- 📌 Define Parameter Limits ----------------- #
+# Set page layout if desired (uncomment to use wide layout)
+# st.set_page_config(layout="wide")
+
+# Variable ranges for Droop-Droop System
 variable_ranges = {
+    # IBR1 parameters
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
     "ωset": (1.0, 1.0),
@@ -22,62 +26,158 @@ variable_ranges = {
     "KpC": (0.1, 10.0),
     "KiC": (0.1, 1000.0),
     "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20)),
+    # IBR2 parameters
+    "Pset_IBR2": (0.0, 1.0),
+    "Qset_IBR2": (-1.0, 1.0),
+    "ωset_IBR2": (1.0, 1.0),
+    "Vset_IBR2": (0.9, 1.1),
+    "mp_IBR2": (0.01, 1.00),
+    "mq_IBR2": (0.01, 1.00),
+    "Rt_IBR2": (0.01, 1.0),
+    "Lt_IBR2": (0.01, 1.0),
+    "Rd_IBR2": (0.0, 100.0),
+    "Cf_IBR2": (0.01, 0.20),
+    "Rc_IBR2": (0.01, 1.0),
+    "Lc_IBR2": (0.01, 1.0),
+    "KpV_IBR2": (0.1, 10.0),
+    "KiV_IBR2": (0.1, 1000.0),
+    "KpC_IBR2": (0.1, 10.0),
+    "KiC_IBR2": (0.1, 1000.0),
+    "ωc_IBR2": (float(2 * np.pi * 1), float(2 * np.pi * 20)),
+    # Load parameters
     "Rload": (0.5, 10.0),
     "Lload": (0.1, 10.0),
     "Rx": (100.0, 1000.0)
 }
 
-# Default values from `case08main_droop_droop.py`
+# Default values based on provided parameters
+wbase = 2 * np.pi * 60
 default_values = {
-    "Pset": 0.1, "Qset": 0.0,
-    "ωset": 1.0, "Vset": 1.0,
-    "mp": 0.05, "mq": 0.05,
-    "Rt": 0.02, "Lt": 0.10,
-    "Rd": 0.00, "Cf": 0.05,
-    "Rc": 0.10, "Lc": 0.50,
-    "KpV": 4.0, "KiV": 15.0,
-    "KpC": 0.4, "KiC": 8.0,
-    "ωc": float(2 * np.pi * 5),
-    "Rload": 0.9, "Lload": 0.4358, "Rx": 100
+    # IBR1 parameters
+    "Pset": 0.1,
+    "Qset": 0.0,
+    "ωset": 1.0,
+    "Vset": 1.0,
+    "mp": 0.05,
+    "mq": 0.05,
+    "Rt": 0.02,
+    "Lt": 0.10,
+    "Rd": 0.00,
+    "Cf": 0.05,
+    "Rc": 0.10,
+    "Lc": 0.50,
+    "KpV": 4.0,
+    "KiV": 15.0,
+    "KpC": 0.4,
+    "KiC": 8.0,
+    "ωc": 2 * np.pi * 5,
+    # IBR2 parameters
+    "Pset_IBR2": 0.1,
+    "Qset_IBR2": 0.0,
+    "ωset_IBR2": 1.0,
+    "Vset_IBR2": 1.0,
+    "mp_IBR2": 0.05,
+    "mq_IBR2": 0.05,
+    "Rt_IBR2": 0.02,
+    "Lt_IBR2": 0.10,
+    "Rd_IBR2": 0.00,
+    "Cf_IBR2": 0.05,
+    "Rc_IBR2": 0.10,
+    "Lc_IBR2": 0.50,
+    "KpV_IBR2": 4.0,
+    "KiV_IBR2": 15.0,
+    "KpC_IBR2": 0.4,
+    "KiC_IBR2": 8.0,
+    "ωc_IBR2": 2 * np.pi * 5,
+    # Load parameters
+    "Rload": 0.9,
+    "Lload": 0.4358,
+    "Rx": 100
 }
 
-
-# ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
-    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
-    if "user_params" not in st.session_state:
-        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
+    """Creates user input controls for parameter tuning via the sidebar."""
+    st.sidebar.header("Simulation Parameters")
+
+    # Create tabs for different parameter groups
+    ibr1_tab, ibr2_tab, load_tab = st.sidebar.tabs(["IBR1 Parameters", "IBR2 Parameters", "Load Parameters"])
 
     user_params = {}
 
-    st.sidebar.header("Simulation Parameters")
-    for var, (min_val, max_val) in variable_ranges.items():
-        user_params[var] = st.sidebar.number_input(
-            f"{var} ({min_val} to {max_val})",
-            min_value=float(min_val),
-            max_value=float(max_val),
-            value=float(st.session_state["user_params"].get(var, default_values[var])),
-            step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"param_{var}"
-        )
+    # IBR1 Parameters
+    with ibr1_tab:
+        st.header("IBR1 Parameters")
+        ibr1_params = [param for param in variable_ranges.keys() if not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx']]
+        for var in ibr1_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            user_params[var] = st.number_input(
+                f"{var} ({min_val} to {max_val})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=round((max_val - min_val) / 1000, 2)
+            )
 
-    st.session_state["user_params"] = user_params
+    # IBR2 Parameters
+    with ibr2_tab:
+        st.header("IBR2 Parameters")
+        ibr2_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2')]
+        for var in ibr2_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            user_params[var] = st.number_input(
+                f"{var.replace('_IBR2', '')} ({min_val} to {max_val})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=round((max_val - min_val) / 1000, 2)
+            )
+
+    # Load Parameters
+    with load_tab:
+        st.header("Load Parameters")
+        load_params = ['Rload', 'Lload', 'Rx']
+        for var in load_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            user_params[var] = st.number_input(
+                f"{var} ({min_val} to {max_val})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=round((max_val - min_val) / 1000, 2)
+            )
+
     return user_params
 
+def prepare_simulation_parameters(user_params):
+    """Prepares the parameters in the format expected by the simulation function."""
+    # Separate parameters for IBR1, IBR2, and Load
+    ibr1_params = {}
+    ibr2_params = {}
+    load_params = {}
 
-# ----------------- 📌 Sidebar: Mode Selection ----------------- #
-def get_mode_selection(mode_range):
-    st.sidebar.header("Mode Selection")
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
-    return selected_mode - 1  # Convert to zero-based index
+    for key, value in user_params.items():
+        if key.endswith('_IBR2'):
+            # Remove the '_IBR2' suffix and add to IBR2 parameters
+            ibr2_params[key.replace('_IBR2', '')] = value
+        elif key in ['Rload', 'Lload', 'Rx']:
+            load_params[key] = value
+        else:
+            ibr1_params[key] = value
 
+    return {
+        'parasIBR1': ibr1_params,
+        'parasIBR2': ibr2_params,
+        'parasLoad': load_params
+    }
 
-# ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
-    return case08main_droop_droop.main_droop_droop(user_params)
+    """Runs the Droop-Droop simulation with the current parameters."""
+    sim_params = prepare_simulation_parameters(user_params)
+    return case08main_droop_droop.main_droop_droop(sim_params)
 
-
-# ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates the eigenvalue and participation factor plots based on simulation output."""
     state_variables = [
@@ -88,10 +188,10 @@ def visualization(testResults):
         'iloadD(Load)', 'iloadQ(Load)'
     ]
 
-    # The modal analysis data is expected to be stored at index 4 of the second element.
+    # The modal analysis data is expected to be stored at index 4 of the second element
     mode_data_raw = testResults[1][4]
 
-    # If the first entry is a header, skip it.
+    # If the first entry is a header, skip it
     if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
         modes = mode_data_raw[1:]
     else:
@@ -99,7 +199,7 @@ def visualization(testResults):
 
     mode_range = len(modes)
 
-    # Allow user to select a mode for closer inspection.
+    # Allow user to select a mode for closer inspection
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
     mode_index = selected_mode - 1
 
@@ -112,7 +212,6 @@ def visualization(testResults):
         return
 
     try:
-        # Participation factors are assumed to be in the 6th entry of each mode's data.
         participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
         if participation_factors:
             valid_factors = [
@@ -129,7 +228,7 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    # Layout the plots in two equal columns.
+    # Layout the plots in two equal columns
     col1, col2 = st.columns([1, 1])
 
     with col1:
@@ -171,19 +270,13 @@ def visualization(testResults):
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
-def run_simulation_and_visualization():
-    user_params = get_user_inputs()
-    testResults = run_simulation(user_params)
-    visualization(testResults)
-
-
-# ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    st.title("Droop + Droop System Analysis")
-    run_simulation_and_visualization()
+    """Main function to handle user inputs, simulation, and visualization."""
+    st.title("Droop-Droop System Analysis")
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)  # Run simulation with current parameters
+    visualization(testResults)                # Generate updated plots
 
-
+# Expose the main function for multipage navigation
 if __name__ == "__main__":
     main()
