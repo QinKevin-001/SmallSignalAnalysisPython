@@ -9,9 +9,9 @@ st.set_page_config(layout="wide")
 # Define available visualization pages (Now referencing the `Visualization` folder)
 PAGES = {
     "Main Page": None,
-    "Case 01: Droop Infinite": "Visualization.vis_droop_infinite",
+    "Case 01: Droop Simplified Infinite": "Visualization.vis_droopSimplified_infinite",
+    "Case 02: Droop Infinite": "Visualization.vis_droop_infinite",
     "Case 02: Droop Plant Infinite": "Visualization.vis_droopPlant_infinite",
-    "Case 03: Droop Simplified Infinite": "Visualization.vis_droopSimplified_infinite",
     "Case 04: GFL Infinite": "Visualization.vis_gfl_infinite",
     "Case 05: GFL Plant Infinite": "Visualization.vis_gflPlant_infinite",
     "Case 06: VSM Infinite": "Visualization.vis_vsm_infinite",
@@ -37,9 +37,9 @@ if selected_page == "Main Page":
 
     # Case explanations with images
     case_descriptions = {
+        "Droop Simplified Infinite": "A simplified droop control model.",
         "Droop Infinite": "A droop-controlled inverter connected to an infinite bus.",
         "Droop Plant Infinite": "A plant-level droop controller interacting with an infinite bus.",
-        "Droop Simplified Infinite": "A simplified droop control model.",
         "GFL Infinite": "A Grid-Following (GFL) inverter connected to an infinite bus.",
         "GFL Plant Infinite": "A GFL plant interacting with an infinite bus.",
         "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
