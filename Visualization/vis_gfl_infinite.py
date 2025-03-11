@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_gfl_infinite
+from Main import case04main_gfl_infinite
 
 # Set the page to use the full width
 #st.set_page_config(layout="wide")
@@ -30,7 +30,7 @@ variable_ranges = {
     "ωc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Rounded 6.28 to 125.66
 }
 
-# Default parameter values (matching `main_gfl_infinite.py`)
+# Default parameter values (matching `case04main_gfl_infinite.py`)
 default_values = {
     "Pset": 0.1, "Qset": 0.0,
     "wset": 1.0, "Vset": 1.0,
@@ -65,8 +65,8 @@ def get_user_inputs():
     return user_params
 
 def run_simulation(user_params):
-    """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    return main_gfl_infinite.main_gfl_infinite(user_params)  # Runs simulation automatically
+    """Calls case02main_droop_infinite.py with updated parameters and retrieves results"""
+    return case04main_gfl_infinite.main_gfl_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):
     """Generates plots based on testResults"""

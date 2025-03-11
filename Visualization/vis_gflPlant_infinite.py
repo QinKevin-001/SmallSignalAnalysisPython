@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_gflPlant_infinite
+from Main import case05main_gflPlant_infinite
 
 # Set the page to use the full width
 #st.set_page_config(layout="wide")
@@ -42,7 +42,7 @@ variable_ranges = {
     "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))
 }
 
-# Default parameter values from `main_gflPlant_infinite.py`
+# Default parameter values from `case05main_gflPlant_infinite.py`
 default_values = {
     "PsetPlant": 1.0, "QsetPlant": 0.0,
     "wsetPlant": 1.0, "VsetPlant": 1.0,
@@ -84,8 +84,8 @@ def get_user_inputs():
     return user_params
 
 def run_simulation(user_params):
-    """Calls main_droop_infinite.py with updated parameters and retrieves results"""
-    return main_gflPlant_infinite.main_gflPlant_infinite(user_params)  # Runs simulation automatically
+    """Calls case02main_droop_infinite.py with updated parameters and retrieves results"""
+    return case05main_gflPlant_infinite.main_gflPlant_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):
     """Generates plots based on testResults"""

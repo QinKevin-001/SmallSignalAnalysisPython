@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_droopSimplified_infinite
+from Main import case01main_droopSimplified_infinite
 
 # Set the page to use the full width
 #st.set_page_config(layout="wide")
@@ -19,7 +19,7 @@ variable_ranges = {
     "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Changed from ωc to wc
 }
 
-# Default values from `main_droop_infinite.py`
+# Default values from `case02main_droop_infinite.py`
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
     'wset': 1.0, 'Vset': 1.0,  # setpoints
@@ -53,7 +53,7 @@ def get_user_inputs():
     return user_params
 
 def run_simulation(user_params):
-    """Calls main_droop_infinite.py with updated parameters and retrieves results"""
+    """Calls case02main_droop_infinite.py with updated parameters and retrieves results"""
     return main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)  # Runs simulation automatically
 
 def visualization(testResults):

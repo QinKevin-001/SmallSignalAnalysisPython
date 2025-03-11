@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_droop_infinite
+from Main import case02main_droop_infinite
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {
@@ -24,7 +24,7 @@ variable_ranges = {
     "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
 }
 
-# Default values from `main_droop_infinite.py`
+# Default values from `case02main_droop_infinite.py`
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
     'ωset': 1.0, 'Vset': 1.0,  # setpoints
@@ -75,7 +75,7 @@ def get_mode_selection(mode_range):
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
-    return main_droop_infinite.main_droop_infinite(user_params)
+    return case02main_droop_infinite.main_droop_infinite(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #
