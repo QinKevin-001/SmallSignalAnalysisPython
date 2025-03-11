@@ -94,75 +94,106 @@ def run_simulation(user_params):
 
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
-    """Generates plots based on testResults."""
+    """Generates the eigenvalue and participation factor plots based on simulation output."""
+    state_variables = [
+        'epsilonPLLPlant(IBR1)', 'wPlant(IBR1)', 'epsilonP(IBR1)', 'epsilonQ(IBR1)', 'PoPlant(IBR1)', 'QoPlant(IBR1)',
+        'PsetDelay(IBR1)', 'QsetDelay(IBR1)', 'theta(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)',
+        'gammad(IBR1)', 'gammaq(IBR1)', 'iid(IBR1)', 'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
+        'thetaPlant(IBR2)', 'epsilonPLLPlant(IBR2)', 'wPlant(IBR2)', 'epsilonP(IBR2)', 'epsilonQ(IBR2)', 'PoPlant(IBR2)',
+        'QoPlant(IBR2)', 'PsetDelay(IBR2)', 'QsetDelay(IBR2)', 'theta(IBR2)', 'Po(IBR2)', 'Qo(IBR2)', 'phid(IBR2)',
+        'phiq(IBR2)', 'gammad(IBR2)', 'gammaq(IBR2)', 'iid(IBR2)', 'iiq(IBR2)', 'vcd(IBR2)', 'vcq(IBR2)', 'iod(IBR2)', 'ioq(IBR2)',
+        'ilineD(Line1)', 'ilineQ(Line1)'
+        'ilineD(Line2)', 'ilineQ(Line2)'
+        'iloadD(Load)', 'iloadQ(Load)'
+    ]
 
+    # The modal analysis data is expected to be stored at index 4 of the second element
     mode_data_raw = testResults[1][4]
-    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+
+    # If the first entry is a header, skip it
+    if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
+        modes = mode_data_raw[1:]
+    else:
+        modes = mode_data_raw
+
     mode_range = len(modes)
 
-    mode_index = get_mode_selection(mode_range)
+    # Allow user to select a mode for closer inspection
+    selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1,
+        mode_range,
+        1,
+        key="mode_selector"  # Add unique key for mode selector
+    )
+    mode_index = selected_mode - 1
 
+    parameter_data = testResults[1]
     try:
-        eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
-        eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
+        eigenvalue_real = np.real(parameter_data[1][mode_index])
+        eigenvalue_imag = np.imag(parameter_data[1][mode_index])
     except IndexError:
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # 🔹 Extract participation factors
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-
-    # 🔹 Extract valid factors (index, magnitude, state name)
-    valid_factors = [
-        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")  # Format: "state_name (subsystem)"
-        for entry in participation_factors
-        if isinstance(entry[0], int)
-    ]
-
-    if not valid_factors:
-        st.error("No valid participation factors found. Check if participation factor indices are correct.")
+    try:
+        participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+        if participation_factors:
+            valid_factors = [
+                entry for entry in participation_factors
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+            ]
+            state_locations = [entry[0] for entry in valid_factors]
+            factor_magnitudes = [entry[2] for entry in valid_factors]
+            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+        else:
+            factor_magnitudes = []
+            dominant_state_names = []
+    except (IndexError, ValueError, TypeError):
+        st.error("Error parsing participation factors.")
         return
 
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extracted formatted state names
-
+    # Layout the plots in two equal columns
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
+        st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,  # ✅ Using extracted state names
+                names=dominant_state_names,
                 values=factor_magnitudes,
-                width=1000,
-                height=800
+                title=f"Participation Factor Distribution for Mode {selected_mode}",
+                width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
+        else:
+            st.warning("No participation factor data available for this mode.")
 
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = {}
-
+        heatmap_data = []
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int):
-                    state_name = f"{entry[3]} ({entry[4]})"  # ✅ Extracted state names
-                    if state_name not in heatmap_data:
-                        heatmap_data[state_name] = [0] * mode_range  # Initialize with zeros
-                    heatmap_data[state_name][mode_idx] = float(entry[2])
+            mode_values = np.zeros(len(state_variables))
+            try:
+                mode_participation = modes[mode_idx][5]
+                for entry in mode_participation:
+                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                        mode_values[entry[0] - 1] = entry[2]
+            except (IndexError, ValueError):
+                pass
+            heatmap_data.append(mode_values)
 
-        # Convert dictionary to array
-        heatmap_array = np.array(list(heatmap_data.values()))
-
+        mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
         heatmap_fig = px.imshow(
-            heatmap_array,
-            x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # ✅ Using extracted state names
-            width=1000,
-            height=800
+            np.array(heatmap_data).T,
+            x=mode_labels,
+            y=state_variables,
+            labels={"color": "Participation Factor"},
+            color_continuous_scale="Blues",
+            title="Participation Factors Heatmap",
+            width=900, height=700
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
-
 
 # ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
