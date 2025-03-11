@@ -148,16 +148,16 @@ def visualization(testResults):
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = []
-        for mode_idx in range(mode_range):
-            mode_values = np.zeros(len(state_variables))
-            try:
-                mode_participation = modes[mode_idx][5]
-                for entry in mode_participation:
-                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        mode_values[entry[0] - 1] = entry[2]
-            except (IndexError, ValueError):
-                pass
-            heatmap_data.append(mode_values)
+        # for mode_idx in range(mode_range):
+        #     mode_values = np.zeros(len(state_variables))
+        #     try:
+        #         mode_participation = modes[mode_idx][5]
+        #         for entry in mode_participation:
+        #             if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+        #                 mode_values[entry[0] - 1] = entry[2]
+        #     except (IndexError, ValueError):
+        #         pass
+        #     heatmap_data.append(mode_values)
 
         mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
         heatmap_fig = px.imshow(
