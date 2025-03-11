@@ -163,13 +163,7 @@ def visualization(testResults):
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
-            y=[
-        'theta(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)', 'gammad(IBR1)', 'gammaq(IBR1)', 'iid(IBR1)',
-        'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
-        'theta(IBR2)', 'Po(IBR2)', 'Qo(IBR2)', 'phid(IBR2)', 'phiq(IBR2)', 'gammad(IBR2)', 'gammaq(IBR2)', 'iid(IBR2)',
-        'iiq(IBR2)', 'vcd(IBR2)', 'vcq(IBR2)', 'iod(IBR2)', 'ioq(IBR2)',
-        'iloadD(Load)', 'iloadQ(Load)', 's', 's2'
-    ],
+            y=state_variables,
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
