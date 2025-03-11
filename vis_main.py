@@ -18,7 +18,14 @@ PAGES = {
     "Case 07: VSM Plant Infinite": "Visualization.case07vis_vsmPlant_infinite",
     "Case 08: Droop Droop": "Visualization.case08vis_droop_droop",
     "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant",
-    "Case 10: Droop VSM": "Visualization.case10vis_droop_vsm"
+    "Case 10: Droop VSM": "Visualization.case10vis_droop_vsm",
+    "Case 11: Droop Plant VSM Plant": "Visualization.case11vis_droopPlant_vsmPlant",
+    "Case 12: VSM VSM": "Visualization.case12vis_vsm_Vsm",
+    "Case 13: VSM Plant VSM Plant": "Visualization.case13vis_vsmPlant_vsmPlant",
+    "Case 14: Droop SG": "Visualization.case14vis_droop_sg",
+    "Case 15: Droop Plant SG": "Visualization.case15vis_droopPlant_sg",
+    "Case 16: VSM SG": "Visualization.case16vis_vsm_sg",
+    "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
@@ -47,7 +54,14 @@ if selected_page == "Main Page":
         "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus.",
         "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load.",
         "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting.",
-        "Droop VSM": "Droop + VSM"
+        "Droop VSM": "A system integrating a droop-controlled inverter with a Virtual Synchronous Machine (VSM) inverter, examining their dynamic responses.",
+    "Droop Plant VSM Plant": "An investigation into the interaction between a plant-level droop-controlled inverter and a plant-level VSM inverter.",
+    "VSM VSM": "A configuration with two Virtual Synchronous Machine (VSM) inverters connected together, analyzing their control interactions.",
+    "VSM Plant VSM Plant": "A system featuring two VSM inverters with plant-level control, focusing on their coordinated dynamics.",
+    "Droop SG": "A droop-controlled inverter operating in tandem with a synchronous generator (SG), exploring hybrid control dynamics.",
+    "Droop Plant SG": "A plant-level droop-controlled inverter interacting with a synchronous generator, highlighting integration challenges.",
+    "VSM SG": "A Virtual Synchronous Machine (VSM) inverter working alongside a synchronous generator, studying complementary control strategies.",
+    "VSM Plant SG": "A plant-level VSM-controlled inverter interacting with a synchronous generator, emphasizing system-level performance and integration."
     }
 
     for case, description in case_descriptions.items():
