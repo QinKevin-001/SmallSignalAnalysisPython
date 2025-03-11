@@ -98,15 +98,16 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # 🔹 Extract participation factors
+    # 🔹 Extract participation factors and skip header if present
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    if participation_factors and isinstance(participation_factors[0][0], str):
+        participation_factors = participation_factors[1:]
 
-    # 🔹 Debugging output
     st.write("DEBUG: Participation Factors:", participation_factors)
 
-    # 🔹 Extract valid factors (index, magnitude, state name)
+    # 🔹 Extract valid factors: (index, magnitude, "state_name (subsystem)")
     valid_factors = [
-        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")  # Format: "state_name (subsystem)"
+        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")
         for entry in participation_factors
         if isinstance(entry[0], int)
     ]
@@ -116,7 +117,7 @@ def visualization(testResults):
         return
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extracted formatted state names
+    dominant_state_names = [entry[2] for entry in valid_factors]
 
     col1, col2 = st.columns([1, 1])
 
@@ -124,7 +125,7 @@ def visualization(testResults):
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,  # ✅ Using extracted state names
+                names=dominant_state_names,
                 values=factor_magnitudes,
                 width=1000,
                 height=800
@@ -136,20 +137,23 @@ def visualization(testResults):
         heatmap_data = {}
 
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
+            # Retrieve participation factors and skip header if it exists
+            raw_pf = modes[mode_idx][5] if len(modes[mode_idx]) > 5 else []
+            if raw_pf and isinstance(raw_pf[0][0], str):
+                raw_pf = raw_pf[1:]
+            for entry in raw_pf:
                 if isinstance(entry[0], int):
-                    state_name = f"{entry[3]} ({entry[4]})"  # ✅ Extracted state names
+                    state_name = f"{entry[3]} ({entry[4]})"
                     if state_name not in heatmap_data:
-                        heatmap_data[state_name] = [0] * mode_range  # Initialize with zeros
+                        heatmap_data[state_name] = [0] * mode_range
                     heatmap_data[state_name][mode_idx] = float(entry[2])
 
-        # Convert dictionary to array
+        # Convert the dictionary to an array for plotting
         heatmap_array = np.array(list(heatmap_data.values()))
-
         heatmap_fig = px.imshow(
             heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # ✅ Using extracted state names
+            y=list(heatmap_data.keys()),
             width=1000,
             height=800
         )
