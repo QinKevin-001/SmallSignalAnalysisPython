@@ -45,13 +45,11 @@ default_values = {
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
-    # Ensure session state is initialized
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
 
     user_params = {}
 
-    # Create a Simulation Parameters Sidebar
     st.sidebar.header("Simulation Parameters")
     for var, (min_val, max_val) in variable_ranges.items():
         user_params[var] = st.sidebar.number_input(
@@ -60,7 +58,7 @@ def get_user_inputs():
             max_value=float(max_val),
             value=float(st.session_state["user_params"].get(var, default_values[var])),
             step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"param_{var}"  # Unique key for each parameter
+            key=f"param_{var}"
         )
 
     st.session_state["user_params"] = user_params
@@ -69,7 +67,6 @@ def get_user_inputs():
 
 # ----------------- 📌 Sidebar: Mode Selection ----------------- #
 def get_mode_selection(mode_range):
-    """Creates a mode selection dropdown inside the sidebar."""
     st.sidebar.header("Mode Selection")
     selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
     return selected_mode - 1  # Convert to zero-based index
@@ -77,13 +74,12 @@ def get_mode_selection(mode_range):
 
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
-    """Runs the simulation using the selected parameters."""
     return case08main_droop_droop.main_droop_droop(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
-    """Generates plots based on testResults."""
+    # Define unique state variable labels.
     state_variables = [
         'theta(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)', 'gammad(IBR1)', 'gammaq(IBR1)', 'iid(IBR1)',
         'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
@@ -96,7 +92,6 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Get mode selection from the sidebar
     mode_index = get_mode_selection(mode_range)
 
     try:
@@ -106,11 +101,15 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
+    # Get participation factors for the selected mode.
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    # Use the PF index as-is (assuming zero-based indexing)
     valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
 
+    # Map the PF index to the state_variables list.
+    # (No need to subtract 1 if indices are zero-based.)
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    dominant_state_names = [state_variables[entry[0]] for entry in valid_factors if 0 <= entry[0] < len(state_variables)]
 
     col1, col2 = st.columns([1, 1])
 
@@ -127,12 +126,12 @@ def visualization(testResults):
 
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
+        # Create a matrix for all modes and state variables
         heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
-
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+                if isinstance(entry[0], int) and 0 <= entry[0] < len(state_variables):
+                    heatmap_data[mode_idx][entry[0]] = float(entry[2])
 
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
@@ -146,10 +145,9 @@ def visualization(testResults):
 
 # ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
-    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
-    user_params = get_user_inputs()  # Get user parameters
-    testResults = run_simulation(user_params)  # Run simulation
-    visualization(testResults)  # Show visualization
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)
+    visualization(testResults)
 
 
 # ----------------- 📌 Main Page Layout ----------------- #
