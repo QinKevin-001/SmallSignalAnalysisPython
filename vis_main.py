@@ -9,15 +9,15 @@ st.set_page_config(layout="wide")
 # Define available visualization pages (Now referencing the `Visualization` folder)
 PAGES = {
     "Main Page": None,
-    "Case 01: Droop Simplified Infinite": "Visualization.vis_droopSimplified_infinite",
-    "Case 02: Droop Infinite": "Visualization.vis_droop_infinite",
-    "Case 03: Droop Plant Infinite": "Visualization.vis_droopPlant_infinite",
-    "Case 04: GFL Infinite": "Visualization.vis_gfl_infinite",
-    "Case 05: GFL Plant Infinite": "Visualization.vis_gflPlant_infinite",
-    "Case 06: VSM Infinite": "Visualization.vis_vsm_infinite",
-    "Case 07: VSM Plant Infinite": "Visualization.vis_vsmPlant_infinite",
-    "Case 08: Droop Droop": "Visualization.vis_droop_droop",
-    "Case 09: Droop Plant Droop Plant": "Visualization.vis_droopPlant_droopPlant"
+    "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
+    "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
+    "Case 03: Droop Plant Infinite": "Visualization.case03vis_droopPlant_infinite",
+    "Case 04: GFL Infinite": "Visualization.case04vis_gfl_infinite",
+    "Case 05: GFL Plant Infinite": "Visualization.case05vis_gflPlant_infinite",
+    "Case 06: VSM Infinite": "Visualization.case06vis_vsm_infinite",
+    "Case 07: VSM Plant Infinite": "Visualization.case07vis_vsmPlant_infinite",
+    "Case 08: Droop Droop": "Visualization.case08vis_droop_droop",
+    "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant"
 }
 
 # ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
