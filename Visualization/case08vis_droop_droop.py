@@ -81,9 +81,11 @@ def run_simulation(user_params):
 def visualization(testResults):
     """Generates the eigenvalue and participation factor plots based on simulation output."""
     state_variables = [
-        "thetaPlant0", "epsilonPLL0", "wPlant0", "epsilonP0", "epsilonQ0",
-        "PoPlant0", "QoPlant0", "PsetDelay0", "QsetDelay0", "Theta0", "Tef0",
-        "Qof0", "Vof0", "winv0", "Psif0", "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        'theta(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)', 'gammad(IBR1)', 'gammaq(IBR1)', 'iid(IBR1)',
+        'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
+        'theta(IBR2)', 'Po(IBR2)', 'Qo(IBR2)', 'phid(IBR2)', 'phiq(IBR2)', 'gammad(IBR2)', 'gammaq(IBR2)', 'iid(IBR2)',
+        'iiq(IBR2)', 'vcd(IBR2)', 'vcq(IBR2)', 'iod(IBR2)', 'ioq(IBR2)',
+        'iloadD(Load)', 'iloadQ(Load)', 's', 's2'
     ]
 
     # The modal analysis data is expected to be stored at index 4 of the second element.
