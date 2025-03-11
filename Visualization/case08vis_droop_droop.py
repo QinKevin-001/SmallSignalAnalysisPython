@@ -129,12 +129,17 @@ def visualization(testResults):
         heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
 
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int):
-                    st.write(f"Mode {mode_idx + 1} - Participation Factor Index: {entry[0]}")  # DEBUGGING LINE
+            seen_indices = set()  # Keep track of indices actually returned from the simulation
 
-                    if 0 <= entry[0] < len(state_variables):
-                        heatmap_data[mode_idx][entry[0]] = float(entry[2])
+            for entry in modes[mode_idx][5]:
+                if isinstance(entry[0], int) and 0 <= entry[0] < len(state_variables):
+                    heatmap_data[mode_idx][entry[0]] = float(entry[2])
+                    seen_indices.add(entry[0])  # Record which indices were present
+
+            # Ensure all state variables are explicitly present
+            for i in range(len(state_variables)):
+                if i not in seen_indices:
+                    heatmap_data[mode_idx][i] = 0.0  # Set missing states to 0 explicitly
 
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
