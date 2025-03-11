@@ -11,7 +11,7 @@ PAGES = {
     "Main Page": None,
     "Case 01: Droop Simplified Infinite": "Visualization.vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.vis_droop_infinite",
-    "Case 02: Droop Plant Infinite": "Visualization.vis_droopPlant_infinite",
+    "Case 03: Droop Plant Infinite": "Visualization.vis_droopPlant_infinite",
     "Case 04: GFL Infinite": "Visualization.vis_gfl_infinite",
     "Case 05: GFL Plant Infinite": "Visualization.vis_gflPlant_infinite",
     "Case 06: VSM Infinite": "Visualization.vis_vsm_infinite",
