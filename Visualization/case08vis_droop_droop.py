@@ -154,7 +154,7 @@ def visualization(testResults):
                 mode_participation = modes[mode_idx][5]
                 for entry in mode_participation:
                     if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        mode_values[entry[0]] = entry[2]
+                        mode_values[entry[0] - 1] = entry[2]
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
