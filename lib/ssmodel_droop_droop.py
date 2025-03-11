@@ -67,10 +67,18 @@ def ssmodel_droop_droop(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticip
     row3 = np.hstack([block31, block32, block33])  # (2, 28)
     Asys = np.vstack([row1, row2, row3])  # (28, 28)
 
-    # Combine state variables from the three models.
-    ssVariables = np.concatenate((stateMatrix1['ssVariables'], stateMatrix2['ssVariables'], stateMatrixLoad['ssVariables']))
-    if len(ssVariables.shape) == 1:
-        ssVariables = ssVariables.reshape(-1, 1)
+    ## **State Variable Labels**
+    # Helper: force any array into a column vector (flattening any extra dimensions)
+    def ensure_column(x):  # Convert input to a column vector containing all elements
+        arr = np.array(x)
+        return arr.flatten().reshape(-1, 1)
+
+    ssVar1 = ensure_column(stateMatrix1['ssVariables'])  # IBR1 state variables as column vector
+    ssVar2 = ensure_column(stateMatrix2['ssVariables'])  # IBR2 state variables as column vector
+    ssVarLine1 = ensure_column(stateMatrixLine1['ssVariables'])  # Line1 state variables as column vector
+    ssVarLine2 = ensure_column(stateMatrixLine2['ssVariables'])  # Line2 state variables as column vector
+    ssVarLoad = ensure_column(stateMatrixLoad['ssVariables'])  # Load state variables as column vector
+    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLine1, ssVarLine2, ssVarLoad], axis=0)  # (TotalStates,1): Concatenate all state variables
 
     labels = (['IBR1'] * len(stateMatrix1['ssVariables']) +
               ['IBR2'] * len(stateMatrix2['ssVariables']) +
