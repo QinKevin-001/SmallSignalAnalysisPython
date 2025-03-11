@@ -95,6 +95,7 @@ default_values = {
     "Rx": 100
 }
 
+
 def get_user_inputs():
     """Creates user input controls for parameter tuning via the sidebar."""
     st.sidebar.header("Simulation Parameters")
@@ -107,17 +108,25 @@ def get_user_inputs():
     # IBR1 Parameters
     with ibr1_tab:
         st.header("IBR1 Parameters")
-        ibr1_params = [param for param in variable_ranges.keys() if not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx']]
+        ibr1_params = [param for param in variable_ranges.keys() if
+                       not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx']]
         for var in ibr1_params:
             min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            # Convert all numeric values to float
+            min_val = float(min_val)
+            max_val = float(max_val)
+            default = float(default)
+            step = float((max_val - min_val) / 100.0)  # Adjusted step size for better control
+
             user_params[var] = st.number_input(
-                f"{var} ({min_val} to {max_val})",
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2),
-                key=f"ibr1_{var}"  # Add unique key for IBR1 parameters
+                step=step,
+                format="%.3f",  # Format to 3 decimal places
+                key=f"ibr1_{var}"
             )
 
     # IBR2 Parameters
@@ -126,14 +135,21 @@ def get_user_inputs():
         ibr2_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2')]
         for var in ibr2_params:
             min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            # Convert all numeric values to float
+            min_val = float(min_val)
+            max_val = float(max_val)
+            default = float(default)
+            step = float((max_val - min_val) / 100.0)  # Adjusted step size for better control
+
             user_params[var] = st.number_input(
-                f"{var.replace('_IBR2', '')} ({min_val} to {max_val})",
+                f"{var.replace('_IBR2', '')} ({min_val:.3f} to {max_val:.3f})",
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2),
-                key=f"ibr2_{var}"  # Add unique key for IBR2 parameters
+                step=step,
+                format="%.3f",  # Format to 3 decimal places
+                key=f"ibr2_{var}"
             )
 
     # Load Parameters
@@ -142,14 +158,21 @@ def get_user_inputs():
         load_params = ['Rload', 'Lload', 'Rx']
         for var in load_params:
             min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, round((min_val + max_val) / 2.0, 2))
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            # Convert all numeric values to float
+            min_val = float(min_val)
+            max_val = float(max_val)
+            default = float(default)
+            step = float((max_val - min_val) / 100.0)  # Adjusted step size for better control
+
             user_params[var] = st.number_input(
-                f"{var} ({min_val} to {max_val})",
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
                 min_value=min_val,
                 max_value=max_val,
                 value=default,
-                step=round((max_val - min_val) / 1000, 2),
-                key=f"load_{var}"  # Add unique key for load parameters
+                step=step,
+                format="%.3f",  # Format to 3 decimal places
+                key=f"load_{var}"
             )
 
     return user_params
