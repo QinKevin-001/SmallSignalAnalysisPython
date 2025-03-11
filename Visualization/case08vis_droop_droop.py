@@ -84,11 +84,17 @@ def run_simulation(user_params):
 # ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
+    state_variables = [
+        'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq', 'theta',
+        'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq',
+        'iloadD', 'iloadQ'
+    ]
 
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
+    # Get mode selection from the sidebar
     mode_index = get_mode_selection(mode_range)
 
     try:
@@ -98,26 +104,11 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # 🔹 Extract participation factors
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-
-    # 🔹 Debugging output
-    st.write("DEBUG: Participation Factors:", participation_factors)
-
-
-    # 🔹 Extract valid factors (index, magnitude, state name)
-    valid_factors = [
-        (entry[0], float(entry[2]), f"{entry[3]} ({entry[4]})")  # Format: "state_name (subsystem)"
-        for entry in participation_factors
-        if isinstance(entry[0], int)
-    ]
-
-    if not valid_factors:
-        st.error("No valid participation factors found. Check if participation factor indices are correct.")
-        return
+    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
 
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [entry[2] for entry in valid_factors]  # ✅ Extracted formatted state names
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
     col1, col2 = st.columns([1, 1])
 
@@ -125,7 +116,7 @@ def visualization(testResults):
         st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
-                names=dominant_state_names,  # ✅ Using extracted state names
+                names=dominant_state_names,
                 values=factor_magnitudes,
                 width=1000,
                 height=800
@@ -134,24 +125,17 @@ def visualization(testResults):
 
     with col2:
         st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = {}
+        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
 
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int):
-                    # Include the participation factor index in the key to ensure uniqueness
-                    unique_key = f"PF {entry[0]}: {entry[3]} ({entry[4]})"
-                    if unique_key not in heatmap_data:
-                        heatmap_data[unique_key] = [0] * mode_range  # Initialize with zeros for each mode
-                    heatmap_data[unique_key][mode_idx] = float(entry[2])
-
-        # Convert dictionary values into an array for the heatmap
-        heatmap_array = np.array(list(heatmap_data.values()))
+                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
 
         heatmap_fig = px.imshow(
-            heatmap_array,
+            np.array(heatmap_data).T,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=list(heatmap_data.keys()),  # Now each participation factor is unique
+            y=state_variables,
             width=1000,
             height=800
         )
