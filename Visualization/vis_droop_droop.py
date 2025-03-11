@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_droop_droop
+from Main import case08main_droop_droop
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {
@@ -27,7 +27,7 @@ variable_ranges = {
     "Rx": (100.0, 1000.0)
 }
 
-# Default values from `main_droop_droop.py`
+# Default values from `case08main_droop_droop.py`
 default_values = {
     "Pset": 0.1, "Qset": 0.0,
     "ωset": 1.0, "Vset": 1.0,

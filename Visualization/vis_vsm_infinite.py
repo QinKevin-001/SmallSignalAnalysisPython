@@ -3,7 +3,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_vsm_infinite
+from Main import case06main_vsm_infinite
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {
@@ -24,7 +24,7 @@ variable_ranges = {
     "τf": (0.01, 0.1)
 }
 
-# Default values from `main_vsm_infinite.py`
+# Default values from `case06main_vsm_infinite.py`
 default_values = {
     "Pset": 0.1, "Qset": 0.0,
     "ωset": 1.0, "Vset": 1.0,

@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_vsmPlant_infinite
+from Main import case07main_vsmPlant_infinite
 
 # Set page layout if desired (uncomment to use wide layout)
 # st.set_page_config(layout="wide")

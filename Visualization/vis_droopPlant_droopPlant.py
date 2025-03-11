@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import main_droopPlant_droopPlant
+from Main import case09main_droopPlant_droopPlant
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {
@@ -40,7 +40,7 @@ variable_ranges = {
     "Lline": (0.01, 1.0)
 }
 
-# Default values from `main_droopPlant_droopPlant.py`
+# Default values from `case09main_droopPlant_droopPlant.py`
 default_values = {
     "PsetPlant": 0.1, "QsetPlant": 0.0, "ωsetPlant": 1.0, "VsetPlant": 1.0,
     "KpPLLPlant": 1.8, "KiPLLPlant": 160.0, "KpPlantP": 0.1, "KiPlantP": 6.0,
@@ -89,7 +89,7 @@ def get_mode_selection(mode_range):
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
-    return main_droopPlant_droopPlant.main_droopPlant_droopPlant(user_params)
+    return case09main_droopPlant_droopPlant.main_droopPlant_droopPlant(user_params)
 
 
 # ----------------- 📌 Visualization ----------------- #
