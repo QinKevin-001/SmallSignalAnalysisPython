@@ -121,99 +121,37 @@ def run_simulation(user_params):
 
 # Visualization
 def visualization(testResults):
-    # Define state variables
     state_variables = [
         "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)", "epsilonQ(IBR1)", "PoPlant(IBR1)", "QoPlant(IBR1)",
         "PsetDelay(IBR1)", "QsetDelay(IBR1)", "theta(IBR1)", "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)",
         "psif(IBR1)", "iid(IBR1)", "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)", "ioq(IBR1)",
-        "epsilonPLLPlant(IBR2)", "wPlant(IBR2)", "epsilonP(IBR2)", "epsilonQ(IBR2)", "PoPlant(IBR2)", "QoPlant(IBR2)",
-        "PsetDelay(IBR2)", "QsetDelay(IBR2)", "theta(IBR2)", "Tef(IBR2)", "Qof(IBR2)", "Vof(IBR2)", "winv(IBR2)",
-        "psif(IBR2)", "iid(IBR2)", "iiq(IBR2)", "vcd(IBR2)", "vcq(IBR2)", "iod(IBR2)", "ioq(IBR2)",
-        "ilineD(Line1)", "ilineQ(Line1)", "ilineD(Line2)", "ilineQ(Line2)", "IloadD(Load)", "IloadQ(Load)"
+        "thetaPlant(IBR2)", "epsilonPLLPlant(IBR2)", "wPlant(IBR2)", "epsilonP(IBR2)", "epsilonQ(IBR2)", "PoPlant(IBR2)",
+        "QoPlant(IBR2)", "PsetDelay(IBR2)", "QsetDelay(IBR2)", "theta(IBR2)", "Tef(IBR2)", "Qof(IBR2)", "Vof(IBR2)",
+        "winv(IBR2)", "psif(IBR2)", "iid(IBR2)", "iiq(IBR2)", "vcd(IBR2)", "vcq(IBR2)", "iod(IBR2)", "ioq(IBR2)",
+        "ilineD(Line1)", "ilineQ(Line1)",
+        "ilineD(Line2)", "ilineQ(Line2)",
+        "IloadD(Load)", "IloadQ(Load)"
     ]
-
-    # Extract mode data with robust error handling
-    try:
-        # Debug: Print the structure of testResults to understand the data format
-        st.sidebar.write(f"Total results length: {len(testResults)}")
-        st.sidebar.write(f"Eigenvalues length: {len(testResults[1][1])}")
-
-        mode_data_raw = testResults[1][4]
-
-        # Determine if the first element is a header row
-        if isinstance(mode_data_raw[0], list) and len(mode_data_raw[0]) > 0 and mode_data_raw[0][0] == 'Mode':
-            modes = mode_data_raw[1:]  # Skip header
-        else:
-            modes = mode_data_raw
-
-        mode_range = len(modes)
-        st.sidebar.write(f"Number of modes detected: {mode_range}")
-
-        if mode_range == 0:
-            st.error("No modes found in the data")
-            return
-
-        # Check if eigenvalues count matches modes count
-        eigenvalues = testResults[1][1]
-        if len(eigenvalues) != mode_range:
-            st.warning(f"Mismatch between eigenvalues count ({len(eigenvalues)}) and modes count ({mode_range})")
-
-    except (IndexError, TypeError) as e:
-        st.error(f"Error extracting mode data: {e}")
-        return
-
-    # Mode selection - ensure we can select all available modes
-    st.sidebar.header("Mode Selection")
-    selected_mode = st.sidebar.slider("Select Mode", 1, mode_range, 1, key="mode_slider")
-    mode_index = selected_mode - 1
-
-    # Extract eigenvalues with error handling
+    mode_data_raw = testResults[1][4]
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+    mode_range = len(modes)
+    mode_index = get_mode_selection(mode_range)
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
         eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
-        st.sidebar.write(f"Eigenvalue: {eigenvalue_real:.3f} + {eigenvalue_imag:.3f}j")
-    except (IndexError, TypeError, ValueError) as e:
-        st.error(f"Error extracting eigenvalue data for mode {selected_mode}: {e}")
+    except IndexError:
+        st.error("Eigenvalue data unavailable.")
         return
 
-    # Process participation factors with robust error handling
-    try:
-        # Check if participation factors exist for this mode
-        if len(modes[mode_index]) > 5 and modes[mode_index][5] is not None:
-            participation_factors = modes[mode_index][5]
+    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors
+                      if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)]
+    factor_magnitudes = [entry[1] for entry in valid_factors]
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
-            # Filter valid factors and handle potential index errors
-            valid_factors = []
-            for entry in participation_factors:
-                try:
-                    if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                        state_idx = entry[0] - 1
-                        factor_value = float(entry[2])
-                        valid_factors.append((state_idx, factor_value, state_variables[state_idx]))
-                except (IndexError, ValueError, TypeError) as e:
-                    continue
-
-            # Extract data for visualization
-            factor_magnitudes = [factor[1] for factor in valid_factors]
-            dominant_state_names = [factor[2] for factor in valid_factors]
-
-            if not valid_factors:
-                st.warning("No valid participation factors found for this mode")
-        else:
-            st.warning("No participation factors found for this mode")
-            factor_magnitudes = []
-            dominant_state_names = []
-    except Exception as e:
-        st.error(f"Error processing participation factors: {e}")
-        factor_magnitudes = []
-        dominant_state_names = []
-
-    # Visualization
     col1, col2 = st.columns(2)
-
-    # Pie chart
     with col1:
-        st.subheader(f"Participation Factors for Mode {selected_mode}")
+        st.subheader(f"Participation Factors for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
@@ -222,40 +160,21 @@ def visualization(testResults):
                 height=800
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
-        else:
-            st.info("No participation factor data available for this mode.")
-
-    # Heatmap
     with col2:
         st.subheader("Heatmap of Participation Factors")
-        try:
-            # Create a matrix to store participation factors for all modes and states
-            heatmap_data = np.zeros((len(state_variables), mode_range))
-
-            # Fill the matrix with participation factors
-            for mode_idx in range(mode_range):
-                if len(modes[mode_idx]) > 5 and modes[mode_idx][5] is not None:
-                    for entry in modes[mode_idx][5]:
-                        try:
-                            if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                                state_idx = entry[0] - 1
-                                factor_value = float(entry[2])
-                                heatmap_data[state_idx, mode_idx] = factor_value
-                        except (IndexError, ValueError, TypeError):
-                            continue
-
-            # Create heatmap
-            heatmap_fig = px.imshow(
-                heatmap_data,
-                x=[f"Mode {i + 1}" for i in range(mode_range)],
-                y=state_variables,
-                width=1000,
-                height=800,
-                color_continuous_scale="Blues"
-            )
-            st.plotly_chart(heatmap_fig, use_container_width=True)
-        except Exception as e:
-            st.error(f"Error creating heatmap: {e}")
+        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        for mode_idx in range(mode_range):
+            for entry in modes[mode_idx][5]:
+                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+        heatmap_fig = px.imshow(
+            np.array(heatmap_data).T,
+            x=[f"Mode {i + 1}" for i in range(mode_range)],
+            y=state_variables,
+            width=1000,
+            height=800
+        )
+        st.plotly_chart(heatmap_fig, use_container_width=True)
 
 def run_simulation_and_visualization():
     user_params = get_user_inputs()
