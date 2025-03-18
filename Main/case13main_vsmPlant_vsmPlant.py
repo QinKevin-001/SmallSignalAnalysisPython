@@ -103,7 +103,7 @@ def main_vsmPlant_vsmPlant(user_params=None):
 
     # Store the results
     testResults.append([
-        parasIBR1['PsetPlant'],  # Store the full parameter dictionary for reference
+        parasIBR1,  # Store the full parameter dictionary for reference
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
