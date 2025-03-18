@@ -1,329 +1,101 @@
-import streamlit as st
+#critical imports
 import numpy as np
-import plotly.express as px
-from Main import case14main_droop_sg
+from lib.ssmodel_droop_sg import ssmodel_droop_sg
+# Optional imports (plotting & file export)
+from plott import plott
+from Testing.toCSV import flatten_column_major
 
-# Variable ranges for Droop + SG System
-variable_ranges = {
-    # Droop IBR parameters (from Case 8)
-    "Pset": (0.0, 1.0),
-    "Qset": (-1.0, 1.0),
-    "ωset": (1.0, 1.0),
-    "Vset": (0.9, 1.1),
-    "mp": (0.01, 1.0),
-    "mq": (0.01, 1.0),
-    "Rt": (0.01, 1.0),
-    "Lt": (0.01, 1.0),
-    "Rd": (0.0, 100.0),
-    "Cf": (0.01, 0.20),
-    "Rc": (0.01, 1.0),
-    "Lc": (0.01, 1.0),
-    "KpV": (0.1, 10.0),
-    "KiV": (0.1, 1000.0),
-    "KpC": (0.1, 10.0),
-    "KiC": (0.1, 1000.0),
-    "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20)),
-    # Load parameters (common)
-    "Rload": (0.5, 10.0),
-    "Lload": (0.1, 10.0),
-    "Rx": (100.0, 1000.0),
-    # SG parameters
-    "Pset_SG": (0.0, 1.0),
-    "Qset_SG": (-1.0, 1.0),
-    "ωset_SG": (1.0, 1.0),
-    "Vset_SG": (0.9, 1.1),
-    "mp_SG": (0.01, 1.0),
-    "Rs_SG": (0.0, 0.02),
-    "Ld_SG": (0.6, 2.3),
-    "Ld1_SG": (0.15, 0.5),
-    "Ld2_SG": (0.12, 0.35),
-    "Lq_SG": (0.4, 2.3),
-    "Lq1_SG": (0.3, 1.0),
-    "Lq2_SG": (0.12, 0.45),
-    "Ll_SG": (0.1, 0.2),
-    "Tdo1_SG": (1.5, 10),
-    "Tdo2_SG": (0.01, 0.05),
-    "Tqo1_SG": (0.5, 2),
-    "Tqo2_SG": (0.01, 0.09),
-    "H1_SG": (1, 20),
-    "D_SG": (0.0, 1.0),
-    "T1_SG": (0.02, 0.10),
-    "T2_SG": (0.00, 0.05),
-    "T3_SG": (0.20, 0.50),
-    "T4_SG": (0.05, 0.50),
-    "T5_SG": (0.20, 0.50),
-    "K1_SG": (0.4, 0.8),
-    "Ke_SG": (100, 500),
-    "Ta_SG": (0.5, 2.0),
-    "Ta5_SG": (5.0, 20.0),
-    "Te_SG": (0.02, 0.10),
-    # SG side line parameters
-    "Rline_SG": (0.01, 1.0),
-    "Lline_SG": (0.01, 1.0)
-}
+def main_droop_sg(user_params=None):
+    #parameters
+    wbase = 2 * np.pi * 60
+    parasIBR = {
+        'Pset':0.1, 'Qset':0.0, #setpoints
+        'wset':1.0, 'Vset':1.0,  #setpoints
+        'mp':0.05, 'mq':0.05,   #droop gains
+        'Rt':0.02, 'Lt':0.10,   #LCL filter
+        'Rd':0.00, 'Cf':0.05,   #LCL filter
+        'Rc':0.10, 'Lc':0.50,   #LCL filter
+        'KpV':4.0, 'KiV':15.0,  #voltage loop PI gains
+        'KpC':0.4, 'KiC':8.0,   #current loop PI gains
+        'wc':2 * np.pi * 5  #power filter cut-off frequency
 
-# Default values for Droop + SG System
-default_values = {
-    # Droop IBR defaults (from Case 8)
-    "Pset": 0.1,
-    "Qset": 0.0,
-    "ωset": 1.0,
-    "Vset": 1.0,
-    "mp": 0.05,
-    "mq": 0.05,
-    "Rt": 0.02,
-    "Lt": 0.10,
-    "Rd": 0.0,
-    "Cf": 0.05,
-    "Rc": 0.10,
-    "Lc": 0.50,
-    "KpV": 4.0,
-    "KiV": 15.0,
-    "KpC": 0.4,
-    "KiC": 8.0,
-    "ωc": float(2 * np.pi * 5),
-    # Load defaults
-    "Rload": 0.9,
-    "Lload": 0.4358,
-    "Rx": 100,
-    # SG defaults
-    "Pset_SG": 0.1,
-    "Qset_SG": 0.0,
-    "ωset_SG": 1.0,
-    "Vset_SG": 1.0,
-    "mp_SG": 0.05,
-    "Rs_SG": 0.0,
-    "Ld_SG": 1.0,
-    "Ld1_SG": 0.3,
-    "Ld2_SG": 0.2,
-    "Lq_SG": 1.0,
-    "Lq1_SG": 0.5,
-    "Lq2_SG": 0.2,
-    "Ll_SG": 0.15,
-    "Tdo1_SG": 5.0,
-    "Tdo2_SG": 0.03,
-    "Tqo1_SG": 1.0,
-    "Tqo2_SG": 0.05,
-    "H1_SG": 5.0,
-    "D_SG": 0.5,
-    "T1_SG": 0.05,
-    "T2_SG": 0.02,
-    "T3_SG": 0.35,
-    "T4_SG": 0.3,
-    "T5_SG": 0.35,
-    "K1_SG": 0.5,
-    "Ke_SG": 300,
-    "Ta_SG": 1.0,
-    "Ta5_SG": 10.0,
-    "Te_SG": 0.06,
-    # SG side line defaults
-    "Rline_SG": 0.1,
-    "Lline_SG": 0.1
-}
-
-
-def get_user_inputs():
-    """Creates user input controls for parameter tuning via the sidebar."""
-    if "user_params" not in st.session_state:
-        st.session_state["user_params"] = default_values.copy()
-
-    # Create tabs for different parameter groups
-    ibr_tab, sg_tab, line_tab, load_tab = st.sidebar.tabs([
-        "IBR (Droop)", "SG", "Line (SG)", "Load"
-    ])
-    user_params = {}
-
-    # IBR (Droop) Parameters – those without "_SG", and not line or load
-    with ibr_tab:
-        st.header("Droop IBR Parameters")
-        ibr_params = [var for var in variable_ranges.keys()
-                      if "_SG" not in var and var not in ["Rload", "Lload", "Rx"]
-                      and not var.startswith("Rline_SG") and not var.startswith("Lline_SG")]
-        for var in ibr_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-            user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
-                step=step,
-                format="%.3f",
-                key=f"ibr_{var}"
-            )
-
-    # SG Parameters – keys that include "_SG" but exclude the line parameters
-    with sg_tab:
-        st.header("SG Parameters")
-        sg_params = [var for var in variable_ranges.keys()
-                     if var.endswith("_SG") and var not in ["Rline_SG", "Lline_SG"]]
-        for var in sg_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-            user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
-                step=step,
-                format="%.3f",
-                key=f"sg_{var}"
-            )
-
-    # SG Side Line Parameters
-    with line_tab:
-        st.header("SG Side Line Parameters")
-        line_params = ["Rline_SG", "Lline_SG"]
-        for var in line_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-            user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
-                step=step,
-                format="%.3f",
-                key=f"lineSG_{var}"
-            )
-
-    # Load Parameters
-    with load_tab:
-        st.header("Load Parameters")
-        load_params = ["Rload", "Lload", "Rx"]
-        for var in load_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-            user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
-                step=step,
-                format="%.3f",
-                key=f"load_{var}"
-            )
-
-    return user_params
-
-
-def prepare_simulation_parameters(user_params):
-    """
-    Prepares the parameters in the format expected by the simulation function.
-    Splits the inputs into separate groups for Droop IBR, SG, SG-side line, and Load.
-    """
-    parasIBR = {}
-    parasSG = {}
-    parasLineSG = {}
-    parasLoad = {}
-
-    for key, value in user_params.items():
-        if key.startswith("ibr_"):
-            new_key = key.replace("ibr_", "")
-            parasIBR[new_key] = value
-        elif key.startswith("sg_"):
-            new_key = key.replace("sg_", "")
-            parasSG[new_key] = value
-        elif key.startswith("lineSG_"):
-            new_key = key.replace("lineSG_", "")
-            parasLineSG[new_key] = value
-        elif key.startswith("load_"):
-            new_key = key.replace("load_", "")
-            parasLoad[new_key] = value
-        else:
-            parasIBR[key] = value  # fallback
-    return {
-        'parasIBR': parasIBR,
-        'parasSG': parasSG,
-        'parasLineSG': parasLineSG,
-        'parasLoad': parasLoad
     }
 
+    parasSG = {
+        'Pset': 0.1, 'Qset': 0.0,  # setpoints
+        'wset': 1.0, 'Vset': 1,  # setpoints
+        'mp': 0.05, 'mq': np.inf,  # droop gains
+        'Rs': 0,    #SG parameters
+        'Ld': 1.855, 'Ld1': 0.226, 'Ld2': 0.165,    #SG parameters
+        'Lq': 0.936, 'Lq1': 0.300, 'Lq2': 0.165,    #SG parameters
+        'Ll': 0.100,    #SG parameters
+        'Tdo1': 8.71, 'Tdo2': 0.05, #time constants
+        'Tqo1': 0.70, 'Tqo2': 0.04, #time constants
+        'H': 5.0,   #inertia constant
+        'D': 0.0,   #damping coefficient
+        'Kg' : 1/ 0.05,
+        'T1': 0.05, 'T2': 0.00, 'T3': 0.30, 'T4':0.15, 'T5': 0.30,  #time constants
+        'K1': 0.60, 'K2': 0.40, 'Ke': 200,  #Gains
+        'Ta': 1.00, 'Tb': 10.0, 'Te': 0.05  #time constants
 
-def run_simulation(user_params):
-    """Runs the Droop + SG simulation with the current parameters."""
-    sim_params = prepare_simulation_parameters(user_params)
-    return case14main_droop_sg.main_droop_sg(sim_params)
+    }
+    # Now assign Kg after 'mp' is available
+    #parasSG['Kg'] = 1 / parasSG['mp']   #frequency droop parameters
 
+    parasLineSG = {
+        'Rline': 0.10, 'Lline': 0.50,  # line parameters
+    }
 
-def visualization(testResults):
-    """Generates the eigenvalue and participation factor plots based on simulation output."""
-    state_variables = [
-        "Po(IBR1)", "Qo(IBR1)", "phid(IBR1)", "phiq(IBR1)", "gammad(IBR1)", "gammaq(IBR1)", "iid(IBR1)",
-        "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)", "ioq(IBR1)",
-        "theta", "wr(SG1)", "psid(SG1)", "psiq(SG1)", "Eq1(SG1)", "Ed1(SG1)", "psi1d(SG1)", "psi2q(SG1)", "P1(SG1)",
-        "Pg(SG1)", "Pf(SG1)", "P2(SG1)", "vx(SG1)", "Efd(SG1)",
-        "ilineD(LineSG)", "ilineQ(LineSG)",
-        "iloadD(Load)", "iloadQ(Load)"
-    ]
+    parasLoad = {
+        'Rload': 0.9, 'Lload': 0.4358,  #load parameters
+        'Rx': 100   #virtual resistance
+    }
 
-    mode_data_raw = testResults[1][4]
-    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
-    mode_range = len(modes)
+    # If user-defined parameters exist, update the default dictionary
+    if user_params:
+        for key in parasIBR.keys():
+            if key in user_params:
+                parasIBR[key] = user_params[key]
 
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_selector")
-    mode_index = selected_mode - 1
+    if user_params:
+        for key in parasSG.keys():
+            if key in user_params:
+                parasSG[key] = user_params[key]
 
-    try:
-        eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
-        eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
-        st.sidebar.write(f"Eigenvalue: {eigenvalue_real:.3f} + {eigenvalue_imag:.3f}j")
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
+    if user_params:
+        for key in parasLineSG.keys():
+            if key in user_params:
+                parasLineSG[key] = user_params[key]
 
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors
-                     if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)]
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    if user_params:
+        for key in parasLoad.keys():
+            if key in user_params:
+                parasLoad[key] = user_params[key]
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"Participation Factors for Mode {mode_index + 1}")
-        if factor_magnitudes:
-            pie_chart_fig = px.pie(
-                names=dominant_state_names,
-                values=factor_magnitudes,
-                width=1000,
-                height=800
-            )
-            st.plotly_chart(pie_chart_fig, use_container_width=True)
-    with col2:
-        st.subheader("Heatmap of Participation Factors")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
-        for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
-        heatmap_fig = px.imshow(
-            np.array(heatmap_data).T,
-            x=[f"Mode {i + 1}" for i in range(mode_range)],
-            y=state_variables,
-            width=1000,
-            height=800
-        )
-        st.plotly_chart(heatmap_fig, use_container_width=True)
+    # Column Names
+    testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
 
+    # Run the simulation for a single set of parameters
+    dominantParticipationFactorBoundary = 0.01
+    Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag = (
+        ssmodel_droop_sg(wbase, parasIBR, parasSG, parasLineSG, parasLoad, dominantParticipationFactorBoundary)
+    )
 
-def run_simulation_and_visualization():
-    user_params = get_user_inputs()
-    testResults = run_simulation(user_params)
-    visualization(testResults)
+    # Store the results
+    testResults.append([
+        parasIBR,  # Store the full parameter dictionary for reference
+        eigenvalueAnalysisResults['eigs'],
+        eigenvalueAnalysisResults['maxRealValue'],
+        eigenvalueAnalysisResults['minDampingRatio'],
+        eigenvalueAnalysisResults['modalAnalysis'],
+        pfExitFlag
+    ])
 
+    #plott(testResults)
+    #flatten_column_major(testResults)
 
-def main():
-    st.title("Droop + SG System Analysis")
-    run_simulation_and_visualization()
-
+    return testResults  # Now it only returns results without calling visualization
 
 if __name__ == "__main__":
-    main()
+    results = main_droop_sg()
+    print(results)
