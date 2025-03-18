@@ -92,11 +92,11 @@ def run_simulation(user_params):
 # Visualization
 def visualization(testResults):
     state_variables = [
-        "Po1", "Qo1", "Phid1", "Phiq1", "Gammad1", "Gammaq1",
-        "Iid1", "Iiq1", "Vcd1", "Vcq1", "Iod1", "Ioq1", "IloadD1", "IloadQ1",
-        "Theta2", "Po2", "Qo2", "Phid2", "Phiq2", "Gammad2", "Gammaq2",
-        "Iid2", "Iiq2", "Vcd2", "Vcq2", "Iod2", "Ioq2", "IloadD2", "IloadQ2",
-        "IloadD", "IloadQ"
+        "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)", "psif(IBR1)", "iid(IBR1)", "iiq(IBR1)",
+        "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)", "ioq(IBR1)",
+        "theta", "Tef(IBR2)", "Qof(IBR2)", "Vof(IBR2)", "winv(IBR2)", "psif(IBR2)", "iid(IBR2)", "iiq(IBR2)",
+        "vcd(IBR2)", "vcq(IBR2)", "iod(IBR2)", "ioq(IBR2)",
+        "IloadD(Load)", "IloadQ(Load)"
     ]
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
