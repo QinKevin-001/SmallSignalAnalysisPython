@@ -149,9 +149,9 @@ def run_simulation(user_params):
 
 def visualization(testResults):
     state_variables = [
-        "theta(IBR1)", "Po(IBR1)", "Qo(IBR1)", "phid(IBR1)", "phiq(IBR1)", "gammad(IBR1)", "gammaq(IBR1)", "iid(IBR1)",
+        "Po(IBR1)", "Qo(IBR1)", "phid(IBR1)", "phiq(IBR1)", "gammad(IBR1)", "gammaq(IBR1)", "iid(IBR1)",
         "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)", "ioq(IBR1)",
-        "theta(SG1)", "wr(SG1)", "psid(SG1)", "psiq(SG1)", "Eq1(SG1)", "Ed1(SG1)", "psi1d(SG1)", "psi2q(SG1)", "P1(SG1)",
+        "theta", "wr(SG1)", "psid(SG1)", "psiq(SG1)", "Eq1(SG1)", "Ed1(SG1)", "psi1d(SG1)", "psi2q(SG1)", "P1(SG1)",
         "Pg(SG1)", "Pf(SG1)", "P2(SG1)", "vx(SG1)", "Efd(SG1)",
         "ilineD(LineSG)", "ilineQ(LineSG)",
         "iloadD(Load)", "iloadQ(Load)"
