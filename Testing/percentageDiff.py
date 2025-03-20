@@ -23,23 +23,34 @@ case_mapping = {
     17: "VSM Plant SG"
 }
 
-# Prompt the user until a valid case number (1-17) is entered.
+# Prompt the user until a valid case number (1-17 or "test") is entered.
 while True:
-    try:
-        case_number = int(input("Enter a case number (1-17): "))
-        if 1 <= case_number <= 17:
-            break
-        else:
-            print("Invalid input. Please enter a number between 1 and 17.")
-    except ValueError:
-        print("Invalid input. Please enter a valid integer between 1 and 17.")
+    case_input = input("Enter a case number (1-17) or 'test' for temporary testing: ").strip().lower()
 
-# Create file name and title based on the user input
-desc = case_mapping[case_number]
-# File name: e.g., "Case01 Droop Simplified Infinite.png"
-output_plot = f"Case{case_number:02d} {desc}.png"
-# Plot title: e.g., "Case 01 Percentage Difference between Matlab and Python Data Points"
-plot_title = f"Case {case_number:02d} Percentage Difference between Matlab and Python Data Points"
+    if case_input == 'test':
+        # Handle temporary testing case
+        case_number = 'test'
+        desc = "Test Case"
+        break
+    else:
+        try:
+            case_number = int(case_input)
+            if 1 <= case_number <= 17:
+                desc = case_mapping[case_number]
+                break
+            else:
+                print("Invalid input. Please enter a number between 1 and 17 or 'test'.")
+        except ValueError:
+            print("Invalid input. Please enter a valid integer between 1 and 17 or 'test'.")
+
+if case_number != 'test':
+    # Create file name and title based on the user input
+    output_plot = f"Case{case_number:02d} {desc}.png"
+    plot_title = f"Case {case_number:02d} Percentage Difference between Matlab and Python Data Points"
+else:
+    # For testing case
+    output_plot = "Test Case.png"
+    plot_title = "Test Case Percentage Difference between Matlab and Python Data Points"
 
 # File paths for the two CSV files
 matlab_file = 'Matlab.csv'
@@ -60,6 +71,7 @@ python_data = python_data.iloc[:min_len].reset_index(drop=True)
 # Combine the two DataFrames side by side
 data = pd.concat([matlab_data, python_data], axis=1)
 
+
 # Function to safely convert a string to a complex number (replace 'i' with 'j')
 def safe_complex(value):
     try:
@@ -68,6 +80,7 @@ def safe_complex(value):
         return complex(value)
     except (ValueError, TypeError):
         return np.nan
+
 
 # Convert the data in both columns to complex numbers
 data['Matlab'] = data['Matlab'].apply(safe_complex)
@@ -78,6 +91,7 @@ data = data.dropna(subset=['Matlab', 'Python'])
 if data.empty:
     raise ValueError("No valid data available for comparison after cleaning.")
 
+
 # Function to calculate the percentage difference between two complex numbers
 def percentage_difference_complex(a, b):
     mag_a = np.abs(a)
@@ -86,6 +100,7 @@ def percentage_difference_complex(a, b):
     if (mag_a + mag_b) == 0:
         return 0
     return 100 * abs((mag_a - mag_b) / ((mag_a + mag_b) / 2))
+
 
 # Calculate the percentage difference for each row (point-to-point comparison)
 percentage_diff = data.apply(lambda row: percentage_difference_complex(row['Matlab'], row['Python']), axis=1)
