@@ -3,9 +3,9 @@ import numpy as np
 import plotly.express as px
 from Main import case17main_vsmPlant_sg
 
-# Parameter ranges
+# Variable ranges for VSM Plant + SG System
 variable_ranges = {
-    # VSM Plant parameters (Case 7)
+    # VSM Plant parameters
     "PsetPlant": (0.0, 1.0),
     "QsetPlant": (-1.0, 1.0),
     "ωsetPlant": (1.0, 1.0),
@@ -32,7 +32,13 @@ variable_ranges = {
     "J": (1, 20),
     "K": (1, 100),
     "τf": (0.01, 0.1),
-    # SG parameters (Case 14)
+
+    # Load parameters
+    "Rload": (0.5, 10.0),
+    "Lload": (0.1, 10.0),
+    "Rx": (100.0, 1000.0),
+
+    # SG parameters
     "Pset_SG": (0.0, 1.0),
     "Qset_SG": (-1.0, 1.0),
     "ωset_SG": (1.0, 1.0),
@@ -62,18 +68,15 @@ variable_ranges = {
     "Ta_SG": (0.5, 2.0),
     "Ta5_SG": (5.0, 20.0),
     "Te_SG": (0.02, 0.10),
-    # Common Load parameters
-    "Rload": (0.5, 10.0),
-    "Lload": (0.1, 10.0),
-    "Rx": (100.0, 1000.0),
-    # Line parameters (for both Line #1 and Line #2)
+
+    # Line parameters
     "Rline": (0.01, 1.0),
     "Lline": (0.01, 1.0)
 }
 
-# Default values
+# Default values for VSM Plant + SG System
 default_values = {
-    # VSM Plant defaults (Case 7)
+    # VSM Plant defaults
     "PsetPlant": 0.1,
     "QsetPlant": 0.0,
     "ωsetPlant": 1.0,
@@ -100,7 +103,13 @@ default_values = {
     "J": 10,
     "K": 50,
     "τf": 0.05,
-    # SG defaults (Case 14)
+
+    # Load defaults
+    "Rload": 0.9,
+    "Lload": 0.4358,
+    "Rx": 100,
+
+    # SG defaults
     "Pset_SG": 0.1,
     "Qset_SG": 0.0,
     "ωset_SG": 1.0,
@@ -130,45 +139,142 @@ default_values = {
     "Ta_SG": 1.0,
     "Ta5_SG": 10.0,
     "Te_SG": 0.06,
-    # Load defaults
-    "Rload": 0.9,
-    "Lload": 0.4358,
-    "Rx": 100,
+
     # Line defaults
     "Rline": 0.1,
     "Lline": 0.1
 }
 
-# Sidebar: User input
+
 def get_user_inputs():
+    """Creates user input controls for parameter tuning via the sidebar."""
     if "user_params" not in st.session_state:
         st.session_state["user_params"] = default_values.copy()
+
+    # Create tabs for different parameter groups
+    plant_tab, sg_tab, line_tab, load_tab = st.sidebar.tabs([
+        "VSM Plant", "SG", "Line", "Load"
+    ])
     user_params = {}
-    st.sidebar.header("Parameters")
-    for var, (min_val, max_val) in variable_ranges.items():
-        user_params[var] = st.sidebar.number_input(
-            f"{var} ({min_val} to {max_val})",
-            min_value=float(min_val),
-            max_value=float(max_val),
-            value=float(st.session_state["user_params"].get(var, default_values[var])),
-            step=round((max_val - min_val) / 100, 3),
-            key=f"param_{var}"
-        )
-    st.session_state["user_params"] = user_params
+
+    # VSM Plant Parameters
+    with plant_tab:
+        st.header("VSM Plant Parameters")
+        plant_params = [
+            "PsetPlant", "QsetPlant", "ωsetPlant", "VsetPlant", "KpPLLPlant", "KiPLLPlant",
+            "KpPlantP", "KiPlantP", "KpPlantQ", "KiPlantQ", "ωcPLLPlant", "ωcPlant",
+            "tDelay", "ωset", "Vset", "mp", "mq", "Rt", "Lt", "Rd", "Cf", "Rc", "Lc",
+            "J", "K", "τf"
+        ]
+        for var in plant_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            min_val, max_val, default = float(min_val), float(max_val), float(default)
+            step = float((max_val - min_val) / 100.0)
+            user_params[var] = st.number_input(
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=step,
+                format="%.3f",
+                key=f"plant_{var}"
+            )
+
+    # SG Parameters
+    with sg_tab:
+        st.header("SG Parameters")
+        sg_params = [var for var in variable_ranges.keys() if "_SG" in var]
+        for var in sg_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            min_val, max_val, default = float(min_val), float(max_val), float(default)
+            step = float((max_val - min_val) / 100.0)
+            user_params[var] = st.number_input(
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=step,
+                format="%.3f",
+                key=f"sg_{var}"
+            )
+
+    # Line Parameters
+    with line_tab:
+        st.header("Line Parameters")
+        line_params = ["Rline", "Lline"]
+        for var in line_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            min_val, max_val, default = float(min_val), float(max_val), float(default)
+            step = float((max_val - min_val) / 100.0)
+            user_params[var] = st.number_input(
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=step,
+                format="%.3f",
+                key=f"line_{var}"
+            )
+
+    # Load Parameters
+    with load_tab:
+        st.header("Load Parameters")
+        load_params = ["Rload", "Lload", "Rx"]
+        for var in load_params:
+            min_val, max_val = variable_ranges[var]
+            default = default_values.get(var, (min_val + max_val) / 2.0)
+            min_val, max_val, default = float(min_val), float(max_val), float(default)
+            step = float((max_val - min_val) / 100.0)
+            user_params[var] = st.number_input(
+                f"{var} ({min_val:.3f} to {max_val:.3f})",
+                min_value=min_val,
+                max_value=max_val,
+                value=default,
+                step=step,
+                format="%.3f",
+                key=f"load_{var}"
+            )
+
     return user_params
 
-# Sidebar: Mode selection
-def get_mode_selection(mode_range):
-    st.sidebar.header("Mode Selection")
-    selected_mode = st.sidebar.slider("Select Mode", 1, mode_range, 1, key="mode_slider")
-    return selected_mode - 1
 
-# Run simulation
+def prepare_simulation_parameters(user_params):
+    """Prepares the parameters in the format expected by the simulation function."""
+    parasVSMPlant = {}
+    parasSG = {}
+    parasLine = {}
+    parasLoad = {}
+
+    for key, value in user_params.items():
+        if key.endswith("_SG"):
+            new_key = key.replace("_SG", "")
+            parasSG[new_key] = value
+        elif key in ["Rline", "Lline"]:
+            parasLine[key] = value
+        elif key in ["Rload", "Lload", "Rx"]:
+            parasLoad[key] = value
+        else:
+            parasVSMPlant[key] = value
+
+    return {
+        'parasVSMPlant': parasVSMPlant,
+        'parasSG': parasSG,
+        'parasLine': parasLine,
+        'parasLoad': parasLoad
+    }
+
+
 def run_simulation(user_params):
-    return case17main_vsmPlant_sg.main_vsmPlant_sg(user_params)
+    """Runs the VSM Plant + SG simulation with the current parameters."""
+    sim_params = prepare_simulation_parameters(user_params)
+    return case17main_vsmPlant_sg.main_vsmPlant_sg(sim_params)
 
-# Visualization
+
 def visualization(testResults):
+    """Generates the eigenvalue and participation factor plots based on simulation output."""
     state_variables = [
         "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)", "epsilonQ(IBR1)", "PoPlant(IBR1)", "QoPlant(IBR1)",
         "PsetDelay(IBR1)", "QsetDelay(IBR1)", "theta(IBR1)", "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)",
@@ -179,29 +285,31 @@ def visualization(testResults):
         "ilineD(Line2)", "ilineQ(Line2)",
         "IloadD(Load)", "IloadQ(Load)"
     ]
+
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
-    mode_index = get_mode_selection(mode_range)
+
+    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_selector")
+    mode_index = selected_mode - 1
+
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
         eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
+        st.sidebar.write(f"Eigenvalue: {eigenvalue_real:.3f} + {eigenvalue_imag:.3f}j")
     except IndexError:
-        st.error("Eigenvalue data unavailable.")
+        st.error("Eigenvalue data is unavailable.")
         return
 
     participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [
-        (entry[0], float(entry[2]))
-        for entry in participation_factors
-        if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)
-    ]
+    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors
+                     if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)]
     factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0]-1] for entry in valid_factors]
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader(f"Participation Factors for Mode {mode_index+1}")
+        st.subheader(f"Participation Factors for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
@@ -212,28 +320,34 @@ def visualization(testResults):
             st.plotly_chart(pie_chart_fig, use_container_width=True)
     with col2:
         st.subheader("Heatmap of Participation Factors")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        heatmap_data = np.zeros((len(state_variables), mode_range))
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0]-1] = float(entry[2])
+            if len(modes[mode_idx]) > 5:
+                for entry in modes[mode_idx][5]:
+                    if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                        heatmap_data[entry[0] - 1, mode_idx] = float(entry[2])
+
         heatmap_fig = px.imshow(
-            np.array(heatmap_data).T,
-            x=[f"Mode {i+1}" for i in range(mode_range)],
+            heatmap_data,
+            x=[f"Mode {i + 1}" for i in range(mode_range)],
             y=state_variables,
             width=1000,
-            height=800
+            height=800,
+            aspect='auto'
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
+
 
 def run_simulation_and_visualization():
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
 
+
 def main():
     st.title("VSM Plant + SG System Analysis")
     run_simulation_and_visualization()
+
 
 if __name__ == "__main__":
     main()
