@@ -37,7 +37,7 @@ while True:
 # Create file name and title based on the user input
 desc = case_mapping[case_number]
 # File name: e.g., "case01 Droop Simplified Infinite.png"
-output_plot = f"case{case_number:02d} {desc}.png"
+output_plot = f"Case{case_number:02d} {desc}.png"
 # Plot title: e.g., "Case 01 Percentage Difference between Matlab and Python Data Points"
 plot_title = f"Case {case_number:02d} Percentage Difference between Matlab and Python Data Points"
 
