@@ -161,51 +161,81 @@ def visualization(testResults):
         "ilineD(LineSG)", "ilineQ(LineSG)",
         "IloadD(Load)", "IloadQ(Load)"
     ]
+
+    # Extract mode data correctly
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+
+    # Get actual number of modes
     mode_range = len(modes)
+    st.write(f"Number of modes: {mode_range}")  # Debug info
+
     mode_index = get_mode_selection(mode_range)
 
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
         eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
+        st.write(f"Eigenvalue: {eigenvalue_real:.4f} + {eigenvalue_imag:.4f}j")  # Debug info
     except IndexError:
         st.error("Eigenvalue data unavailable.")
         return
 
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors
-                     if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)]
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    # Process participation factors with validation
+    participation_factors = []
+    if len(modes[mode_index]) > 5:
+        raw_factors = modes[mode_index][5]
+        participation_factors = [
+            (entry[0], float(entry[2]))
+            for entry in raw_factors
+            if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)
+        ]
+
+    # Debug information
+    st.write(f"Number of participation factors for mode {mode_index + 1}: {len(participation_factors)}")
+
+    factor_magnitudes = [entry[1] for entry in participation_factors]
+    dominant_state_names = [state_variables[entry[0] - 1] for entry in participation_factors]
 
     col1, col2 = st.columns(2)
     with col1:
         st.subheader(f"Participation Factors for Mode {mode_index + 1}")
         if factor_magnitudes:
+            # Filter out very small participation factors
+            threshold = 0.01  # Adjust this threshold as needed
+            significant_indices = [i for i, v in enumerate(factor_magnitudes) if abs(v) > threshold]
+            filtered_names = [dominant_state_names[i] for i in significant_indices]
+            filtered_values = [factor_magnitudes[i] for i in significant_indices]
+
             pie_chart_fig = px.pie(
-                names=dominant_state_names,
-                values=factor_magnitudes,
+                names=filtered_names,
+                values=filtered_values,
                 width=1000,
                 height=800
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
+        else:
+            st.warning("No significant participation factors found for this mode.")
+
     with col2:
         st.subheader("Heatmap of Participation Factors")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
+        heatmap_data = np.zeros((len(state_variables), mode_range))
+
+        # Fill heatmap data with validation
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+            if len(modes[mode_idx]) > 5:
+                for entry in modes[mode_idx][5]:
+                    if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
+                        heatmap_data[entry[0] - 1, mode_idx] = float(entry[2])
+
         heatmap_fig = px.imshow(
-            np.array(heatmap_data).T,
+            heatmap_data,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
             y=state_variables,
             width=1000,
-            height=800
+            height=800,
+            aspect='auto'
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
-
 
 def run_simulation_and_visualization():
     user_params = get_user_inputs()
