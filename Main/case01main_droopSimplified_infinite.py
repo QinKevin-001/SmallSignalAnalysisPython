@@ -33,7 +33,7 @@ def main_droopSimplified_infinite(user_params=None):
 
     # Store the results: (to match MATLAB)
     testResults.append([
-        parasIBR['wc'],
+        parasIBR,
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -41,8 +41,8 @@ def main_droopSimplified_infinite(user_params=None):
         pfExitFlag
     ])
 
-    # plott(testResults)
-    # flatten_column_major(testResults)
+    #plott(testResults)
+    #flatten_column_major(testResults)
 
     return testResults
 

@@ -60,7 +60,7 @@ def main_vsmPlant_infinite(user_params=None):
     # Store results (header + one row of results)
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
     testResults.append([
-        parasIBR['PsetPlant'],
+        parasIBR,
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -68,7 +68,6 @@ def main_vsmPlant_infinite(user_params=None):
         pfExitFlag
     ])
 
-    #Optional plotting and CSV export (uncomment if needed)
     #plott(testResults)
     #flatten_column_major(testResults)
 

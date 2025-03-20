@@ -40,7 +40,7 @@ def main_droopPlant_infinite(user_params=None):
 
     # Store results in a structure similar to MATLAB's output
     testResults.append([
-        parasIBR['wc'],
+        parasIBR,
         eigenvalueAnalysisResults['eigs'],
         eigenvalueAnalysisResults['maxRealValue'],
         eigenvalueAnalysisResults['minDampingRatio'],
@@ -48,8 +48,8 @@ def main_droopPlant_infinite(user_params=None):
         pfExitFlag
     ])
 
+    #plott(testResults)
     #flatten_column_major(testResults)
-    #Optionally, call plott(testResults)
 
     return testResults
 
