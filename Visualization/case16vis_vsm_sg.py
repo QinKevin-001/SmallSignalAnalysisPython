@@ -162,14 +162,7 @@ def visualization(testResults):
         "IloadD(Load)", "IloadQ(Load)"
     ]
     mode_data_raw = testResults[1][4]
-
-    # Remove header row if present. Using a case-insensitive check.
-    if isinstance(mode_data_raw[0], list) and len(mode_data_raw[0]) > 0 and str(
-            mode_data_raw[0][0]).strip().lower() == 'mode':
-        modes = mode_data_raw[1:]
-    else:
-        modes = mode_data_raw
-
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
     mode_index = get_mode_selection(mode_range)
 
