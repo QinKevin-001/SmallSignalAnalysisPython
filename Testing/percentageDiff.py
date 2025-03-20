@@ -36,7 +36,7 @@ while True:
 
 # Create file name and title based on the user input
 desc = case_mapping[case_number]
-# File name: e.g., "case01 Droop Simplified Infinite.png"
+# File name: e.g., "Case01 Droop Simplified Infinite.png"
 output_plot = f"Case{case_number:02d} {desc}.png"
 # Plot title: e.g., "Case 01 Percentage Difference between Matlab and Python Data Points"
 plot_title = f"Case {case_number:02d} Percentage Difference between Matlab and Python Data Points"
@@ -90,9 +90,9 @@ def percentage_difference_complex(a, b):
 # Calculate the percentage difference for each row (point-to-point comparison)
 percentage_diff = data.apply(lambda row: percentage_difference_complex(row['Matlab'], row['Python']), axis=1)
 
-# Plot the percentage differences with the user-defined title
+# Plot the percentage differences as a scatter plot with the user-defined title
 plt.figure(figsize=(10, 6))
-plt.plot(percentage_diff, label='Percentage Difference', marker='o')
+plt.scatter(range(len(percentage_diff)), percentage_diff, label='Percentage Difference')
 plt.xlabel('Index')
 plt.ylabel('Percentage Difference (%)')
 plt.title(plot_title)
