@@ -47,7 +47,7 @@ def eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary):
 
             # Calculate participation factors
             for k, pf in enumerate(participationFactorModei):
-                pf_magnitude = abs(pf)
+                pf_magnitude = abs(pf)   #pf_magnitude = round(abs(pf), 5)
                 if pf_magnitude >= dominantParticipationFactorBoundary:
                     participationFactorData.append([
                         k+1,
