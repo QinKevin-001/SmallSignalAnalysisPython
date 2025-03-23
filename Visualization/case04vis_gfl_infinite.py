@@ -32,15 +32,15 @@ variable_ranges = {
 
 # Default parameter values (matching `case04main_gfl_infinite.py`)
 default_values = {
-    "Pset": 0.1, "Qset": 0.0,
+    "Pset": 1.0, "Qset": 0.0,
     "wset": 1.0, "Vset": 1.0,
-    "mp": 1.00, "mq": 1.00,
+    "mp": 0.05, "mq": 0.05,
     "Rt": 0.02, "Lt": 0.10,
     "Rd": 0.00, "Cf": 0.05,
-    "Rc": 0.10, "Lc": 0.50,
-    "KpL": 1.8, "KiL": float(160 * 2),
+    "Rc": 0.04, "Lc": 0.20,
+    "KpL": 1.8, "KiL": 180,
     "KpS": 0.2, "KiS": 5.0,
-    "KpC": 0.4, "KiC": 8.0,
+    "KpC": 0.4, "KiC": 12.0,
     "wcPLL": float(2 * np.pi * 100),
     "wc": float(2 * np.pi * 5)
 }
