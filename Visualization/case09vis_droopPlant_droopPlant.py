@@ -354,7 +354,7 @@ def visualization(testResults):
     """Generates the eigenvalue and participation factor plots based on simulation output."""
     # Define state variables
     state_variables = [
-        'thetaPlant(IBR2)', 'epsilonPLLPlant(IBR1)', 'wPlant(IBR1)', 'epsilonP(IBR1)', 'epsilonQ(IBR1)', 'PoPlant(IBR1)', 'QoPlant(IBR1)',
+        'thetaPlant(IBR1)', 'epsilonPLLPlant(IBR1)', 'wPlant(IBR1)', 'epsilonP(IBR1)', 'epsilonQ(IBR1)', 'PoPlant(IBR1)', 'QoPlant(IBR1)',
         'PsetDelay(IBR1)', 'QsetDelay(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)',
         'gammad(IBR1)', 'gammaq(IBR1)', 'iid(IBR1)', 'iiq(IBR1)', 'vcd(IBR1)', 'vcq(IBR1)', 'iod(IBR1)', 'ioq(IBR1)',
         'thetaPlant(IBR2)', 'epsilonPLLPlant(IBR2)', 'wPlant(IBR2)', 'epsilonP(IBR2)', 'epsilonQ(IBR2)', 'PoPlant(IBR2)', 'QoPlant(IBR2)',
