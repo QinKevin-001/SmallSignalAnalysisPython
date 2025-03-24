@@ -80,8 +80,7 @@ def run_simulation(user_params):
 def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
-        "Theta0", "Tef0", "Qof0", "Vof0", "winv0", "Psif0", "Iid0", "Iiq0",
-        "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        "theta", "Tef", "Qof", "Vof", "winv", "psif", "iid", "iiq", "vcd", "vcq", "iod", "ioq"
     ]
 
     mode_data_raw = testResults[1][4]
