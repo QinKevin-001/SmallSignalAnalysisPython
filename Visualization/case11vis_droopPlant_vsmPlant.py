@@ -380,6 +380,21 @@ def visualization(testResults):
     )
     mode_index = selected_mode - 1
 
+    # Extract mode data
+    mode_data_raw = testResults[1][4]
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+    mode_range = len(modes)
+
+    # Mode selection
+    selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1,
+        mode_range,
+        1,
+        key="mode_selector"
+    )
+    mode_index = selected_mode - 1
+
     # Extract eigenvalues
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
@@ -394,7 +409,7 @@ def visualization(testResults):
         participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
         if participation_factors:
             valid_factors = [
-                (entry[0], float(entry[2]), state_variables[entry[0]-1])
+                (entry[0], float(entry[2]), state_variables[entry[0] - 1])
                 for entry in participation_factors
                 if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)
             ]
@@ -432,7 +447,7 @@ def visualization(testResults):
         for mode_idx in range(mode_range):
             for entry in modes[mode_idx][5]:
                 if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    state_name = state_variables[entry[0]-1]
+                    state_name = state_variables[entry[0] - 1]
                     if state_name not in heatmap_data:
                         heatmap_data[state_name] = [0] * mode_range
                     heatmap_data[state_name][mode_idx] = float(entry[2])
