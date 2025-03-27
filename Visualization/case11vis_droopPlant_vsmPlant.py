@@ -350,6 +350,10 @@ def run_simulation(user_params):
 
 def visualization(testResults):
     """Generates the eigenvalue and participation factor plots based on simulation output."""
+    import streamlit as st
+    import numpy as np
+    import plotly.express as px
+
     # Define state variables
     state_variables = [
         "thetaPlant(IBR1)", "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)", "epsilonQ(IBR1)",
@@ -379,7 +383,7 @@ def visualization(testResults):
     )
     mode_index = selected_mode - 1
 
-    # Extract eigenvalues
+    # Eigenvalue
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
         eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
@@ -388,7 +392,7 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    # Process participation factors
+    # Participation factors
     try:
         participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
         if participation_factors:
@@ -435,8 +439,19 @@ def visualization(testResults):
                     if state_name not in heatmap_data:
                         heatmap_data[state_name] = [0] * mode_range
                     heatmap_data[state_name][mode_idx] = float(entry[2])
+                else:
+                    st.warning(f"Invalid state index {entry[0]} at mode {mode_idx + 1}")
+
+        # Sanitize lengths
+        for key in heatmap_data:
+            if len(heatmap_data[key]) < mode_range:
+                heatmap_data[key] += [0] * (mode_range - len(heatmap_data[key]))
+            elif len(heatmap_data[key]) > mode_range:
+                heatmap_data[key] = heatmap_data[key][:mode_range]
 
         heatmap_array = np.array(list(heatmap_data.values()))
+        st.write(f"Heatmap shape: {heatmap_array.shape}")  # Debug
+
         heatmap_fig = px.imshow(
             heatmap_array,
             x=[f"Mode {i + 1}" for i in range(mode_range)],
