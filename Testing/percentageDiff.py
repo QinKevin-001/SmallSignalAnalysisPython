@@ -99,26 +99,52 @@ data = data.dropna(subset=['Matlab', 'Python'])
 if data.empty:
     raise ValueError("No valid data available for comparison after cleaning.")
 
-# Function to calculate the percentage difference between two complex numbers
-def percentage_difference_complex(a, b):
+# Function to calculate percentage and absolute error between two complex numbers
+def compute_errors(a, b):
     mag_a = np.abs(a)
     mag_b = np.abs(b)
+    abs_error = abs(mag_a - mag_b)
     if (mag_a + mag_b) == 0:
-        return 0
-    return 100 * abs((mag_a - mag_b) / ((mag_a + mag_b) / 2))
+        percent_error = 0
+    else:
+        percent_error = 100 * abs_error / ((mag_a + mag_b) / 2)
+    return percent_error, abs_error
 
-# Calculate the percentage difference for each row (point-to-point comparison)
-percentage_diff = data.apply(lambda row: percentage_difference_complex(row['Matlab'], row['Python']), axis=1)
+# Apply the function to each row and store results
+data[['Percent Error', 'Absolute Error']] = data.apply(
+    lambda row: pd.Series(compute_errors(row['Matlab'], row['Python'])), axis=1
+)
 
-# Plot the percentage differences as a scatter plot with the user-defined title
+# --- Plot 1: Percentage Error ---
 plt.figure(figsize=(10, 6))
-plt.scatter(range(len(percentage_diff)), percentage_diff, label='Percentage Difference')
+plt.plot(data['Percent Error'], label='Percentage Error (%)', color='tab:blue', marker='o')
 plt.xlabel('Index')
-plt.ylabel('Percentage Difference (%)')
-plt.title(plot_title)
+plt.ylabel('Percentage Error (%)')
+plt.title(f"{plot_title} - Percentage Error")
 plt.legend()
 plt.grid(True)
-plt.savefig(output_plot)
+plt.tight_layout()
+percent_error_plot_file = output_plot.replace('.png', '_PercentageError.png')
+plt.savefig(percent_error_plot_file)
 plt.show()
 
-print(f"Plot saved as '{output_plot}' with title '{plot_title}'.")
+# --- Plot 2: Absolute Error ---
+plt.figure(figsize=(10, 6))
+plt.plot(data['Absolute Error'], label='Absolute Error', color='tab:orange', marker='x')
+plt.xlabel('Index')
+plt.ylabel('Absolute Error')
+plt.title(f"{plot_title} - Absolute Error")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+absolute_error_plot_file = output_plot.replace('.png', '_AbsoluteError.png')
+plt.savefig(absolute_error_plot_file)
+plt.show()
+
+# Save the error data to CSV
+#csv_output_file = f"Case{file_case_str}_Errors.csv"
+#data.to_csv(csv_output_file, index=False)
+
+print(f"Percentage error plot saved as '{percent_error_plot_file}'")
+print(f"Absolute error plot saved as '{absolute_error_plot_file}'")
+#print(f"Error data saved as '{csv_output_file}'")
