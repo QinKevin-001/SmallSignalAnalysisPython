@@ -15,7 +15,7 @@ def main_droopPlant_infinite(user_params=None):
         'KpPLLplant': 1.8, 'KiPLLplant': 160,
         'KpPlantP': 0.10,  'KiPlantP': 6.0,
         'KpPlantQ': 0.10,  'KiPlantQ': 6.0,
-        'wcpllPlant': 2 * np.pi * 100, 'wcPlant': 2 * np.pi * 5,
+        'wcpllPlant': 2 * np.pi * 100, 'wcPlant': 2 * np.pi * 2,
         'tDelay': 0.25,
         'wset': 1.0,       'Vset': 1.0,
         'mp': 0.05,        'mq': 0.05,
@@ -49,7 +49,7 @@ def main_droopPlant_infinite(user_params=None):
     ])
 
     #plott(testResults)
-    #flatten_column_major(testResults)
+    flatten_column_major(testResults)
 
     return testResults
 
