@@ -16,8 +16,8 @@ def main_droopPlant_vsmPlant(user_params=None):
         'KpPlantP': 0.25, 'KiPlantP': 1.00,  # plant-level active loop PI gains
         'KpPlantQ': 1.25, 'KiPlantQ': 5.00,  # plant-level reactive loop PI gains
         'wcpllPlant': 2 * np.pi * 100,  # plant-level PLL frequency filter cut-off frequency
-        'wcPlant': 2 * np.pi * 1,  # plant-level power filter cut-off frequency
-        'tDelay': 0.25,  # communication delay
+        'wcPlant': 2 * np.pi * 2,  # plant-level power filter cut-off frequency
+        'tDelay': 0.15,  # communication delay
         'wset': 1.0, 'Vset': 1.0,  # inverter-level setpoints
         'mp': 0.05, 'mq': 0.05,  # inverter-level droop gains
         'Rt': 0.02, 'Lt': 0.10,  #LCL filter
