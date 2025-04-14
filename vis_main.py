@@ -2,6 +2,7 @@ import streamlit as st
 import importlib
 import sys
 import os
+from datetime import datetime
 
 # Set page layout
 st.set_page_config(layout="wide")
@@ -27,10 +28,25 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Sidebar for direct navigation
-selected_page = st.sidebar.selectbox("Quick Navigation:", ["Main Page"] + list(PAGES.keys()), key="nav_selection")
+# ---------- 🧠 Handle Redirect from Button Navigation ---------- #
+if "button_nav" in st.session_state:
+    selected_page = st.session_state["button_nav"]
+    del st.session_state["button_nav"]
 
-# Main Page content
+    # ⏳ Display animation (fake loading spinner)
+    with st.spinner(f"Loading {selected_page}..."):
+        st.toast(f"Redirecting to {selected_page}", icon="➡️")
+        st.session_state["nav_selection"] = selected_page  # update the main key for future sessions
+        st.stop()  # Stops here so new page loads fresh on next run
+
+else:
+    selected_page = st.sidebar.selectbox(
+        "Quick Navigation:",
+        ["Main Page"] + list(PAGES.keys()),
+        key="nav_selection"
+    )
+
+# ----------------- 🏠 Main Page Content ----------------- #
 if selected_page == "Main Page":
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
@@ -41,13 +57,18 @@ if selected_page == "Main Page":
     st.header("🔍 Explore Simulation Cases")
     cols = st.columns(3)
     for i, (title, module_path) in enumerate(PAGES.items()):
-        if cols[i % 3].button(title):
-            st.session_state.nav_selection = title
+        if cols[i % 3].button(title, key=f"button_{i}"):
+            # Log user interaction
+            with open("interaction_log.txt", "a") as log_file:
+                log_file.write(f"{datetime.now().isoformat()} - Button clicked: {title}\n")
+
+            # Store navigation and rerun
+            st.session_state["button_nav"] = title
             st.experimental_rerun()
 
     st.markdown("---")
 
-    # Section 2: System Configurations (Geographic + Electrical)
+    # Section 2: System Configurations
     st.header("🗺️ System Configuration Diagrams")
     st.write("Below are representative system layouts used in the ECCE 2025 digest.")
 
@@ -59,7 +80,7 @@ if selected_page == "Main Page":
         else:
             st.info("📄 No configuration diagram available for this case.")
 
-# Load Selected Case Page
+# ----------------- 🔄 Load the Selected Page ----------------- #
 else:
     module_name = PAGES[selected_page]
     if module_name:
