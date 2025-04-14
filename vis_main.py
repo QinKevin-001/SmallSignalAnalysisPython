@@ -4,9 +4,10 @@ import sys
 import os
 from datetime import datetime
 
+# Set layout
 st.set_page_config(layout="wide")
 
-# Mapping: Case title -> module path
+# Mapping: Case title → module
 PAGES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -27,21 +28,17 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# First-time setup
-if "page_to_load" not in st.session_state:
-    st.session_state.page_to_load = "Main Page"
+# Default page
+if "selected_page_button" not in st.session_state:
+    st.session_state.selected_page_button = "Main Page"
 
-# If flag set, rerun after setting state to simulate "instant redirect"
-if "trigger_rerun" in st.session_state:
-    del st.session_state["trigger_rerun"]
-    st.experimental_rerun()
+selected_page = st.session_state.selected_page_button
 
 # ------------------------- CASE PAGE -------------------------
-if st.session_state.page_to_load != "Main Page":
-    selected_page = st.session_state.page_to_load
+if selected_page != "Main Page":
     st.sidebar.success(f"Viewing: {selected_page}")
-
     module_name = PAGES.get(selected_page)
+
     if module_name:
         try:
             if module_name in sys.modules:
@@ -59,8 +56,7 @@ if st.session_state.page_to_load != "Main Page":
         st.error("❌ Invalid case selected.")
 
     if st.button("⬅️ Back to Main Page"):
-        st.session_state.page_to_load = "Main Page"
-        st.session_state.trigger_rerun = True
+        st.session_state.selected_page_button = "Main Page"
 
 # ------------------------- MAIN PAGE -------------------------
 else:
@@ -73,13 +69,9 @@ else:
     cols = st.columns(3)
     for i, (case_title, _) in enumerate(PAGES.items()):
         if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            # Log
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-
-            # Set target page and rerun
-            st.session_state.page_to_load = case_title
-            st.session_state.trigger_rerun = True
+            st.session_state.selected_page_button = case_title
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
