@@ -6,7 +6,7 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Enhanced CSS with dynamic row spacing
+# Enhanced CSS for consistent row spacing
 st.markdown("""
 <style>
     /* Enhanced button styling */
@@ -15,9 +15,12 @@ st.markdown("""
         border-radius: 6px !important;
     }
 
-    /* Ensure consistent spacing between rows (desktop/tablet) */
+    /* Ensure consistent spacing between rows */
     .row-container {
-        margin-bottom: 1rem; /* Add consistent spacing between rows */
+        display: flex;
+        justify-content: center;
+        gap: 1rem; /* Consistent gap between buttons */
+        margin-bottom: 1rem; /* Consistent spacing between rows */
     }
 
     /* Mobile-specific styling */
@@ -32,9 +35,11 @@ st.markdown("""
             word-wrap: break-word;
         }
 
-        /* Remove extra spacing between rows on mobile */
+        /* Adjust row spacing for mobile */
         .row-container {
-            margin-bottom: 0.5rem !important; /* Smaller spacing for mobile */
+            flex-direction: column;
+            gap: 0.5rem; /* Smaller gap between buttons on mobile */
+            margin-bottom: 0.5rem; /* Smaller spacing between rows */
         }
     }
 </style>
@@ -116,25 +121,12 @@ else:
             if row == num_rows - 1 and num_cases % cases_per_row != 0:
                 remaining_cases = num_cases % cases_per_row
 
-                # Calculate the width ratios to maintain consistent button sizes
-                total_width = 3  # Total width of three columns
-                button_width = 1  # Width of each button
-                remaining_space = total_width - (remaining_cases * button_width)
-                side_space = remaining_space / 2  # Split remaining space equally
-
-                # Create column layout with proper spacing
-                widths = [side_space]  # Left spacing
-                for _ in range(remaining_cases):
-                    widths.append(button_width)  # Button width
-                widths.append(side_space)  # Right spacing
-
-                cols = st.columns(widths)
-
-                # Add buttons
+                # Center the last row
+                cols = st.columns([1] * remaining_cases + [1] * (cases_per_row - remaining_cases))
                 for i in range(remaining_cases):
                     case_idx = row * cases_per_row + i
                     case_title = cases_list[case_idx]
-                    if cols[i+1].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+                    if cols[i].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.selected_case = case_title
