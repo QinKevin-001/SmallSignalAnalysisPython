@@ -62,6 +62,9 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
+    cols = st.columns(3)
+
+    st.header("🔍 Select a Simulation Case")
 
     BUTTON_WIDTH = "250px"  # Set fixed width
     cols = st.columns(3)
@@ -90,3 +93,12 @@ else:
                 unsafe_allow_html=True
             )
 
+    st.markdown("---")
+    st.header("🗺️ System Configuration Diagrams")
+    for case_title in CASES:
+        st.subheader(case_title)
+        image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
+        if os.path.exists(image_path):
+            st.image(image_path, width=800)
+        else:
+            st.info("⚠️ No diagram found.")
