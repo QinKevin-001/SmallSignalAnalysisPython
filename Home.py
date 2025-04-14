@@ -62,21 +62,31 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
+
+    BUTTON_WIDTH = "250px"  # Set fixed width
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
-        if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-            st.session_state.selected_case = case_title
-            st.rerun()  # ✅ This is what triggers single-click switch
+        case_number = str(i + 1).zfill(2)
+        query = f"?case={case_number}"
+        with cols[i % 3]:
+            st.markdown(
+                f"""
+                <div style="margin-bottom: 15px;">
+                    <a href="{query}" target="_self">
+                        <button style="
+                            width: {BUTTON_WIDTH};
+                            height: 50px;
+                            font-size: 15px;
+                            background-color: #f1f1f1;
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            cursor: pointer;">
+                            {case_title}
+                        </button>
+                    </a>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-    st.markdown("---")
-    st.header("🗺️ System Configuration Diagrams")
-    for case_title in CASES:
-        st.subheader(case_title)
-        image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
-        if os.path.exists(image_path):
-            st.image(image_path, width=800)
-        else:
-            st.info("⚠️ No diagram found.")
