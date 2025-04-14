@@ -25,8 +25,8 @@ st.markdown("""
         padding: 0.5rem 1rem !important;
     }
 
-    /* Mobile-specific styling (phones) */
-    @media (max-width: 480px) {
+    /* Mobile-specific styling */
+    @media (max-width: 640px) {
         .grid-container {
             grid-template-columns: 1fr; /* 1 button per row on mobile */
             gap: 0.5rem; /* Smaller gap on mobile */
@@ -34,14 +34,6 @@ st.markdown("""
 
         .stButton button {
             width: 100%; /* Full width buttons on mobile */
-        }
-    }
-
-    /* Tablet-specific styling */
-    @media (min-width: 481px) and (max-width: 768px) {
-        .grid-container {
-            grid-template-columns: repeat(2, 1fr); /* 2 buttons per row on tablets */
-            gap: 0.75rem; /* Medium gap on tablets */
         }
     }
 </style>
