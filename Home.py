@@ -6,38 +6,40 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Updated CSS with consistent responsive behavior
+# Enhanced CSS for consistent row spacing
 st.markdown("""
 <style>
-    /* Basic button styling */
+    /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
-        width: 100% !important;
-        min-height: 46px !important;
     }
 
-    /* Grid container for all buttons */
-    .button-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
+    /* Ensure consistent spacing between rows */
+    .row-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem; /* Consistent gap between buttons */
+        margin-bottom: 1rem; /* Consistent spacing between rows */
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .button-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
+    /* Mobile-specific styling */
     @media (max-width: 640px) {
-        .button-grid {
-            grid-template-columns: 1fr;
+        .stButton button {
+            width: 100%;
+            margin: 0 !important;  /* Remove vertical margins */
+            padding: 0.5rem !important;  /* Consistent padding */
+            height: auto;
+            min-height: 45px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        /* Adjust row spacing for mobile */
+        .row-container {
+            flex-direction: column;
+            gap: 0.5rem; /* Smaller gap between buttons on mobile */
+            margin-bottom: 0.5rem; /* Smaller spacing between rows */
         }
     }
 </style>
@@ -100,20 +102,49 @@ else:
 
     st.header("🔍 Select a Simulation Case")
 
-    # Create container for all buttons
-    st.markdown('<div class="button-grid">', unsafe_allow_html=True)
+    # Create a container for better control of layout
+    container = st.container()
 
-    # Create all buttons in a single grid
-    for case_title in CASES:
-        if st.button(case_title, key=f"btn_{case_title}", use_container_width=True):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-            st.session_state.selected_case = case_title
-            st.rerun()
+    # Calculate number of rows needed (ceil division)
+    num_cases = len(CASES)
+    cases_per_row = 3
+    num_rows = (num_cases + cases_per_row - 1) // cases_per_row
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Convert cases to list for easier indexing
+    cases_list = list(CASES.keys())
 
-    # System Configuration Diagrams section
+    # Create rows and columns
+    for row in range(num_rows):
+        with container.container():  # Wrap each row in a container
+            st.markdown('<div class="row-container">', unsafe_allow_html=True)  # Add consistent spacing
+            # Special handling for the last row
+            if row == num_rows - 1 and num_cases % cases_per_row != 0:
+                remaining_cases = num_cases % cases_per_row
+
+                # Center the last row
+                cols = st.columns([1] * remaining_cases + [1] * (cases_per_row - remaining_cases))
+                for i in range(remaining_cases):
+                    case_idx = row * cases_per_row + i
+                    case_title = cases_list[case_idx]
+                    if cols[i].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+                        with open("interaction_log.txt", "a") as log:
+                            log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+                        st.session_state.selected_case = case_title
+                        st.rerun()
+            else:
+                # Normal row handling
+                cols = st.columns(cases_per_row)
+                for col in range(cases_per_row):
+                    idx = row * cases_per_row + col
+                    if idx < num_cases:
+                        case_title = cases_list[idx]
+                        if cols[col].button(case_title, key=f"btn_{idx}", use_container_width=True):
+                            with open("interaction_log.txt", "a") as log:
+                                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+                            st.session_state.selected_case = case_title
+                            st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)  # Close row spacing
+
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
     for case_title in CASES:
