@@ -6,12 +6,12 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Simplified CSS with just thicker borders
+# CSS with thicker borders and consistent button sizes
 st.markdown("""
 <style>
     /* Enhanced button styling */
     .stButton button {
-        border: 2px solid rgba(49, 51, 63, 0.2) !important;
+        border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
     }
 
@@ -102,8 +102,22 @@ else:
         # Special handling for the last row
         if row == num_rows - 1 and num_cases % cases_per_row != 0:
             remaining_cases = num_cases % cases_per_row
-            # Create columns with empty space on sides for centering
-            cols = container.columns([2, 1, 1, 2])  # [space, button, button, space]
+
+            # Calculate the width ratios to maintain consistent button sizes
+            total_width = 3  # Total width of three columns
+            button_width = 1  # Width of each button
+            remaining_space = total_width - (remaining_cases * button_width)
+            side_space = remaining_space / 2  # Split remaining space equally
+
+            # Create column layout with proper spacing
+            widths = [side_space]  # Left spacing
+            for _ in range(remaining_cases):
+                widths.append(button_width)  # Button width
+            widths.append(side_space)  # Right spacing
+
+            cols = container.columns(widths)
+
+            # Add buttons
             for i in range(remaining_cases):
                 case_idx = row * cases_per_row + i
                 case_title = cases_list[case_idx]
