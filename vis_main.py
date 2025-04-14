@@ -1,14 +1,14 @@
 import streamlit as st
 import importlib
-import sys
 import os
+import sys
 from datetime import datetime
 
-# Set layout
+# Set page layout
 st.set_page_config(layout="wide")
 
-# Mapping: Case title → module
-PAGES = {
+# Mapping of Case Title → Visualization Python Module Path
+CASES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
     "Case 03: Droop Plant Infinite": "Visualization.case03vis_droopPlant_infinite",
@@ -28,57 +28,59 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Default page
-if "selected_page_button" not in st.session_state:
-    st.session_state.selected_page_button = "Main Page"
+# Default state setup
+if "selected_case" not in st.session_state:
+    st.session_state.selected_case = None
 
-selected_page = st.session_state.selected_page_button
+# -------------------- CASE VIEW MODE -------------------- #
+if st.session_state.selected_case:
+    case_title = st.session_state.selected_case
+    module_path = CASES.get(case_title)
 
-# ------------------------- CASE PAGE -------------------------
-if selected_page != "Main Page":
-    st.sidebar.success(f"Viewing: {selected_page}")
-    module_name = PAGES.get(selected_page)
-
-    if module_name:
-        try:
-            if module_name in sys.modules:
-                module = sys.modules[module_name]
-                importlib.reload(module)
-            else:
-                module = importlib.import_module(module_name)
-
-            with st.spinner(f"Loading {selected_page}..."):
-                st.toast(f"Now viewing: {selected_page}", icon="📊")
-                module.main()
-        except Exception as e:
-            st.error(f"❌ Failed to load `{module_name}`.\n\n{e}")
-    else:
-        st.error("❌ Invalid case selected.")
+    st.sidebar.success(f"Viewing: {case_title}")
 
     if st.button("⬅️ Back to Main Page"):
-        st.session_state.selected_page_button = "Main Page"
+        st.session_state.selected_case = None
+        st.experimental_rerun()
 
-# ------------------------- MAIN PAGE -------------------------
+    try:
+        # Dynamically import the module
+        if module_path in sys.modules:
+            module = sys.modules[module_path]
+            importlib.reload(module)
+        else:
+            module = importlib.import_module(module_path)
+
+        with st.spinner(f"Loading {case_title}..."):
+            st.toast(f"Showing {case_title}", icon="📊")
+            module.main()
+    except Exception as e:
+        st.error(f"❌ Error loading `{module_path}`: {e}")
+
+# -------------------- MAIN PAGE -------------------- #
 else:
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
-    Explore simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming controls, and synchronous generators.
+    Explore 17 dynamic simulation cases featuring inverter-based resources, grid-following/grid-forming controllers, and synchronous generators.
     """)
 
-    st.header("🔍 Explore Simulation Cases")
+    st.header("🔍 Select a Simulation Case")
     cols = st.columns(3)
-    for i, (case_title, _) in enumerate(PAGES.items()):
-        if cols[i % 3].button(case_title, key=f"btn_{i}"):
+
+    for i, (case_title, _) in enumerate(CASES.items()):
+        if cols[i % 3].button(case_title, key=f"casebtn_{i}"):
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-            st.session_state.selected_page_button = case_title
+            st.session_state.selected_case = case_title
+            st.experimental_rerun()
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
-    for case_title in PAGES:
+    for case_title in CASES.keys():
         st.subheader(case_title)
-        img_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
+        image_name = case_title.replace(" ", "_").lower()
+        img_path = f"configurations/{image_name}.png"
         if os.path.exists(img_path):
             st.image(img_path, width=800)
         else:
-            st.info("⚠️ No diagram found for this case.")
+            st.info("⚠️ No diagram available.")
