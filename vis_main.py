@@ -1,14 +1,13 @@
 import streamlit as st
 import importlib
 import sys
-import os  # Needed to check if images exist
+import os
 
-# Set page layout (must be the first Streamlit command)
+# Set page layout
 st.set_page_config(layout="wide")
 
-# Define available visualization pages (Now referencing the `Visualization` folder)
+# Define available visualization pages
 PAGES = {
-    "Main Page": None,
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
     "Case 03: Droop Plant Infinite": "Visualization.case03vis_droopPlant_infinite",
@@ -28,70 +27,50 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# ------------- 📌 Sidebar: Navigation (Dropdown) ------------- #
-selected_page = st.sidebar.selectbox(
-    "Select Analysis Type:",
-    list(PAGES.keys()),
-    key="nav_selection"
-)
+# Sidebar for direct navigation
+selected_page = st.sidebar.selectbox("Quick Navigation:", ["Main Page"] + list(PAGES.keys()), key="nav_selection")
 
-# ----------------- 🏠 Main Page Content ----------------- #
+# Main Page content
 if selected_page == "Main Page":
-    st.title("Power System Stability Analysis")
-    st.write("""
-    This tool allows users to analyze different power system cases. 
-    Select a case from the **Navigation Panel** to view simulations.
+    st.title("⚡ Power System Stability Analysis")
+    st.markdown("""
+    Explore dynamic responses of inverter-based resources (IBRs), grid-following/grid-forming controls, and synchronous generators in various system configurations.
     """)
 
-    # Case explanations with images
-    case_descriptions = {
-        "Droop Simplified Infinite": "A simplified droop control model.",
-        "Droop Infinite": "A droop-controlled inverter connected to an infinite bus.",
-        "Droop Plant Infinite": "A plant-level droop controller interacting with an infinite bus.",
-        "GFL Infinite": "A Grid-Following (GFL) inverter connected to an infinite bus.",
-        "GFL Plant Infinite": "A GFL plant interacting with an infinite bus.",
-        "VSM Infinite": "A Virtual Synchronous Machine (VSM) inverter connected to an infinite bus.",
-        "VSM Plant Infinite": "A Virtual Synchronous Machine (VSM) inverter with plant control connected to an infinite bus.",
-        "Droop Droop": "A system with two droop-controlled inverters (IBR1 and IBR2) connected to a shared load. This case studies the interaction between two droop controllers and a common load.",
-        "Droop Plant Droop Plant": "Two droop plant-controlled inverters interacting.",
-        "Droop VSM": "A system integrating a droop-controlled inverter with a Virtual Synchronous Machine (VSM) inverter, examining their dynamic responses.",
-    "Droop Plant VSM Plant": "An investigation into the interaction between a plant-level droop-controlled inverter and a plant-level VSM inverter.",
-    "VSM VSM": "A configuration with two Virtual Synchronous Machine (VSM) inverters connected together, analyzing their control interactions.",
-    "VSM Plant VSM Plant": "A system featuring two VSM inverters with plant-level control, focusing on their coordinated dynamics.",
-    "Droop SG": "A droop-controlled inverter operating in tandem with a synchronous generator (SG), exploring hybrid control dynamics.",
-    "Droop Plant SG": "A plant-level droop-controlled inverter interacting with a synchronous generator, highlighting integration challenges.",
-    "VSM SG": "A Virtual Synchronous Machine (VSM) inverter working alongside a synchronous generator, studying complementary control strategies.",
-    "VSM Plant SG": "A plant-level VSM-controlled inverter interacting with a synchronous generator, emphasizing system-level performance and integration."
-    }
+    # Section 1: Navigation buttons to each case
+    st.header("🔍 Explore Simulation Cases")
+    cols = st.columns(3)
+    for i, (title, module_path) in enumerate(PAGES.items()):
+        if cols[i % 3].button(title):
+            st.session_state.nav_selection = title
+            st.experimental_rerun()
 
-    for case, description in case_descriptions.items():
-        st.subheader(case)
-        st.write(description)
+    st.markdown("---")
 
-        # Construct the image path
-        image_path = f"images/{case.replace(' ', '_').lower()}.png"
+    # Section 2: System Configurations (Geographic + Electrical)
+    st.header("🗺️ System Configuration Diagrams")
+    st.write("Below are representative system layouts used in the ECCE 2025 digest.")
 
-        # Check if the image exists before loading it
-        if os.path.exists(image_path):
-            st.image(image_path, width=600)
+    for case_title in PAGES.keys():
+        config_image = f"configurations/{case_title.replace(' ', '_').lower()}.png"
+        st.subheader(case_title)
+        if os.path.exists(config_image):
+            st.image(config_image, width=800, caption="System layout")
         else:
-            st.warning(f"⚠️ Image for '{case}' not found: {image_path}")
+            st.info("📄 No configuration diagram available for this case.")
 
-# ----------------- 📌 Load the Selected Page ----------------- #
+# Load Selected Case Page
 else:
     module_name = PAGES[selected_page]
-
     if module_name:
         try:
             if module_name in sys.modules:
                 module = sys.modules[module_name]
-                importlib.reload(module)  # Reload to reflect any updates
+                importlib.reload(module)
             else:
                 module = importlib.import_module(module_name)
-
-            # Call the selected module's main() function, which internally handles parameter tuning
             module.main()
         except ModuleNotFoundError:
-            st.error(f"⚠️ The module `{module_name}` was not found. Ensure it is in the `Visualization` directory.")
+            st.error(f"⚠️ Module `{module_name}` not found.")
         except AttributeError:
-            st.error(f"⚠️ The module `{module_name}` does not have a `main()` function. Check the module structure.")
+            st.error(f"⚠️ Module `{module_name}` does not have a `main()` function.")
