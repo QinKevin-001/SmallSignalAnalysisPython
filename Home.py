@@ -63,7 +63,21 @@ else:
 
     st.header("🔍 Select a Simulation Case")
 
-    BUTTON_WIDTH = "250px"  # Set fixed width
+    # Determine active case via URL query (deep-link)
+    query_params = st.query_params
+    case_param = query_params.get("case", "")
+    preselected_case = None
+
+    if case_param:
+        case_param = case_param.zfill(2).lower()
+        for title in CASES:
+            if f"case {case_param}" in title.lower():
+                preselected_case = title
+                st.session_state.selected_case = preselected_case
+                st.rerun()
+
+    # Generate buttons with uniform width
+    BUTTON_WIDTH = "250px"
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
@@ -72,20 +86,26 @@ else:
         with cols[i % 3]:
             st.markdown(
                 f"""
-                <div style="margin-bottom: 15px;">
-                    <a href="{query}" target="_self">
-                        <button style="
-                            width: {BUTTON_WIDTH};
-                            height: 50px;
-                            font-size: 15px;
-                            background-color: #f1f1f1;
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            cursor: pointer;">
-                            {case_title}
-                        </button>
-                    </a>
-                </div>
+                <style>
+                    .case-button {{
+                        display: inline-block;
+                        width: {BUTTON_WIDTH};
+                        height: 50px;
+                        background-color: #f1f1f1;
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        text-align: center;
+                        line-height: 50px;
+                        text-decoration: none;
+                        color: black;
+                        font-size: 14px;
+                        margin-bottom: 10px;
+                    }}
+                    .case-button:hover {{
+                        background-color: #e0e0e0;
+                    }}
+                </style>
+                <a href="{query}" class="case-button">{case_title}</a>
                 """,
                 unsafe_allow_html=True
             )
