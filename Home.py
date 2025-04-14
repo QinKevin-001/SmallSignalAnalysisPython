@@ -6,71 +6,88 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Simplified CSS focusing on centering
+# Enhanced CSS for consistent row spacing and better responsive design
 st.markdown("""
 <style>
-    /* Basic button styling */
+    /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
+        height: 100% !important;
         width: 100% !important;
     }
 
-    /* Center container */
-    .center-container {
+    /* Main container styling */
+    .main-container {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
         width: 100%;
+        max-width: 1200px;
         margin: 0 auto;
     }
 
-    /* Grid container for buttons */
-    .button-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Row container styling */
+    .row-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         gap: 1rem;
-        width: 100%;
-        max-width: 1200px;
         margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    /* Button container styling */
+    .button-container {
+        flex: 1;
+        min-width: 0;
+        max-width: 400px;
     }
 
     /* Last row specific styling */
-    .last-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        width: 100%;
-        max-width: 1200px;
+    .row-container.last-row {
+        justify-content: center;
     }
 
-    .last-row-center {
-        grid-column: 2 span;
-        margin: 0 auto;
-        width: calc(66.66% + 1rem);
-        display: flex;
-        gap: 1rem;
+    .row-container.last-row .button-container {
+        flex: 0 1 calc(33.33% - 1rem);
     }
 
-    /* Responsive adjustments */
+    /* Tablet-specific styling (iPad) */
     @media (max-width: 992px) {
-        .button-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .row-container {
             padding: 0 1rem;
+            flex-wrap: wrap;
         }
 
-        .last-row-center {
-            grid-column: auto;
+        .button-container {
+            flex: 0 1 calc(50% - 0.5rem);
+        }
+
+        .row-container.last-row .button-container {
+            flex: 0 1 calc(50% - 0.5rem);
+        }
+    }
+
+    /* Mobile-specific styling */
+    @media (max-width: 640px) {
+        .row-container {
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .button-container {
+            flex: 1;
             width: 100%;
         }
-    }
 
-    @media (max-width: 640px) {
-        .button-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .last-row-center {
-            flex-direction: column;
+        .stButton button {
+            margin: 0 !important;
+            padding: 0.5rem !important;
+            min-height: 45px;
+            white-space: normal;
+            word-wrap: break-word;
         }
     }
 </style>
@@ -133,53 +150,50 @@ else:
 
     st.header("🔍 Select a Simulation Case")
 
-    # Calculate the main cases and the last row cases
-    main_cases = list(CASES.keys())[:-2]  # All cases except last two
-    last_row_cases = list(CASES.keys())[-2:]  # Last two cases
+    # Create a container for better control of layout
+    container = st.container()
 
-    # Create container for main grid
-    st.markdown('<div class="center-container">', unsafe_allow_html=True)
-    st.markdown('<div class="button-grid">', unsafe_allow_html=True)
+    # Calculate number of rows needed (ceil division)
+    num_cases = len(CASES)
+    cases_per_row = 3
+    num_rows = (num_cases + cases_per_row - 1) // cases_per_row
 
-    # Create buttons for main grid
-    for case_title in main_cases:
-        if st.button(case_title, key=f"btn_{case_title}", use_container_width=True):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-            st.session_state.selected_case = case_title
-            st.rerun()
+    # Convert cases to list for easier indexing
+    cases_list = list(CASES.keys())
+
+    # Wrap all rows in a main container
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
+    # Create rows and columns
+    for row in range(num_rows):
+        start_idx = row * cases_per_row
+        end_idx = min((row + 1) * cases_per_row, num_cases)
+        cases_in_row = end_idx - start_idx
+
+        # Add last-row class if it's the final row
+        row_class = "row-container last-row" if row == num_rows - 1 else "row-container"
+        st.markdown(f'<div class="{row_class}">', unsafe_allow_html=True)
+
+        # Create columns for the current row
+        cols = st.columns(cases_per_row)
+
+        # Create buttons for this row
+        for i in range(cases_in_row):
+            case_idx = start_idx + i
+            case_title = cases_list[case_idx]
+            with cols[i]:
+                st.markdown('<div class="button-container">', unsafe_allow_html=True)
+                if st.button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+                    with open("interaction_log.txt", "a") as log:
+                        log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+                    st.session_state.selected_case = case_title
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Create container for last row
-    st.markdown('<div class="center-container">', unsafe_allow_html=True)
-    st.markdown('<div class="last-row">', unsafe_allow_html=True)
-    st.markdown('<div class="last-row-center">', unsafe_allow_html=True)
-
-    # Create columns for the last two buttons
-    col1, col2 = st.columns(2)
-
-    # Add the last two buttons
-    with col1:
-        if st.button(last_row_cases[0], key=f"btn_{last_row_cases[0]}", use_container_width=True):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {last_row_cases[0]}\n")
-            st.session_state.selected_case = last_row_cases[0]
-            st.rerun()
-
-    with col2:
-        if st.button(last_row_cases[1], key=f"btn_{last_row_cases[1]}", use_container_width=True):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {last_row_cases[1]}\n")
-            st.session_state.selected_case = last_row_cases[1]
-            st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # System Configuration Diagrams section
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
     for case_title in CASES:
