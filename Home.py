@@ -62,38 +62,14 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
-
-    # Initialize from URL param if available
-    query_params = st.query_params
-    case_param = query_params.get("case", "")
-    if case_param:
-        case_param = case_param.zfill(2).lower()
-        for title in CASES:
-            if f"case {case_param}" in title.lower():
-                st.session_state.selected_case = title
-                st.rerun()
-
-    # Fixed-size button styling
-    button_style = """
-        <style>
-        .streamlit-button button {
-            width: 250px;
-            height: 50px;
-            font-size: 15px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        </style>
-    """
-    st.markdown(button_style, unsafe_allow_html=True)
-
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
-        with cols[i % 3]:
-            if st.button(case_title, key=f"casebtn_{i}"):
-                st.session_state.selected_case = case_title
-                st.rerun()
+        if cols[i % 3].button(case_title, key=f"btn_{i}"):
+            with open("interaction_log.txt", "a") as log:
+                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+            st.session_state.selected_case = case_title
+            st.rerun()  # ✅ This is what triggers single-click switch
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
