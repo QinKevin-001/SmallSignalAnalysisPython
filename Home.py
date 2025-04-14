@@ -16,8 +16,8 @@ st.markdown("""
     }
 
     /* Ensure consistent spacing between rows */
-    div[data-testid="column"] {
-        padding: 0.5rem !important;  /* Add consistent padding */
+    .row-container {
+        margin-bottom: 1rem; /* Add consistent spacing between rows */
     }
 
     /* Mobile-specific styling */
@@ -33,8 +33,8 @@ st.markdown("""
         }
 
         /* Ensure consistent spacing between rows */
-        div[data-testid="column"] {
-            padding: 0.5rem !important;
+        .row-container {
+            margin-bottom: 1rem !important;
         }
     }
 </style>
@@ -110,45 +110,48 @@ else:
 
     # Create rows and columns
     for row in range(num_rows):
-        # Special handling for the last row
-        if row == num_rows - 1 and num_cases % cases_per_row != 0:
-            remaining_cases = num_cases % cases_per_row
+        with container.container():  # Wrap each row in a container
+            st.markdown('<div class="row-container">', unsafe_allow_html=True)  # Add consistent spacing
+            # Special handling for the last row
+            if row == num_rows - 1 and num_cases % cases_per_row != 0:
+                remaining_cases = num_cases % cases_per_row
 
-            # Calculate the width ratios to maintain consistent button sizes
-            total_width = 3  # Total width of three columns
-            button_width = 1  # Width of each button
-            remaining_space = total_width - (remaining_cases * button_width)
-            side_space = remaining_space / 2  # Split remaining space equally
+                # Calculate the width ratios to maintain consistent button sizes
+                total_width = 3  # Total width of three columns
+                button_width = 1  # Width of each button
+                remaining_space = total_width - (remaining_cases * button_width)
+                side_space = remaining_space / 2  # Split remaining space equally
 
-            # Create column layout with proper spacing
-            widths = [side_space]  # Left spacing
-            for _ in range(remaining_cases):
-                widths.append(button_width)  # Button width
-            widths.append(side_space)  # Right spacing
+                # Create column layout with proper spacing
+                widths = [side_space]  # Left spacing
+                for _ in range(remaining_cases):
+                    widths.append(button_width)  # Button width
+                widths.append(side_space)  # Right spacing
 
-            cols = container.columns(widths)
+                cols = st.columns(widths)
 
-            # Add buttons
-            for i in range(remaining_cases):
-                case_idx = row * cases_per_row + i
-                case_title = cases_list[case_idx]
-                if cols[i+1].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
-                    with open("interaction_log.txt", "a") as log:
-                        log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-                    st.session_state.selected_case = case_title
-                    st.rerun()
-        else:
-            # Normal row handling
-            cols = container.columns(cases_per_row)
-            for col in range(cases_per_row):
-                idx = row * cases_per_row + col
-                if idx < num_cases:
-                    case_title = cases_list[idx]
-                    if cols[col].button(case_title, key=f"btn_{idx}", use_container_width=True):
+                # Add buttons
+                for i in range(remaining_cases):
+                    case_idx = row * cases_per_row + i
+                    case_title = cases_list[case_idx]
+                    if cols[i+1].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.selected_case = case_title
                         st.rerun()
+            else:
+                # Normal row handling
+                cols = st.columns(cases_per_row)
+                for col in range(cases_per_row):
+                    idx = row * cases_per_row + col
+                    if idx < num_cases:
+                        case_title = cases_list[idx]
+                        if cols[col].button(case_title, key=f"btn_{idx}", use_container_width=True):
+                            with open("interaction_log.txt", "a") as log:
+                                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+                            st.session_state.selected_case = case_title
+                            st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)  # Close row spacing
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
