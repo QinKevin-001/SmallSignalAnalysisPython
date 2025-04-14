@@ -62,14 +62,50 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
-    cols = st.columns(3)
 
+    # CSS to make buttons uniform and responsive
+    st.markdown("""
+        <style>
+        .case-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: start;
+            gap: 15px;
+        }
+        .case-button {
+            flex: 1 1 calc(33.333% - 10px);  /* 3 per row */
+            min-width: 250px;
+            max-width: 300px;
+        }
+        @media (max-width: 768px) {
+            .case-button {
+                flex: 1 1 100%; /* 1 per row on small screens */
+            }
+        }
+        .case-button > button {
+            width: 100%;
+            height: 50px;
+            font-size: 15px;
+            border-radius: 8px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Grid container
+    st.markdown('<div class="case-grid">', unsafe_allow_html=True)
+
+    # Buttons inside styled divs
     for i, case_title in enumerate(CASES):
-        if cols[i % 3].button(case_title, key=f"btn_{i}"):
+        st.markdown(f'<div class="case-button">', unsafe_allow_html=True)
+        if st.button(case_title, key=f"btn_{i}"):
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
             st.session_state.selected_case = case_title
-            st.rerun()  # ✅ This is what triggers single-click switch
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Close container
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
