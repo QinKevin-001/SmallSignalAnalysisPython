@@ -37,7 +37,7 @@ if st.session_state.selected_case:
     module_path = CASES.get(case_title)
 
     st.sidebar.success(f"Viewing: {case_title}")
-    if st.button("⬅️ Back to Home"):
+    if st.button("⬅️ Home"):
         st.session_state.selected_case = None
         st.rerun()
 
