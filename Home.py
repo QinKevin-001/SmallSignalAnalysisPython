@@ -6,88 +6,38 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Enhanced CSS for consistent row spacing and better responsive design
+# Updated CSS with consistent responsive behavior
 st.markdown("""
 <style>
-    /* Enhanced button styling */
+    /* Basic button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
-        height: 100% !important;
         width: 100% !important;
+        min-height: 46px !important;
     }
 
-    /* Main container styling */
-    .main-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    /* Grid container for all buttons */
+    .button-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
         width: 100%;
         max-width: 1200px;
         margin: 0 auto;
+        padding: 0 1rem;
     }
 
-    /* Row container styling */
-    .row-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        width: 100%;
-    }
-
-    /* Button container styling */
-    .button-container {
-        flex: 1;
-        min-width: 0;
-        max-width: 400px;
-    }
-
-    /* Last row specific styling */
-    .row-container.last-row {
-        justify-content: center;
-    }
-
-    .row-container.last-row .button-container {
-        flex: 0 1 calc(33.33% - 1rem);
-    }
-
-    /* Tablet-specific styling (iPad) */
+    /* Responsive adjustments */
     @media (max-width: 992px) {
-        .row-container {
-            padding: 0 1rem;
-            flex-wrap: wrap;
-        }
-
-        .button-container {
-            flex: 0 1 calc(50% - 0.5rem);
-        }
-
-        .row-container.last-row .button-container {
-            flex: 0 1 calc(50% - 0.5rem);
+        .button-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 
-    /* Mobile-specific styling */
     @media (max-width: 640px) {
-        .row-container {
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .button-container {
-            flex: 1;
-            width: 100%;
-        }
-
-        .stButton button {
-            margin: 0 !important;
-            padding: 0.5rem !important;
-            min-height: 45px;
-            white-space: normal;
-            word-wrap: break-word;
+        .button-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -150,50 +100,20 @@ else:
 
     st.header("🔍 Select a Simulation Case")
 
-    # Create a container for better control of layout
-    container = st.container()
+    # Create container for all buttons
+    st.markdown('<div class="button-grid">', unsafe_allow_html=True)
 
-    # Calculate number of rows needed (ceil division)
-    num_cases = len(CASES)
-    cases_per_row = 3
-    num_rows = (num_cases + cases_per_row - 1) // cases_per_row
-
-    # Convert cases to list for easier indexing
-    cases_list = list(CASES.keys())
-
-    # Wrap all rows in a main container
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
-
-    # Create rows and columns
-    for row in range(num_rows):
-        start_idx = row * cases_per_row
-        end_idx = min((row + 1) * cases_per_row, num_cases)
-        cases_in_row = end_idx - start_idx
-
-        # Add last-row class if it's the final row
-        row_class = "row-container last-row" if row == num_rows - 1 else "row-container"
-        st.markdown(f'<div class="{row_class}">', unsafe_allow_html=True)
-
-        # Create columns for the current row
-        cols = st.columns(cases_per_row)
-
-        # Create buttons for this row
-        for i in range(cases_in_row):
-            case_idx = start_idx + i
-            case_title = cases_list[case_idx]
-            with cols[i]:
-                st.markdown('<div class="button-container">', unsafe_allow_html=True)
-                if st.button(case_title, key=f"btn_{case_idx}", use_container_width=True):
-                    with open("interaction_log.txt", "a") as log:
-                        log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-                    st.session_state.selected_case = case_title
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Create all buttons in a single grid
+    for case_title in CASES:
+        if st.button(case_title, key=f"btn_{case_title}", use_container_width=True):
+            with open("interaction_log.txt", "a") as log:
+                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+            st.session_state.selected_case = case_title
+            st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # System Configuration Diagrams section
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
     for case_title in CASES:
