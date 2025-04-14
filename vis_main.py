@@ -4,10 +4,10 @@ import sys
 import os
 from datetime import datetime
 
-# Set page layout
+# Set layout
 st.set_page_config(layout="wide")
 
-# Define all case titles and their modules
+# Case title → module name
 PAGES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -28,66 +28,61 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Safe page selection logic
-if "page_redirect" in st.session_state:
-    selected_page = st.session_state.page_redirect
-    del st.session_state.page_redirect
-else:
-    selected_page = st.sidebar.selectbox(
-        "Quick Navigation:",
-        ["Main Page"] + list(PAGES.keys()),
-        key="page_select"
-    )
+# Initialize selection state (separate from widget!)
+if "selected_page_override" not in st.session_state:
+    st.session_state.selected_page_override = None
 
-# ------------------------ MAIN PAGE ------------------------ #
-if selected_page == "Main Page":
+# If user hasn't clicked a button yet, use sidebar for default selection
+default_page = st.session_state.selected_page_override or st.sidebar.selectbox(
+    "Quick Navigation:", ["Main Page"] + list(PAGES.keys()), key="page_select"
+)
+
+# Main Page
+if default_page == "Main Page":
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
-    Explore the stability of inverter-based resources, grid-following/grid-forming controls, and synchronous generators under different configurations.
+    Explore various dynamic simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming modes, and synchronous generators.
     """)
 
     st.header("🔍 Explore Simulation Cases")
     cols = st.columns(3)
     for i, (case_title, _) in enumerate(PAGES.items()):
         if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            # Log click
+            # Log
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
 
-            # Use separate redirect key to safely rerun
-            st.session_state.page_redirect = case_title
-            st.toast(f"Opening {case_title}", icon="📊")
-            st.experimental_rerun()
+            # Set override for next render
+            st.session_state.selected_page_override = case_title
+            st.experimental_rerun()  # this is now safe because we do NOT overwrite widget state
 
     st.markdown("---")
-
-    # Show system configuration diagrams
     st.header("🗺️ System Configuration Diagrams")
-    st.write("Representative system layouts from ECCE 2025 digest.")
     for case_title in PAGES:
         st.subheader(case_title)
         img_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
         if os.path.exists(img_path):
-            st.image(img_path, width=800, caption="System layout")
+            st.image(img_path, width=800)
         else:
-            st.info("⚠️ No diagram available for this case.")
+            st.info("⚠️ No diagram found for this case.")
 
-# --------------------- CASE PAGES ---------------------- #
+# Case Page
 else:
-    module_name = PAGES[selected_page]
-    try:
-        # Import or reload the module
-        if module_name in sys.modules:
-            module = sys.modules[module_name]
-            importlib.reload(module)
-        else:
-            module = importlib.import_module(module_name)
+    module_name = PAGES.get(default_page)
+    if not module_name:
+        st.error(f"⚠️ Invalid case selected.")
+    else:
+        try:
+            if module_name in sys.modules:
+                module = sys.modules[module_name]
+                importlib.reload(module)
+            else:
+                module = importlib.import_module(module_name)
 
-        # Transition animation
-        with st.spinner(f"Loading {selected_page}..."):
-            st.toast(f"Entering {selected_page}", icon="⚙️")
-            module.main()
-    except ModuleNotFoundError:
-        st.error(f"❌ Module `{module_name}` not found in `/Visualization/`.")
-    except AttributeError:
-        st.error(f"❌ Module `{module_name}` does not define a `main()` function.")
+            with st.spinner(f"Loading {default_page}..."):
+                st.toast(f"Entering {default_page}", icon="📈")
+                module.main()
+        except ModuleNotFoundError:
+            st.error(f"❌ Module `{module_name}` not found.")
+        except AttributeError:
+            st.error(f"❌ `{module_name}` does not have a `main()` function.")
