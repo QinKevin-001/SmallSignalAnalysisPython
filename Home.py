@@ -2,11 +2,17 @@ import streamlit as st
 import importlib
 import sys
 import os
-from datetime import datetime
+from urllib.parse import unquote
+from gsheet_logger import log_interaction
+import socket
+import time
 
-st.set_page_config(layout="wide")
+# === CONFIG ===
+CREDENTIALS_PATH = "one-hz-oscillation-logs-97d1c076d6ed.json"
+POWERPLANT_IMAGE = "Images/powerplant.png"
+IMAGE_PATH = "Images"
 
-# Map of display name to module path
+# Case mapping
 CASES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -27,19 +33,42 @@ CASES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Initialize session
-if "selected_case" not in st.session_state:
-    st.session_state.selected_case = None
+# Set layout
+st.set_page_config(layout="wide")
 
-# ---------------- CASE VIEW ----------------
+# Utility to get IP
+def get_user_ip():
+    try:
+        return socket.gethostbyname(socket.gethostname())
+    except:
+        return "Unknown"
+
+# Load query param
+query_params = st.query_params
+case_param = query_params.get("case", "")
+preselected_case = None
+if case_param:
+    case_param = unquote(case_param).zfill(2)
+    for title in CASES:
+        if f"case {case_param}" in title.lower():
+            preselected_case = title
+            break
+
+if "selected_case" not in st.session_state:
+    st.session_state.selected_case = preselected_case
+
+# === CASE PAGE ===
 if st.session_state.selected_case:
     case_title = st.session_state.selected_case
-    module_path = CASES.get(case_title)
+    module_path = CASES[case_title]
 
     st.sidebar.success(f"Viewing: {case_title}")
     if st.button("⬅️ Back to Home"):
         st.session_state.selected_case = None
         st.rerun()
+
+    st.image(POWERPLANT_IMAGE, width=300, caption="Loading Simulation...")
+    time.sleep(1)
 
     try:
         if module_path in sys.modules:
@@ -47,36 +76,53 @@ if st.session_state.selected_case:
             importlib.reload(module)
         else:
             module = importlib.import_module(module_path)
-
-        with st.spinner(f"Loading {case_title}..."):
-            st.toast(f"Now viewing: {case_title}", icon="📊")
-            module.main()
+        module.main()
     except Exception as e:
-        st.error(f"❌ Error loading `{module_path}`: {e}")
+        st.error(f"❌ Failed to load {module_path}: {e}")
 
-# ---------------- HOME PAGE ----------------
+# === HOME PAGE ===
 else:
     st.title("⚡ Power System Stability Analysis")
-    st.markdown("""
-    Explore simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming controllers, and synchronous generators.
-    """)
+    st.markdown("Explore simulation cases involving inverter-based resources (IBRs), grid-forming/following controllers, and synchronous generators.")
 
     st.header("🔍 Select a Simulation Case")
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
-        if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            with open("interaction_log.txt", "a") as log:
-                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-            st.session_state.selected_case = case_title
-            st.rerun()  # ✅ This is what triggers single-click switch
+        preview_img = os.path.join(IMAGE_PATH, case_title.replace(" ", "_").lower() + ".png")
+        with cols[i % 3]:
+            st.markdown(f'''
+                <style>
+                .preview-button {{
+                    position: relative;
+                }}
+                .preview-button:hover .hover-img {{
+                    display: block;
+                }}
+                .hover-img {{
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    z-index: 100;
+                    width: 300px;
+                    border: 1px solid #ccc;
+                    background: #fff;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }}
+                </style>
+                <div class="preview-button">
+                    <form action="?case={str(i+1).zfill(2)}" method="get">
+                        <button type="submit">{case_title}</button>
+                    </form>
+                    <img class="hover-img" src="{preview_img}">
+                </div>
+            ''', unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.header("🗺️ System Configuration Diagrams")
-    for case_title in CASES:
-        st.subheader(case_title)
-        image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
-        if os.path.exists(image_path):
-            st.image(image_path, width=800)
-        else:
-            st.info("⚠️ No diagram found.")
+    if preselected_case:
+        log_interaction(
+            credentials_path=CREDENTIALS_PATH,
+            ip_address=get_user_ip(),
+            case_title=preselected_case,
+            source="URL Param"
+        )
