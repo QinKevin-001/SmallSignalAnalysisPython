@@ -1,7 +1,9 @@
+# Test confirmed
+
 import streamlit as st
 import numpy as np
 import plotly.express as px
-from Main import case02main_droop_infinite
+from Main import case06main_vsm_infinite
 
 # ----------------- 📌 Define Parameter Limits ----------------- #
 variable_ranges = {
@@ -17,26 +19,22 @@ variable_ranges = {
     "Cf": (0.01, 0.20),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "KpV": (0.1, 10.0),
-    "KiV": (0.1, 1000.0),
-    "KpC": (0.1, 10.0),
-    "KiC": (0.1, 1000.0),
-    "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
+    "J": (1.0, 20.0),
+    "K": (1.0, 100.0),
+    "τf": (0.01, 0.1)
 }
 
-# Default values from `case02main_droop_infinite.py`
+# Default values from `case06main_vsm_infinite.py`
 default_values = {
-    'Pset': 1.0, 'Qset': 0.0,  # setpoints
-    'ωset': 1.0, 'Vset': 1.0,  # setpoints
-    'mp': 0.05, 'mq': 0.05,  # droop gains
-    'Rt': 0.02, 'Lt': 0.10,  # LCL filter
-    'Rd': 0.00, 'Cf': 0.05,  # LCL filter
-    'Rc': 0.04, 'Lc': 0.20,  # LCL filter
-    'KpV': 1.8, 'KiV': 16.0,  # voltage loop PI gains
-    'KpC': 0.4 * 5 * 2, 'KiC': 12.0 * 2,  # current loop PI gains
-    'ωc': float(2 * np.pi * 5)  # power filter cut-off frequency
+    "Pset": 0.1, "Qset": 0.0,
+    "ωset": 1.0, "Vset": 1.0,
+    "mp": 0.05, "mq": 0.05,
+    "Rt": 0.02, "Lt": 0.10,
+    "Rd": 0.00, "Cf": 0.05,
+    "Rc": 0.10, "Lc": 0.50,
+    "J": 10.0, "K": 12.0,
+    "τf": 0.01
 }
-
 
 # ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
 def get_user_inputs():
@@ -75,15 +73,14 @@ def get_mode_selection(mode_range):
 # ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
-    return case02main_droop_infinite.main_droop_infinite(user_params)
+    return case06main_vsm_infinite.main_vsm_infinite(user_params)
 
 
-# ----------------- 📌 pages ----------------- #
+# ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
-        "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
-        "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
+        "theta", "Tef", "Qof", "Vof", "winv", "psif", "iid", "iiq", "vcd", "vcq", "iod", "ioq"
     ]
 
     mode_data_raw = testResults[1][4]
@@ -138,7 +135,7 @@ def visualization(testResults):
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
 
-# ----------------- 📌 Run Simulation & pages ----------------- #
+# ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
     """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
     user_params = get_user_inputs()  # Get user parameters
@@ -148,7 +145,7 @@ def run_simulation_and_visualization():
 
 # ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    st.title("Droop Infinite System Analysis")
+    st.title("VSM Infinite System Analysis")
     run_simulation_and_visualization()
 
 
