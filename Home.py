@@ -29,17 +29,16 @@ CASES = {
 if "selected_case" not in st.session_state:
     st.session_state.selected_case = None
 
-# -------------------- CASE PAGE -------------------- #
+# ---------- CASE PAGE ----------
 if st.session_state.selected_case:
     case_title = st.session_state.selected_case
     module_path = CASES[case_title]
 
     st.sidebar.success(f"Viewing: {case_title}")
 
-    # BACK BUTTON using a form to guarantee rerun
-    with st.form("back_form"):
-        if st.form_submit_button("⬅️ Back to Main Page"):
-            st.session_state.selected_case = None
+    # Back button: triggers a session change that will cause a re-render next time
+    if st.button("⬅️ Back to Main Page"):
+        st.session_state.selected_case = None
 
     try:
         if module_path in sys.modules:
@@ -52,29 +51,39 @@ if st.session_state.selected_case:
             st.toast(f"Now viewing: {case_title}", icon="📊")
             module.main()
     except Exception as e:
-        st.error(f"❌ Error loading `{module_path}`: {e}")
+        st.error(f"❌ Could not load {module_path}: {e}")
 
-# -------------------- MAIN PAGE -------------------- #
+# ---------- HOME PAGE ----------
 else:
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
-    Explore 17 simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming controllers, and synchronous generators.
+    Explore simulation cases involving inverter-based resources (IBRs), grid-forming/following controllers, and synchronous generators.
     """)
 
     st.header("🔍 Select a Simulation Case")
     cols = st.columns(3)
 
-    for i, case_title in enumerate(CASES):
-        with cols[i % 3].form(key=f"form_{i}"):
-            submitted = st.form_submit_button(case_title)
-            if submitted:
-                st.session_state.selected_case = case_title
-                with open("interaction_log.txt", "a") as log:
-                    log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+    # Force a visual refresh with a hidden key
+    clicked_case = st.session_state.get("clicked_case", None)
+
+    for i, case_title in enumerate(CASES.keys()):
+        if cols[i % 3].button(case_title, key=f"btn_{i}"):
+            # Log interaction
+            with open("interaction_log.txt", "a") as log:
+                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+
+            # Set a temp value
+            st.session_state.clicked_case = case_title
+
+    # Set actual state and trigger navigation
+    if "clicked_case" in st.session_state and st.session_state.clicked_case:
+        st.session_state.selected_case = st.session_state.clicked_case
+        st.session_state.clicked_case = None
+        st.markdown("<meta http-equiv='refresh' content='0'>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
-    for case_title in CASES:
+    for case_title in CASES.keys():
         st.subheader(case_title)
         image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
         if os.path.exists(image_path):
