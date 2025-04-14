@@ -95,12 +95,12 @@ if st.session_state.selected_case:
 
 # ---------------- HOME PAGE ----------------
 else:
-    st.title("⚡ Power System Stability Analysis")
+    st.title("Interactive Visualization of Grid Interactive Inverter-Based Resources")
     st.markdown("""
     Explore simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming controllers, and synchronous generators.
     """)
 
-    st.header("🔍 Select a Simulation Case")
+    st.header("Select a Simulation Case")
 
     # Create a container for better control of layout
     container = st.container()
@@ -148,7 +148,7 @@ else:
             st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
-    st.header("🗺️ System Configuration Diagrams")
+    st.header("System Configuration Diagrams")
     for case_title in CASES:
         st.subheader(case_title)
         image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
