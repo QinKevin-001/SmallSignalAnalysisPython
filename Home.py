@@ -6,9 +6,24 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Add mobile-friendly CSS
+# Enhanced CSS for better button visibility and last row centering
 st.markdown("""
 <style>
+    /* Enhanced button styling */
+    .stButton button {
+        border: 2px solid #4CAF50 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stButton button:hover {
+        border-color: #45a049 !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+        transform: translateY(-2px) !important;
+    }
+
+    /* Mobile-specific styling */
     @media (max-width: 640px) {
         .stButton button {
             width: 100%;
@@ -22,7 +37,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Map of display name to module path
+# Your existing CASES dictionary
 CASES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -92,12 +107,24 @@ else:
 
     # Create rows and columns
     for row in range(num_rows):
-        cols = container.columns(cases_per_row)
+        # Check if this is the last row
+        is_last_row = row == num_rows - 1
+        remaining_cases = num_cases - (row * cases_per_row)
+
+        if is_last_row and remaining_cases < cases_per_row:
+            # For the last row with fewer cases, add empty columns for centering
+            empty_cols_before = (cases_per_row - remaining_cases) // 2
+            cols = container.columns([1] * empty_cols_before + [1] * remaining_cases + [1] * (cases_per_row - remaining_cases - empty_cols_before))
+            col_offset = empty_cols_before
+        else:
+            cols = container.columns(cases_per_row)
+            col_offset = 0
+
         for col in range(cases_per_row):
             idx = row * cases_per_row + col
             if idx < num_cases:
                 case_title = cases_list[idx]
-                if cols[col].button(case_title, key=f"btn_{idx}", use_container_width=True):
+                if cols[col + col_offset].button(case_title, key=f"btn_{idx}", use_container_width=True):
                     with open("interaction_log.txt", "a") as log:
                         log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                     st.session_state.selected_case = case_title
