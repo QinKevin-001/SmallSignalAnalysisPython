@@ -63,52 +63,37 @@ else:
 
     st.header("🔍 Select a Simulation Case")
 
-    # Determine active case via URL query (deep-link)
+    # Initialize from URL param if available
     query_params = st.query_params
     case_param = query_params.get("case", "")
-    preselected_case = None
-
     if case_param:
         case_param = case_param.zfill(2).lower()
         for title in CASES:
             if f"case {case_param}" in title.lower():
-                preselected_case = title
-                st.session_state.selected_case = preselected_case
+                st.session_state.selected_case = title
                 st.rerun()
 
-    # Generate buttons with uniform width
-    BUTTON_WIDTH = "250px"
+    # Fixed-size button styling
+    button_style = """
+        <style>
+        .streamlit-button button {
+            width: 250px;
+            height: 50px;
+            font-size: 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        </style>
+    """
+    st.markdown(button_style, unsafe_allow_html=True)
+
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
-        case_number = str(i + 1).zfill(2)
-        query = f"?case={case_number}"
         with cols[i % 3]:
-            st.markdown(
-                f"""
-                <style>
-                    .case-button {{
-                        display: inline-block;
-                        width: {BUTTON_WIDTH};
-                        height: 50px;
-                        background-color: #f1f1f1;
-                        border: 1px solid #ccc;
-                        border-radius: 8px;
-                        text-align: center;
-                        line-height: 50px;
-                        text-decoration: none;
-                        color: black;
-                        font-size: 14px;
-                        margin-bottom: 10px;
-                    }}
-                    .case-button:hover {{
-                        background-color: #e0e0e0;
-                    }}
-                </style>
-                <a href="{query}" class="case-button">{case_title}</a>
-                """,
-                unsafe_allow_html=True
-            )
+            if st.button(case_title, key=f"casebtn_{i}"):
+                st.session_state.selected_case = case_title
+                st.rerun()
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
