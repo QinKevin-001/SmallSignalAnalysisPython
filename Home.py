@@ -6,7 +6,6 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Map of title → module
 CASES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -27,18 +26,20 @@ CASES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Setup session state
 if "selected_case" not in st.session_state:
     st.session_state.selected_case = None
 
-# ------------------------- CASE PAGE ------------------------- #
+# -------------------- CASE PAGE -------------------- #
 if st.session_state.selected_case:
     case_title = st.session_state.selected_case
     module_path = CASES[case_title]
 
     st.sidebar.success(f"Viewing: {case_title}")
-    if st.button("⬅️ Back to Home"):
-        st.session_state.selected_case = None
+
+    # BACK BUTTON using a form to guarantee rerun
+    with st.form("back_form"):
+        if st.form_submit_button("⬅️ Back to Main Page"):
+            st.session_state.selected_case = None
 
     try:
         if module_path in sys.modules:
@@ -48,12 +49,12 @@ if st.session_state.selected_case:
             module = importlib.import_module(module_path)
 
         with st.spinner(f"Loading {case_title}..."):
-            st.toast(f"Showing {case_title}", icon="📊")
+            st.toast(f"Now viewing: {case_title}", icon="📊")
             module.main()
     except Exception as e:
-        st.error(f"❌ Could not load {module_path}: {e}")
+        st.error(f"❌ Error loading `{module_path}`: {e}")
 
-# ------------------------- HOME PAGE ------------------------- #
+# -------------------- MAIN PAGE -------------------- #
 else:
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
@@ -64,15 +65,19 @@ else:
     cols = st.columns(3)
 
     for i, case_title in enumerate(CASES):
-        if cols[i % 3].button(case_title, key=f"casebtn_{i}"):
-            st.session_state.selected_case = case_title
+        with cols[i % 3].form(key=f"form_{i}"):
+            submitted = st.form_submit_button(case_title)
+            if submitted:
+                st.session_state.selected_case = case_title
+                with open("interaction_log.txt", "a") as log:
+                    log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
     for case_title in CASES:
         st.subheader(case_title)
-        img_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
-        if os.path.exists(img_path):
-            st.image(img_path, width=800)
+        image_path = f"configurations/{case_title.replace(' ', '_').lower()}.png"
+        if os.path.exists(image_path):
+            st.image(image_path, width=800)
         else:
             st.info("⚠️ No diagram found.")
