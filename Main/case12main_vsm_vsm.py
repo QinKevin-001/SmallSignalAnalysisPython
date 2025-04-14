@@ -17,7 +17,7 @@ def main_vsm_vsm(user_params=None):
         'Rc': 0.10, 'Lc': 0.50,  # inverter LCL filter
         'J': 10.0,  #inertia constant
         'K': 12.0,  #reactive loop control parameter
-        'tauf': 0.01    #power filter time constant
+        'tauf': 0.02    #power filter time constant
 
     }
 
