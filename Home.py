@@ -39,7 +39,7 @@ if st.session_state.selected_case:
     st.sidebar.success(f"Viewing: {case_title}")
     if st.button("⬅️ Back to Home"):
         st.session_state.selected_case = None
-        st.experimental_rerun()
+        st.rerun()
 
     try:
         if module_path in sys.modules:
