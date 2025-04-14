@@ -180,7 +180,7 @@ def visualization(testResults):
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
+# ----------------- 📌 Run Simulation & pages ----------------- #
 def run_simulation_and_visualization():
     """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
     user_params = get_user_inputs()  # Get user parameters

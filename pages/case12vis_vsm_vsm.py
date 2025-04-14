@@ -89,7 +89,7 @@ def get_mode_selection(mode_range):
 def run_simulation(user_params):
     return case12main_vsm_vsm.main_vsm_vsm(user_params)
 
-# Visualization
+# pages
 def visualization(testResults):
     state_variables = [
         "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)", "psif(IBR1)", "iid(IBR1)", "iiq(IBR1)",

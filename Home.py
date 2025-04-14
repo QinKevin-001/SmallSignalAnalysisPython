@@ -7,25 +7,25 @@ from datetime import datetime
 # Set page layout
 st.set_page_config(layout="wide")
 
-# Mapping of Case Title → Visualization Python Module Path
+# Mapping of Case Title → pages Python Module Path
 CASES = {
-    "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
-    "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
-    "Case 03: Droop Plant Infinite": "Visualization.case03vis_droopPlant_infinite",
-    "Case 04: GFL Infinite": "Visualization.case04vis_gfl_infinite",
-    "Case 05: GFL Plant Infinite": "Visualization.case05vis_gflPlant_infinite",
-    "Case 06: VSM Infinite": "Visualization.case06vis_vsm_infinite",
-    "Case 07: VSM Plant Infinite": "Visualization.case07vis_vsmPlant_infinite",
-    "Case 08: Droop Droop": "Visualization.case08vis_droop_droop",
-    "Case 09: Droop Plant Droop Plant": "Visualization.case09vis_droopPlant_droopPlant",
-    "Case 10: Droop VSM": "Visualization.case10vis_droop_vsm",
-    "Case 11: Droop Plant VSM Plant": "Visualization.case11vis_droopPlant_vsmPlant",
-    "Case 12: VSM VSM": "Visualization.case12vis_vsm_vsm",
-    "Case 13: VSM Plant VSM Plant": "Visualization.case13vis_vsmPlant_vsmPlant",
-    "Case 14: Droop SG": "Visualization.case14vis_droop_sg",
-    "Case 15: Droop Plant SG": "Visualization.case15vis_droopPlant_sg",
-    "Case 16: VSM SG": "Visualization.case16vis_vsm_sg",
-    "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
+    "Case 01: Droop Simplified Infinite": "pages.case01vis_droopSimplified_infinite",
+    "Case 02: Droop Infinite": "pages.case02vis_droop_infinite",
+    "Case 03: Droop Plant Infinite": "pages.case03vis_droopPlant_infinite",
+    "Case 04: GFL Infinite": "pages.case04vis_gfl_infinite",
+    "Case 05: GFL Plant Infinite": "pages.case05vis_gflPlant_infinite",
+    "Case 06: VSM Infinite": "pages.case06vis_vsm_infinite",
+    "Case 07: VSM Plant Infinite": "pages.case07vis_vsmPlant_infinite",
+    "Case 08: Droop Droop": "pages.case08vis_droop_droop",
+    "Case 09: Droop Plant Droop Plant": "pages.case09vis_droopPlant_droopPlant",
+    "Case 10: Droop VSM": "pages.case10vis_droop_vsm",
+    "Case 11: Droop Plant VSM Plant": "pages.case11vis_droopPlant_vsmPlant",
+    "Case 12: VSM VSM": "pages.case12vis_vsm_vsm",
+    "Case 13: VSM Plant VSM Plant": "pages.case13vis_vsmPlant_vsmPlant",
+    "Case 14: Droop SG": "pages.case14vis_droop_sg",
+    "Case 15: Droop Plant SG": "pages.case15vis_droopPlant_sg",
+    "Case 16: VSM SG": "pages.case16vis_vsm_sg",
+    "Case 17: VSM Plant SG": "pages.case17vis_vsmPlant_sg"
 }
 
 # Default state setup
