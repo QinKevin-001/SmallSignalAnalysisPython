@@ -69,7 +69,7 @@ else:
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
             st.session_state.selected_case = case_title
-            #st.rerun()  # ✅ This is what triggers single-click switch
+            st.rerun()  # ✅ This is what triggers single-click switch
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
