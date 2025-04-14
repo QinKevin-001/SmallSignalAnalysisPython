@@ -6,46 +6,88 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Enhanced CSS for consistent row spacing
+# Enhanced CSS for consistent row spacing and better responsive design
 st.markdown("""
 <style>
     /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
+        height: 100% !important;
+        width: 100% !important;
     }
 
-    /* Ensure consistent spacing between rows */
+    /* Main container styling */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Row container styling */
     .row-container {
         display: flex;
         justify-content: center;
-        gap: 1rem; /* Consistent gap between buttons */
-        margin-bottom: 1rem; /* Consistent spacing between rows */
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        width: 100%;
     }
 
-    /* Enhanced centering for last row */
-    .row-container:last-child {
+    /* Button container styling */
+    .button-container {
+        flex: 1;
+        min-width: 0;
+        max-width: 400px;
+    }
+
+    /* Last row specific styling */
+    .row-container.last-row {
         justify-content: center;
-        padding: 0 1rem;
+    }
+
+    .row-container.last-row .button-container {
+        flex: 0 1 calc(33.33% - 1rem);
+    }
+
+    /* Tablet-specific styling (iPad) */
+    @media (max-width: 992px) {
+        .row-container {
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        .button-container {
+            flex: 0 1 calc(50% - 0.5rem);
+        }
+
+        .row-container.last-row .button-container {
+            flex: 0 1 calc(50% - 0.5rem);
+        }
     }
 
     /* Mobile-specific styling */
     @media (max-width: 640px) {
-        .stButton button {
+        .row-container {
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .button-container {
+            flex: 1;
             width: 100%;
-            margin: 0 !important;  /* Remove vertical margins */
-            padding: 0.5rem !important;  /* Consistent padding */
-            height: auto;
+        }
+
+        .stButton button {
+            margin: 0 !important;
+            padding: 0.5rem !important;
             min-height: 45px;
             white-space: normal;
             word-wrap: break-word;
-        }
-
-        /* Adjust row spacing for mobile */
-        .row-container {
-            flex-direction: column;
-            gap: 0.5rem; /* Smaller gap between buttons on mobile */
-            margin-bottom: 0.5rem; /* Smaller spacing between rows */
         }
     }
 </style>
@@ -119,35 +161,38 @@ else:
     # Convert cases to list for easier indexing
     cases_list = list(CASES.keys())
 
+    # Wrap all rows in a main container
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
     # Create rows and columns
     for row in range(num_rows):
-        with container.container():
-            st.markdown('<div class="row-container">', unsafe_allow_html=True)
+        start_idx = row * cases_per_row
+        end_idx = min((row + 1) * cases_per_row, num_cases)
+        cases_in_row = end_idx - start_idx
 
-            start_idx = row * cases_per_row
-            end_idx = min((row + 1) * cases_per_row, num_cases)
-            cases_in_row = end_idx - start_idx
+        # Add last-row class if it's the final row
+        row_class = "row-container last-row" if row == num_rows - 1 else "row-container"
+        st.markdown(f'<div class="{row_class}">', unsafe_allow_html=True)
 
-            # Add left padding column for centering if it's the last row and incomplete
-            if row == num_rows - 1 and cases_in_row < cases_per_row:
-                padding_size = (cases_per_row - cases_in_row) / 2
-                cols = st.columns([padding_size] + [1] * cases_in_row + [padding_size])
-                col_offset = 1  # Skip the first padding column
-            else:
-                cols = st.columns(cases_per_row)
-                col_offset = 0
+        # Create columns for the current row
+        cols = st.columns(cases_per_row)
 
-            # Create buttons for this row
-            for i in range(cases_in_row):
-                case_idx = start_idx + i
-                case_title = cases_list[case_idx]
-                if cols[i + col_offset].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+        # Create buttons for this row
+        for i in range(cases_in_row):
+            case_idx = start_idx + i
+            case_title = cases_list[case_idx]
+            with cols[i]:
+                st.markdown('<div class="button-container">', unsafe_allow_html=True)
+                if st.button(case_title, key=f"btn_{case_idx}", use_container_width=True):
                     with open("interaction_log.txt", "a") as log:
                         log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                     st.session_state.selected_case = case_title
                     st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
