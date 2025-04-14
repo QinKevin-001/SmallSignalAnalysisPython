@@ -6,13 +6,18 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Enhanced CSS with mobile gap fixes
+# Enhanced CSS with consistent row spacing
 st.markdown("""
 <style>
     /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
         border-radius: 6px !important;
+    }
+
+    /* Ensure consistent spacing between rows */
+    div[data-testid="column"] {
+        padding: 0.5rem !important;  /* Add consistent padding */
     }
 
     /* Mobile-specific styling */
@@ -27,16 +32,9 @@ st.markdown("""
             word-wrap: break-word;
         }
 
-        /* Remove extra spacing between rows */
-        .row-widget.stButton {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* Ensure consistent spacing between all rows */
+        /* Ensure consistent spacing between rows */
         div[data-testid="column"] {
-            padding: 0.1rem !important;
-            margin: 0 !important;
+            padding: 0.5rem !important;
         }
     }
 </style>
