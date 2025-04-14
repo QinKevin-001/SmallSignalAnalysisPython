@@ -116,17 +116,19 @@ else:
     # Create rows and columns
     for row in range(num_rows):
         with container.container():  # Wrap each row in a container
-            st.markdown('<div class="row-container">', unsafe_allow_html=True)  # Add consistent spacing
-            # Special handling for the last row
-            if row == num_rows - 1 and num_cases % cases_per_row != 0:
-                remaining_cases = num_cases % cases_per_row
+            st.markdown('<div class="row-container">', unsafe_allow_html=True)
 
-                # Center the last row
-                cols = st.columns([1] * remaining_cases + [1] * (cases_per_row - remaining_cases))
+            # Special handling for the last row (containing cases 16 and 17)
+            if row == num_rows - 1 and num_cases % cases_per_row != 0:
+                # Create columns with empty space on sides for centering
+                cols = st.columns([0.75, 1, 1, 0.75])  # Added padding columns on both sides
+
+                # Add the last two cases in the middle columns
+                remaining_cases = num_cases % cases_per_row
                 for i in range(remaining_cases):
                     case_idx = row * cases_per_row + i
                     case_title = cases_list[case_idx]
-                    if cols[i].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+                    if cols[i+1].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.selected_case = case_title
@@ -143,7 +145,7 @@ else:
                                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                             st.session_state.selected_case = case_title
                             st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)  # Close row spacing
+            st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
