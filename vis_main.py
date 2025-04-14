@@ -7,7 +7,7 @@ from datetime import datetime
 # Set page layout
 st.set_page_config(layout="wide")
 
-# Define available visualization pages
+# Define visualization case titles and module names
 PAGES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -28,42 +28,32 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# ---------- 🧠 Handle Redirect from Button Navigation ---------- #
-if "button_nav" in st.session_state:
-    selected_page = st.session_state["button_nav"]
-    del st.session_state["button_nav"]
+# Sidebar Navigation
+selected_page = st.sidebar.selectbox(
+    "Quick Navigation:",
+    ["Main Page"] + list(PAGES.keys()),
+    key="nav_selection"
+)
 
-    # ⏳ Display animation (fake loading spinner)
-    with st.spinner(f"Loading {selected_page}..."):
-        st.toast(f"Redirecting to {selected_page}", icon="➡️")
-        st.session_state["nav_selection"] = selected_page  # update the main key for future sessions
-        st.stop()  # Stops here so new page loads fresh on next run
-
-else:
-    selected_page = st.sidebar.selectbox(
-        "Quick Navigation:",
-        ["Main Page"] + list(PAGES.keys()),
-        key="nav_selection"
-    )
-
-# ----------------- 🏠 Main Page Content ----------------- #
+# ----------------- 🏠 MAIN PAGE CONTENT ----------------- #
 if selected_page == "Main Page":
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
     Explore dynamic responses of inverter-based resources (IBRs), grid-following/grid-forming controls, and synchronous generators in various system configurations.
     """)
 
-    # Section 1: Navigation buttons to each case
+    # Section 1: Navigation buttons for all cases
     st.header("🔍 Explore Simulation Cases")
     cols = st.columns(3)
-    for i, (title, module_path) in enumerate(PAGES.items()):
-        if cols[i % 3].button(title, key=f"button_{i}"):
-            # Log user interaction
-            with open("interaction_log.txt", "a") as log_file:
-                log_file.write(f"{datetime.now().isoformat()} - Button clicked: {title}\n")
+    for i, (title, _) in enumerate(PAGES.items()):
+        if cols[i % 3].button(title, key=f"btn_{i}"):
+            # Log interaction
+            with open("interaction_log.txt", "a") as log:
+                log.write(f"{datetime.now().isoformat()} - Clicked: {title}\n")
 
-            # Store navigation and rerun
-            st.session_state["button_nav"] = title
+            # Show transition and load new page
+            st.toast(f"Opening {title}", icon="📊")
+            st.session_state["nav_selection"] = title
             st.experimental_rerun()
 
     st.markdown("---")
@@ -71,7 +61,6 @@ if selected_page == "Main Page":
     # Section 2: System Configurations
     st.header("🗺️ System Configuration Diagrams")
     st.write("Below are representative system layouts used in the ECCE 2025 digest.")
-
     for case_title in PAGES.keys():
         config_image = f"configurations/{case_title.replace(' ', '_').lower()}.png"
         st.subheader(case_title)
@@ -80,18 +69,23 @@ if selected_page == "Main Page":
         else:
             st.info("📄 No configuration diagram available for this case.")
 
-# ----------------- 🔄 Load the Selected Page ----------------- #
+# ----------------- 📄 CASE PAGE LOADING ----------------- #
 else:
     module_name = PAGES[selected_page]
-    if module_name:
-        try:
-            if module_name in sys.modules:
-                module = sys.modules[module_name]
-                importlib.reload(module)
-            else:
-                module = importlib.import_module(module_name)
+
+    try:
+        # Import or reload the module dynamically
+        if module_name in sys.modules:
+            module = sys.modules[module_name]
+            importlib.reload(module)
+        else:
+            module = importlib.import_module(module_name)
+
+        # Show transition
+        with st.spinner(f"Loading {selected_page}..."):
+            st.toast(f"Entering {selected_page}", icon="⚙️")
             module.main()
-        except ModuleNotFoundError:
-            st.error(f"⚠️ Module `{module_name}` not found.")
-        except AttributeError:
-            st.error(f"⚠️ Module `{module_name}` does not have a `main()` function.")
+    except ModuleNotFoundError:
+        st.error(f"❌ Module `{module_name}` not found. Check that the file exists in `/Visualization/`.")
+    except AttributeError:
+        st.error(f"❌ Module `{module_name}` does not contain a `main()` function.")
