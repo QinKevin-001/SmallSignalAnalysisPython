@@ -62,45 +62,14 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
+    cols = st.columns(3)
 
-    # CSS Grid styling
-    st.markdown("""
-        <style>
-        .case-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-        }
-        .case-button button {
-            width: 100%;
-            height: 50px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background-color: #f8f8f8;
-            cursor: pointer;
-        }
-        .case-button button:hover {
-            background-color: #e8e8e8;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Open grid container
-    st.markdown('<div class="case-grid">', unsafe_allow_html=True)
-
-    # Render each button in a grid cell
     for i, case_title in enumerate(CASES):
-        st.markdown(f'<div class="case-button">', unsafe_allow_html=True)
-        if st.button(case_title, key=f"btn_{i}"):
+        if cols[i % 3].button(case_title, key=f"btn_{i}"):
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
             st.session_state.selected_case = case_title
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Close grid container
-    st.markdown('</div>', unsafe_allow_html=True)
+            st.rerun()  # ✅ This is what triggers single-click switch
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
