@@ -4,10 +4,10 @@ import sys
 import os
 from datetime import datetime
 
-# Set layout
+# Set page layout
 st.set_page_config(layout="wide")
 
-# Case title → module name
+# Map case titles to their module paths
 PAGES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -28,17 +28,36 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Initialize selection state (separate from widget!)
-if "selected_page_override" not in st.session_state:
-    st.session_state.selected_page_override = None
+# Create state flag to track case redirect
+if "page_to_load" not in st.session_state:
+    st.session_state.page_to_load = "Main Page"
 
-# If user hasn't clicked a button yet, use sidebar for default selection
-default_page = st.session_state.selected_page_override or st.sidebar.selectbox(
-    "Quick Navigation:", ["Main Page"] + list(PAGES.keys()), key="page_select"
-)
+# --------------------------- CASE PAGE HANDLER --------------------------- #
+if st.session_state.page_to_load != "Main Page":
+    selected_page = st.session_state.page_to_load
+    st.sidebar.success(f"Currently Viewing: {selected_page}")
 
-# Main Page
-if default_page == "Main Page":
+    module_name = PAGES.get(selected_page)
+    if module_name:
+        try:
+            if module_name in sys.modules:
+                module = sys.modules[module_name]
+                importlib.reload(module)
+            else:
+                module = importlib.import_module(module_name)
+
+            with st.spinner(f"Loading {selected_page}..."):
+                st.toast(f"Now viewing: {selected_page}", icon="📊")
+                module.main()
+        except Exception as e:
+            st.error(f"❌ Failed to load module `{module_name}`.\n\n{e}")
+    else:
+        st.error("❌ Invalid case selected.")
+
+    st.button("⬅️ Back to Main Page", on_click=lambda: st.session_state.update({"page_to_load": "Main Page"}))
+
+# --------------------------- MAIN PAGE --------------------------- #
+else:
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
     Explore various dynamic simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming modes, and synchronous generators.
@@ -48,13 +67,12 @@ if default_page == "Main Page":
     cols = st.columns(3)
     for i, (case_title, _) in enumerate(PAGES.items()):
         if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            # Log
+            # Log click
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
 
-            # Set override for next render
-            st.session_state.selected_page_override = case_title
-            st.experimental_rerun()  # this is now safe because we do NOT overwrite widget state
+            # Set flag — NO rerun!
+            st.session_state.page_to_load = case_title
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
@@ -65,24 +83,3 @@ if default_page == "Main Page":
             st.image(img_path, width=800)
         else:
             st.info("⚠️ No diagram found for this case.")
-
-# Case Page
-else:
-    module_name = PAGES.get(default_page)
-    if not module_name:
-        st.error(f"⚠️ Invalid case selected.")
-    else:
-        try:
-            if module_name in sys.modules:
-                module = sys.modules[module_name]
-                importlib.reload(module)
-            else:
-                module = importlib.import_module(module_name)
-
-            with st.spinner(f"Loading {default_page}..."):
-                st.toast(f"Entering {default_page}", icon="📈")
-                module.main()
-        except ModuleNotFoundError:
-            st.error(f"❌ Module `{module_name}` not found.")
-        except AttributeError:
-            st.error(f"❌ `{module_name}` does not have a `main()` function.")
