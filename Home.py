@@ -62,9 +62,6 @@ else:
     """)
 
     st.header("🔍 Select a Simulation Case")
-    cols = st.columns(3)
-
-    st.header("🔍 Select a Simulation Case")
 
     BUTTON_WIDTH = "250px"  # Set fixed width
     cols = st.columns(3)
