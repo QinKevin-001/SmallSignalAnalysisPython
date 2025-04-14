@@ -6,7 +6,7 @@ from datetime import datetime
 
 st.set_page_config(layout="wide")
 
-# Enhanced CSS with consistent row spacing
+# Enhanced CSS with dynamic row spacing
 st.markdown("""
 <style>
     /* Enhanced button styling */
@@ -15,7 +15,7 @@ st.markdown("""
         border-radius: 6px !important;
     }
 
-    /* Ensure consistent spacing between rows */
+    /* Ensure consistent spacing between rows (desktop/tablet) */
     .row-container {
         margin-bottom: 1rem; /* Add consistent spacing between rows */
     }
@@ -32,9 +32,9 @@ st.markdown("""
             word-wrap: break-word;
         }
 
-        /* Ensure consistent spacing between rows */
+        /* Remove extra spacing between rows on mobile */
         .row-container {
-            margin-bottom: 1rem !important;
+            margin-bottom: 0.5rem !important; /* Smaller spacing for mobile */
         }
     }
 </style>
