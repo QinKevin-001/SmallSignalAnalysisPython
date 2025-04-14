@@ -4,10 +4,9 @@ import sys
 import os
 from datetime import datetime
 
-# Set page layout
 st.set_page_config(layout="wide")
 
-# Map case titles to their module paths
+# Mapping: Case title -> module path
 PAGES = {
     "Case 01: Droop Simplified Infinite": "Visualization.case01vis_droopSimplified_infinite",
     "Case 02: Droop Infinite": "Visualization.case02vis_droop_infinite",
@@ -28,14 +27,19 @@ PAGES = {
     "Case 17: VSM Plant SG": "Visualization.case17vis_vsmPlant_sg"
 }
 
-# Create state flag to track case redirect
+# First-time setup
 if "page_to_load" not in st.session_state:
     st.session_state.page_to_load = "Main Page"
 
-# --------------------------- CASE PAGE HANDLER --------------------------- #
+# If flag set, rerun after setting state to simulate "instant redirect"
+if "trigger_rerun" in st.session_state:
+    del st.session_state["trigger_rerun"]
+    st.experimental_rerun()
+
+# ------------------------- CASE PAGE -------------------------
 if st.session_state.page_to_load != "Main Page":
     selected_page = st.session_state.page_to_load
-    st.sidebar.success(f"Currently Viewing: {selected_page}")
+    st.sidebar.success(f"Viewing: {selected_page}")
 
     module_name = PAGES.get(selected_page)
     if module_name:
@@ -50,29 +54,32 @@ if st.session_state.page_to_load != "Main Page":
                 st.toast(f"Now viewing: {selected_page}", icon="📊")
                 module.main()
         except Exception as e:
-            st.error(f"❌ Failed to load module `{module_name}`.\n\n{e}")
+            st.error(f"❌ Failed to load `{module_name}`.\n\n{e}")
     else:
         st.error("❌ Invalid case selected.")
 
-    st.button("⬅️ Back to Main Page", on_click=lambda: st.session_state.update({"page_to_load": "Main Page"}))
+    if st.button("⬅️ Back to Main Page"):
+        st.session_state.page_to_load = "Main Page"
+        st.session_state.trigger_rerun = True
 
-# --------------------------- MAIN PAGE --------------------------- #
+# ------------------------- MAIN PAGE -------------------------
 else:
     st.title("⚡ Power System Stability Analysis")
     st.markdown("""
-    Explore various dynamic simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming modes, and synchronous generators.
+    Explore simulation cases involving inverter-based resources (IBRs), grid-following/grid-forming controls, and synchronous generators.
     """)
 
     st.header("🔍 Explore Simulation Cases")
     cols = st.columns(3)
     for i, (case_title, _) in enumerate(PAGES.items()):
         if cols[i % 3].button(case_title, key=f"btn_{i}"):
-            # Log click
+            # Log
             with open("interaction_log.txt", "a") as log:
                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
 
-            # Set flag — NO rerun!
+            # Set target page and rerun
             st.session_state.page_to_load = case_title
+            st.session_state.trigger_rerun = True
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
