@@ -19,57 +19,27 @@ st.markdown("""
     .row-container {
         display: flex;
         justify-content: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
+        gap: 1rem; /* Consistent gap between buttons */
+        margin-bottom: 1rem; /* Consistent spacing between rows */
     }
 
-    /* Sidebar hamburger menu styling */
-    .st-emotion-cache-1rf5dj9 {
-        cursor: pointer !important;
-        user-select: none !important;
-        -webkit-user-select: none !important;
-        -moz-user-select: none !important;
-        -ms-user-select: none !important;
-        touch-action: manipulation !important;
-    }
-
-    /* Mobile and tablet specific styling */
-    @media (max-width: 1024px) {
+    /* Mobile-specific styling */
+    @media (max-width: 640px) {
         .stButton button {
             width: 100%;
-            margin: 0 !important;
-            padding: 0.5rem !important;
+            margin: 0 !important;  /* Remove vertical margins */
+            padding: 0.5rem !important;  /* Consistent padding */
             height: auto;
             min-height: 45px;
             white-space: normal;
             word-wrap: break-word;
         }
 
+        /* Adjust row spacing for mobile */
         .row-container {
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        /* iPad-specific sidebar fixes */
-        .st-emotion-cache-1rf5dj9 {
-            padding: 15px !important;
-            -webkit-tap-highlight-color: transparent !important;
-        }
-
-        /* Ensure sidebar is properly interactive on touch devices */
-        .st-emotion-cache-18ni7ap {
-            position: fixed !important;
-            z-index: 999999 !important;
-            touch-action: pan-x pan-y !important;
-        }
-    }
-
-    /* iPad-specific media query */
-    @media (min-width: 768px) and (max-width: 1024px) {
-        .st-emotion-cache-1rf5dj9 {
-            min-height: 44px !important; /* iOS minimum touch target size */
-            min-width: 44px !important;
+            gap: 0.5rem; /* Smaller gap between buttons on mobile */
+            margin-bottom: 0.5rem; /* Smaller spacing between rows */
         }
     }
 </style>
