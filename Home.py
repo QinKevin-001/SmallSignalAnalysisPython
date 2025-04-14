@@ -23,6 +23,12 @@ st.markdown("""
         margin-bottom: 1rem; /* Consistent spacing between rows */
     }
 
+    /* Enhanced centering for last row */
+    .row-container:last-child {
+        justify-content: center;
+        padding: 0 1rem;
+    }
+
     /* Mobile-specific styling */
     @media (max-width: 640px) {
         .stButton button {
@@ -115,35 +121,33 @@ else:
 
     # Create rows and columns
     for row in range(num_rows):
-        with container.container():  # Wrap each row in a container
-            st.markdown('<div class="row-container">', unsafe_allow_html=True)  # Add consistent spacing
-            # Special handling for the last row
-            if row == num_rows - 1 and num_cases % cases_per_row != 0:
-                remaining_cases = num_cases % cases_per_row
+        with container.container():
+            st.markdown('<div class="row-container">', unsafe_allow_html=True)
 
-                # Center the last row
-                cols = st.columns([1] * remaining_cases + [1] * (cases_per_row - remaining_cases))
-                for i in range(remaining_cases):
-                    case_idx = row * cases_per_row + i
-                    case_title = cases_list[case_idx]
-                    if cols[i].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
-                        with open("interaction_log.txt", "a") as log:
-                            log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-                        st.session_state.selected_case = case_title
-                        st.rerun()
+            start_idx = row * cases_per_row
+            end_idx = min((row + 1) * cases_per_row, num_cases)
+            cases_in_row = end_idx - start_idx
+
+            # Add left padding column for centering if it's the last row and incomplete
+            if row == num_rows - 1 and cases_in_row < cases_per_row:
+                padding_size = (cases_per_row - cases_in_row) / 2
+                cols = st.columns([padding_size] + [1] * cases_in_row + [padding_size])
+                col_offset = 1  # Skip the first padding column
             else:
-                # Normal row handling
                 cols = st.columns(cases_per_row)
-                for col in range(cases_per_row):
-                    idx = row * cases_per_row + col
-                    if idx < num_cases:
-                        case_title = cases_list[idx]
-                        if cols[col].button(case_title, key=f"btn_{idx}", use_container_width=True):
-                            with open("interaction_log.txt", "a") as log:
-                                log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-                            st.session_state.selected_case = case_title
-                            st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)  # Close row spacing
+                col_offset = 0
+
+            # Create buttons for this row
+            for i in range(cases_in_row):
+                case_idx = start_idx + i
+                case_title = cases_list[case_idx]
+                if cols[i + col_offset].button(case_title, key=f"btn_{case_idx}", use_container_width=True):
+                    with open("interaction_log.txt", "a") as log:
+                        log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
+                    st.session_state.selected_case = case_title
+                    st.rerun()
+
+            st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.header("🗺️ System Configuration Diagrams")
