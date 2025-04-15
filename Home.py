@@ -8,7 +8,7 @@ import time
 st.set_page_config(layout="wide")
 
 def show_loading_toast(message="Loading..."):
-    st.toast(message, icon="⭕")  # Using a simple circle that will be animated by CSS
+    st.spinner(message)  # Using a simple circle that will be animated by CSS
     time.sleep(1)
 
 # Enhanced CSS with loading animation
