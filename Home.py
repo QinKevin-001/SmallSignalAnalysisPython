@@ -134,10 +134,7 @@ if st.session_state.selected_case:
         st.header("System Configuration")
         image_path = f"fig/{diagram_file}"
         if os.path.exists(image_path):
-            # Use columns to ensure full width and proper centering
-            col1, col2, col3 = st.columns([0.1, 0.8, 0.1])
-            with col2:
-                st.image(image_path, use_column_width=True)
+            st.image(image_path, use_column_width="always")
         else:
             st.info("⚠️ No diagram found for this case.")
 
