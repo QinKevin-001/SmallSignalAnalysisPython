@@ -146,8 +146,8 @@ if st.session_state.selected_case:
     display_title = case_info["display_title"]
 
     try:
-        # Show the case title
-        st.title(case_title)
+        # Show only the display title (not the case number)
+        st.title(display_title)
 
         # Show the system configuration diagram and caption
         image_path = f"fig/{diagram_file}"
@@ -178,19 +178,17 @@ if st.session_state.selected_case:
         else:
             module = importlib.import_module(module_path)
 
-        # Run the main visualization (heat map and pie chart should be side by side)
+        # Run the main visualization
         module.main()
 
-        # Add some spacing before the home button
+        # Add spacing before the home button
         st.markdown("<br><br>", unsafe_allow_html=True)
 
-        # Create three columns for centering the home button
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            if st.button("⬅️ Back to Home", use_container_width=True):
-                with st.toast("Returning to home..."): time.sleep(1)
-                st.session_state.selected_case = None
-                st.rerun()
+        # Position the button at the bottom left
+        if st.button("⬅️ Back to Home", key="home_button"):
+            with st.toast("Returning to home..."): time.sleep(1)
+            st.session_state.selected_case = None
+            st.rerun()
 
     except Exception as e:
         st.error(f"❌ Error loading `{module_path}`: {e}")
