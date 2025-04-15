@@ -140,14 +140,14 @@ if st.session_state.selected_case:
     if st.button("⬅️ Home"):
         st.session_state.returning_home = True
         with st.toast("Returning to home..."):
-            time.sleep(1)
+            time.sleep(.1)
         st.session_state.selected_case = None
         st.rerun()
 
     try:
         if st.session_state.loading:
             with st.toast("Loading case..."):
-                time.sleep(1)
+                time.sleep(.1)
             st.session_state.loading = False
             st.rerun()
 
@@ -215,7 +215,7 @@ else:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.loading = True
                         with st.toast("Loading case..."):
-                            time.sleep(1)
+                            time.sleep(.1)
                         st.session_state.selected_case = case_title
                         st.rerun()
             else:
@@ -229,7 +229,7 @@ else:
                                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                             st.session_state.loading = True
                             with st.toast("Loading case..."):
-                                time.sleep(1)
+                                time.sleep(.1)
                             st.session_state.selected_case = case_title
                             st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
