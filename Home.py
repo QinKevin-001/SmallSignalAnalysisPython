@@ -155,7 +155,7 @@ if st.session_state.selected_case:
         st.header("System Configuration")
         image_path = f"fig/{diagram_file}"
         if os.path.exists(image_path):
-            st.image(image_path, use_column_width="always")
+            st.image(image_path, use_container_width="always")
         else:
             st.info("⚠️ No diagram found for this case.")
 
