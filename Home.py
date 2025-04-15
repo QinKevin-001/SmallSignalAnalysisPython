@@ -8,22 +8,12 @@ import time
 st.set_page_config(layout="wide")
 
 def show_loading_toast(message="Loading..."):
-    st.spinner(message)  # Using a simple circle that will be animated by CSS
-    time.sleep(1)
+    with st.spinner(message):
+        time.sleep(1)  # Adjust this value to control loading duration
 
-# Enhanced CSS with loading animation
+# Enhanced CSS for consistent row spacing
 st.markdown("""
 <style>
-    /* Animated loading icon */
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .stToastIcon {
-        animation: spin 1s linear infinite;
-    }
-
     /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
@@ -176,9 +166,9 @@ if st.session_state.selected_case:
         else:
             module = importlib.import_module(module_path)
 
-        with st.spinner(f"Loading {case_title}..."):
-            st.toast(f"Now viewing: {case_title}", icon="📊")
-            module.main()
+        st.toast(f"Now viewing: {case_title}", icon="📊")
+        module.main()
+
     except Exception as e:
         st.error(f"❌ Error loading `{module_path}`: {e}")
 
