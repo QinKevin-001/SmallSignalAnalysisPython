@@ -134,10 +134,22 @@ if st.session_state.selected_case:
 
     try:
         # Show the system configuration diagram
-        st.header("System Configuration")
         image_path = f"fig/{diagram_file}"
         if os.path.exists(image_path):
-            st.image(image_path, use_container_width="always")
+            st.image(image_path, use_column_width="always")
+            caption_html = """
+            <p style='
+                text-align: center;
+                color: black;
+                font-size: 18px;
+                font-family: Arial;
+                font-weight: bold;
+                margin-top: -10px;
+            '>
+                System Configuration
+            </p>
+            """
+            st.markdown(caption_html, unsafe_allow_html=True)
         else:
             st.info("⚠️ No diagram found for this case.")
 
