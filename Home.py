@@ -42,75 +42,92 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# CASES dictionary with diagram mapping
+# CASES dictionary with diagram mapping and display titles
 CASES = {
     "Case 01: Droop Simplified Infinite": {
         "module": "Visualization.case01vis_droopSimplified_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Droop Simplified Infinite System Analysis"
     },
     "Case 02: Droop Infinite": {
         "module": "Visualization.case02vis_droop_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Droop Infinite System Analysis"
     },
     "Case 03: Droop Plant Infinite": {
         "module": "Visualization.case03vis_droopPlant_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Droop Plant Infinite System Analysis"
     },
     "Case 04: GFL Infinite": {
         "module": "Visualization.case04vis_gfl_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Grid-Following Infinite System Analysis"
     },
     "Case 05: GFL Plant Infinite": {
         "module": "Visualization.case05vis_gflPlant_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Grid-Following Plant Infinite System Analysis"
     },
     "Case 06: VSM Infinite": {
         "module": "Visualization.case06vis_vsm_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Virtual Synchronous Machine Infinite System Analysis"
     },
     "Case 07: VSM Plant Infinite": {
         "module": "Visualization.case07vis_vsmPlant_infinite",
-        "diagram": "SingleGenTestSystem.png"
+        "diagram": "SingleGenTestSystem.png",
+        "display_title": "Virtual Synchronous Machine Plant Infinite System Analysis"
     },
     "Case 08: Droop Droop": {
         "module": "Visualization.case08vis_droop_droop",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop-Droop System Analysis"
     },
     "Case 09: Droop Plant Droop Plant": {
         "module": "Visualization.case09vis_droopPlant_droopPlant",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop Plant - Droop Plant System Analysis"
     },
     "Case 10: Droop VSM": {
         "module": "Visualization.case10vis_droop_vsm",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop-VSM System Analysis"
     },
     "Case 11: Droop Plant VSM Plant": {
         "module": "Visualization.case11vis_droopPlant_vsmPlant",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop Plant - VSM Plant System Analysis"
     },
     "Case 12: VSM VSM": {
         "module": "Visualization.case12vis_vsm_vsm",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "VSM-VSM System Analysis"
     },
     "Case 13: VSM Plant VSM Plant": {
         "module": "Visualization.case13vis_vsmPlant_vsmPlant",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "VSM Plant - VSM Plant System Analysis"
     },
     "Case 14: Droop SG": {
         "module": "Visualization.case14vis_droop_sg",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop-Synchronous Generator System Analysis"
     },
     "Case 15: Droop Plant SG": {
         "module": "Visualization.case15vis_droopPlant_sg",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "Droop Plant - Synchronous Generator System Analysis"
     },
     "Case 16: VSM SG": {
         "module": "Visualization.case16vis_vsm_sg",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "VSM-Synchronous Generator System Analysis"
     },
     "Case 17: VSM Plant SG": {
         "module": "Visualization.case17vis_vsmPlant_sg",
-        "diagram": "TestSystem.png"
+        "diagram": "TestSystem.png",
+        "display_title": "VSM Plant - Synchronous Generator System Analysis"
     }
 }
 
@@ -126,6 +143,7 @@ if st.session_state.selected_case:
     case_info = CASES.get(case_title)
     module_path = case_info["module"]
     diagram_file = case_info["diagram"]
+    display_title = case_info["display_title"]
 
     try:
         # Show the case title
