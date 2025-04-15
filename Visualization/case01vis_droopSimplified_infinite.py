@@ -109,7 +109,7 @@ def visualization(testResults):
     col1, col2 = st.columns([1, 1])  # Equal width columns
 
     with col1:
-        st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
+        #st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
@@ -122,7 +122,7 @@ def visualization(testResults):
             st.warning("No participation factor data available for this mode.")
 
     with col2:
-        st.subheader("Heatmap of Participation Factors for All Modes")
+        #st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = []
         for mode_idx in range(mode_range):
             mode_values = np.zeros(len(state_variables))
