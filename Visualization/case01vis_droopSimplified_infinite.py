@@ -157,7 +157,7 @@ def run_simulation_and_visualization():
 
 # ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    st.title("Droop Simplified Infinite System Analysis")
+    #st.title("Droop Simplified Infinite System Analysis")
     run_simulation_and_visualization()
 
 if __name__ == "__main__":
