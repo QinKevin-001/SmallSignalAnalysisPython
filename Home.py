@@ -127,13 +127,11 @@ if st.session_state.selected_case:
     module_path = case_info["module"]
     diagram_file = case_info["diagram"]
 
-    if st.button("⬅️ Home"):
-        with st.toast("Returning to home..."): time.sleep(1)
-        st.session_state.selected_case = None
-        st.rerun()
-
     try:
-        # Show the system configuration diagram
+        # Show the case title
+        st.title(case_title)
+
+        # Show the system configuration diagram and caption
         image_path = f"fig/{diagram_file}"
         if os.path.exists(image_path):
             st.image(image_path, use_column_width="always")
@@ -153,7 +151,7 @@ if st.session_state.selected_case:
         else:
             st.info("⚠️ No diagram found for this case.")
 
-        st.markdown("---")
+        st.markdown("---")  # Add a separator
 
         # Load and run the case module
         if module_path in sys.modules:
@@ -162,8 +160,19 @@ if st.session_state.selected_case:
         else:
             module = importlib.import_module(module_path)
 
-        st.toast(f"Now viewing: {case_title}", icon="📊")
+        # Run the main visualization (heat map and pie chart should be side by side)
         module.main()
+
+        # Add some spacing before the home button
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
+        # Create three columns for centering the home button
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            if st.button("⬅️ Back to Home", use_container_width=True):
+                with st.toast("Returning to home..."): time.sleep(1)
+                st.session_state.selected_case = None
+                st.rerun()
 
     except Exception as e:
         st.error(f"❌ Error loading `{module_path}`: {e}")
