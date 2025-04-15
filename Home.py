@@ -8,7 +8,7 @@ import time
 st.set_page_config(layout="wide")
 
 def show_loading_toast(message="Loading..."):
-    with st.spinner(message):
+    with st.toast(st.spinner(message)):
         time.sleep(1)  # Adjust this value to control loading duration
 
 # Enhanced CSS for consistent row spacing
