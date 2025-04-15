@@ -7,20 +7,23 @@ import time
 
 st.set_page_config(layout="wide")
 
-def show_loading_message():
-    with st.spinner("Loading..."):
-        progress_bar = st.progress(0)
-        for i in range(100):
-            progress_bar.progress(i + 1)
-            time.sleep(0.01)
+def show_loading_toast(message="Loading..."):
+    st.toast(message, icon="⭕")  # Using a simple circle that will be animated by CSS
+    time.sleep(1)
 
-def show_case_loading():
-    st.toast("Loading case...", icon="⚙️")
-    time.sleep(1)  # Adjust this value to control how long the toast appears
-
-# Enhanced CSS for consistent row spacing
+# Enhanced CSS with loading animation
 st.markdown("""
 <style>
+    /* Animated loading icon */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .stToastIcon {
+        animation: spin 1s linear infinite;
+    }
+
     /* Enhanced button styling */
     .stButton button {
         border: 4px solid rgba(49, 51, 63, 0.2) !important;
@@ -31,27 +34,26 @@ st.markdown("""
     .row-container {
         display: flex;
         justify-content: center;
-        gap: 1rem; /* Consistent gap between buttons */
-        margin-bottom: 1rem; /* Consistent spacing between rows */
+        gap: 1rem;
+        margin-bottom: 1rem;
     }
 
     /* Mobile-specific styling */
     @media (max-width: 640px) {
         .stButton button {
             width: 100%;
-            margin: 0 !important;  /* Remove vertical margins */
-            padding: 0.5rem !important;  /* Consistent padding */
+            margin: 0 !important;
+            padding: 0.5rem !important;
             height: auto;
             min-height: 45px;
             white-space: normal;
             word-wrap: break-word;
         }
 
-        /* Adjust row spacing for mobile */
         .row-container {
             flex-direction: column;
-            gap: 0.5rem; /* Smaller gap between buttons on mobile */
-            margin-bottom: 0.5rem; /* Smaller spacing between rows */
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
     }
 </style>
@@ -147,13 +149,13 @@ if st.session_state.selected_case:
     st.sidebar.success(f"Viewing: {case_title}")
     if st.button("⬅️ Home"):
         st.session_state.returning_home = True
-        show_loading_message()
+        show_loading_toast("Returning to home...")
         st.session_state.selected_case = None
         st.rerun()
 
     try:
         if st.session_state.loading:
-            show_case_loading()
+            show_loading_toast("Loading case...")
             st.session_state.loading = False
             st.rerun()
 
@@ -196,7 +198,7 @@ else:
     # Create a container for better control of layout
     container = st.container()
 
-    # Calculate number of rows needed (ceil division)
+    # Calculate number of rows needed
     num_cases = len(CASES)
     cases_per_row = 3
     num_rows = (num_cases + cases_per_row - 1) // cases_per_row
@@ -206,15 +208,12 @@ else:
 
     # Create rows and columns
     for row in range(num_rows):
-        with container.container():  # Wrap each row in a container
+        with container.container():
             st.markdown('<div class="row-container">', unsafe_allow_html=True)
 
-            # Special handling for the last row (containing cases 16 and 17)
+            # Special handling for the last row
             if row == num_rows - 1 and num_cases % cases_per_row != 0:
-                # Create columns with empty space on sides for centering
-                cols = st.columns([0.75, 1, 1, 0.75])  # Added padding columns on both sides
-
-                # Add the last two cases in the middle columns
+                cols = st.columns([0.75, 1, 1, 0.75])
                 remaining_cases = num_cases % cases_per_row
                 for i in range(remaining_cases):
                     case_idx = row * cases_per_row + i
@@ -223,11 +222,10 @@ else:
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.loading = True
-                        show_case_loading()
+                        show_loading_toast("Loading case...")
                         st.session_state.selected_case = case_title
                         st.rerun()
             else:
-                # Normal row handling
                 cols = st.columns(cases_per_row)
                 for col in range(cases_per_row):
                     idx = row * cases_per_row + col
@@ -237,7 +235,7 @@ else:
                             with open("interaction_log.txt", "a") as log:
                                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                             st.session_state.loading = True
-                            show_case_loading()
+                            show_loading_toast("Loading case...")
                             st.session_state.selected_case = case_title
                             st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
