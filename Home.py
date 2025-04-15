@@ -140,7 +140,7 @@ if st.session_state.selected_case:
     if st.button("⬅️ Home"):
         st.session_state.returning_home = True
         with st.toast("Returning to home..."):
-            time.sleep(.1)
+            time.sleep(10)
         st.session_state.selected_case = None
         st.rerun()
 
