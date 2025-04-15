@@ -14,6 +14,10 @@ def show_loading_message():
             progress_bar.progress(i + 1)
             time.sleep(0.01)
 
+def show_case_loading():
+    st.toast("Loading case...", icon="⚙️")
+    time.sleep(1)  # Adjust this value to control how long the toast appears
+
 # Enhanced CSS for consistent row spacing
 st.markdown("""
 <style>
@@ -149,7 +153,7 @@ if st.session_state.selected_case:
 
     try:
         if st.session_state.loading:
-            show_loading_message()
+            show_case_loading()
             st.session_state.loading = False
             st.rerun()
 
@@ -219,7 +223,7 @@ else:
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.loading = True
-                        show_loading_message()
+                        show_case_loading()
                         st.session_state.selected_case = case_title
                         st.rerun()
             else:
@@ -233,7 +237,7 @@ else:
                             with open("interaction_log.txt", "a") as log:
                                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                             st.session_state.loading = True
-                            show_loading_message()
+                            show_case_loading()
                             st.session_state.selected_case = case_title
                             st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
