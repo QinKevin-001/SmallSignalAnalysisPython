@@ -8,8 +8,8 @@ import time
 st.set_page_config(layout="wide")
 
 def show_loading_toast(message="Loading..."):
-    with st.toast(st.spinner(message)):
-        time.sleep(1)  # Adjust this value to control loading duration
+    with st.toast(message):
+        time.sleep(1)
 
 # Enhanced CSS for consistent row spacing
 st.markdown("""
@@ -139,13 +139,15 @@ if st.session_state.selected_case:
     st.sidebar.success(f"Viewing: {case_title}")
     if st.button("⬅️ Home"):
         st.session_state.returning_home = True
-        show_loading_toast("Returning to home...")
+        with st.toast("Returning to home..."):
+            time.sleep(1)
         st.session_state.selected_case = None
         st.rerun()
 
     try:
         if st.session_state.loading:
-            show_loading_toast("Loading case...")
+            with st.toast("Loading case..."):
+                time.sleep(1)
             st.session_state.loading = False
             st.rerun()
 
@@ -212,7 +214,8 @@ else:
                         with open("interaction_log.txt", "a") as log:
                             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                         st.session_state.loading = True
-                        show_loading_toast("Loading case...")
+                        with st.toast("Loading case..."):
+                            time.sleep(1)
                         st.session_state.selected_case = case_title
                         st.rerun()
             else:
@@ -225,7 +228,8 @@ else:
                             with open("interaction_log.txt", "a") as log:
                                 log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
                             st.session_state.loading = True
-                            show_loading_toast("Loading case...")
+                            with st.toast("Loading case..."):
+                                time.sleep(1)
                             st.session_state.selected_case = case_title
                             st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
