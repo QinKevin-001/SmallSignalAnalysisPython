@@ -136,7 +136,7 @@ if st.session_state.selected_case:
     module_path = case_info["module"]
     diagram_file = case_info["diagram"]
 
-    st.sidebar.success(f"Viewing: {case_title}")
+#    st.sidebar.success(f"Viewing: {case_title}")
     if st.button("⬅️ Home"):
         st.session_state.returning_home = True
         with st.toast("Returning to home..."):
