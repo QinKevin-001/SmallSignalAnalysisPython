@@ -52,24 +52,14 @@ def main_vsm_sg(user_params=None):
 
     # If user-defined parameters exist, update the default dictionary
     if user_params:
-        for key in parasIBR.keys():
-            if key in user_params:
-                parasIBR[key] = user_params[key]
-
-    if user_params:
-        for key in parasSG.keys():
-            if key in user_params:
-                parasSG[key] = user_params[key]
-
-    if user_params:
-        for key in parasLineSG.keys():
-            if key in user_params:
-                parasLineSG[key] = user_params[key]
-
-    if user_params:
-        for key in parasLoad.keys():
-            if key in user_params:
-                parasLoad[key] = user_params[key]
+        if 'parasIBR' in user_params:
+            parasIBR.update({k: float(v) for k, v in user_params['parasIBR'].items()})
+        if 'parasSG' in user_params:
+            parasSG.update({k: float(v) for k, v in user_params['parasSG'].items()})
+        if 'parasLineSG' in user_params:
+            parasLineSG.update({k: float(v) for k, v in user_params['parasLineSG'].items()})
+        if 'parasLoad' in user_params:
+            parasLoad.update({k: float(v) for k, v in user_params['parasLoad'].items()})
 
     # Column Names
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
