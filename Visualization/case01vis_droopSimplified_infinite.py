@@ -3,29 +3,26 @@ import numpy as np
 import plotly.express as px
 from Main import case01main_droopSimplified_infinite
 
-# Set the page to use the full width
-#st.set_page_config(layout="wide")
-
-# Updated Variable Limits
+# User input Limits
 variable_ranges = {
     "Pset": (0.0, 1.0),
     "Qset": (-1.0, 1.0),
-    "wset": (1.0, 1.0),  # Fixed - Changed from ωset to wset to match default_values
+    "wset": (1.0, 1.0),
     "Vset": (0.9, 1.1),
     "mp": (0.01, 1.00),
     "mq": (0.01, 1.00),
     "Rc": (0.01, 1.0),
     "Lc": (0.01, 1.0),
-    "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))  # Changed from ωc to wc
+    "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))
 }
 
-# Default values from `case02main_droop_infinite.py`
+# Preloaded values
 default_values = {
-    'Pset': 1.0, 'Qset': 0.0,  # setpoints
-    'wset': 1.0, 'Vset': 1.0,  # setpoints
-    'mp': 0.05,  'mq': 0.05,   # droop gains
-    'Rc': 0.04,  'Lc': 0.20,   # LCL filter
-    'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
+    'Pset': 1.0, 'Qset': 0.0,
+    'wset': 1.0, 'Vset': 1.0,
+    'mp': 0.05,  'mq': 0.05,
+    'Rc': 0.04,  'Lc': 0.20,
+    'wc': float(2 * np.pi * 5)
 }
 
 def get_user_inputs():
@@ -114,7 +111,7 @@ def visualization(testResults):
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title=f"Participation Factor Distribution for Mode {selected_mode}",
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
                 width=900, height=700  # Increased size
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
