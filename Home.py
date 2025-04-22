@@ -168,7 +168,7 @@ else:
     # Display the TestSystem.png on the main page
     image_path = "fig/TestSystem.png"
     if os.path.exists(image_path):
-        st.image(image_path, use_column_width="always")
+        st.image(image_path, use_column_width="always") ## double check dep
         caption_html = """
         <p style='
             text-align: center;
