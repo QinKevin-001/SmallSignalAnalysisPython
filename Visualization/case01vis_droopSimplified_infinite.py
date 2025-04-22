@@ -131,7 +131,11 @@ def visualization(testResults):
             np.array(heatmap_data).T,
             x=mode_labels,
             y=state_variables,
-            labels={"color": "Participation Factor"},
+            labels={
+                "x": "Modes",
+                "y": "State Variables",
+                "color": "Participation Factor"
+            },
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
             width=900, height=700
