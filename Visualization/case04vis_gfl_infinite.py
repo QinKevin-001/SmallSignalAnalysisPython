@@ -29,7 +29,7 @@ default_values = {
     "KpL": 1.8, "KiL": 180.0,
     "KpS": 0.2, "KiS": 5.0,
     "KpC": 0.4, "KiC": 12.0,
-    "wcPLL": float(2 * np.pi * 100),
+    "wcpll": float(2 * np.pi * 100),
     "wc": float(2 * np.pi * 5)
 }
 
