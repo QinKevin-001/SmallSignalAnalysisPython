@@ -57,10 +57,7 @@ def visualization(testResults):
         "Theta0", "Po0", "Qo0", "Iod0", "Ioq0"
     ]
     mode_data_raw = testResults[1][4]
-    if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
-        modes = mode_data_raw[1:]
-    else:
-        modes = mode_data_raw
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
     # Use session state for mode selection
@@ -73,33 +70,47 @@ def visualization(testResults):
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
     parameter_data = testResults[1]
-    try:
-        mode_data = modes[mode_index]
-    except IndexError:
-        st.error("Mode data is unavailable.")
-        return
-    try:
-        eigenvalue_real = np.real(parameter_data[1][mode_index])
-        eigenvalue_imag = np.imag(parameter_data[1][mode_index])
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
-    try:
-        participation_factors = mode_data[5] if len(mode_data) > 5 else []
-        if participation_factors:
-            valid_factors = [
-                entry for entry in participation_factors
-                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
-            ]
-            state_locations = [entry[0] for entry in valid_factors]
-            factor_magnitudes = [entry[2] for entry in valid_factors]
-            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
-        else:
-            factor_magnitudes = []
-            dominant_state_names = []
-    except (IndexError, ValueError, TypeError):
-        st.error("Error parsing participation factors.")
-        return
+
+    mode_data = modes[mode_index]
+    participation_factors = mode_data[5] if len(mode_data) > 5 else []
+    if participation_factors:
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    else:
+        factor_magnitudes = []
+        dominant_state_names = []
+#    try:
+#        mode_data = modes[mode_index]
+#    except IndexError:
+#        st.error("Mode data is unavailable.")
+#        return
+#    try:
+#        eigenvalue_real = np.real(parameter_data[1][mode_index])
+#        eigenvalue_imag = np.imag(parameter_data[1][mode_index])
+#    except IndexError:
+#        st.error("Eigenvalue data is unavailable.")
+#        return
+#    try:
+#        participation_factors = mode_data[5] if len(mode_data) > 5 else []
+#        if participation_factors:
+#            valid_factors = [
+#                entry for entry in participation_factors
+#                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+#            ]
+#            state_locations = [entry[0] for entry in valid_factors]
+#            factor_magnitudes = [entry[2] for entry in valid_factors]
+#            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+#        else:
+#            factor_magnitudes = []
+#            dominant_state_names = []
+#    except (IndexError, ValueError, TypeError):
+#        st.error("Error parsing participation factors.")
+#        return
 
     # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
