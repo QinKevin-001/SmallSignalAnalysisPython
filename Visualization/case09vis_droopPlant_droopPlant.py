@@ -3,315 +3,231 @@ import numpy as np
 import plotly.express as px
 from Main import case09main_droopPlant_droopPlant
 
-# Variable ranges for Droop Plant + Droop Plant System
+# User input Limits
 variable_ranges = {
     # IBR1 Plant-level parameters
-    "PsetPlant": (0.0, 1.0),
-    "QsetPlant": (-1.0, 1.0),
-    "ωsetPlant": (1.0, 1.0),
-    "VsetPlant": (0.9, 1.1),
-    "mpPlant": (0.01, 1.00),
-    "mqPlant": (0.01, 1.00),
-    "KpPLLPlant": (0.1, 10.0),
-    "KiPLLPlant": (0.1, 1000.0),
-    "KpPlantP": (0.1, 10.0),
-    "KiPlantP": (0.1, 100.0),
-    "KpPlantQ": (0.1, 10.0),
-    "KiPlantQ": (0.1, 100.0),
+    "PsetPlant": (0.0, 1.0),        "QsetPlant": (-1.0, 1.0),
+    "ωsetPlant": (1.0, 1.0),        "VsetPlant": (0.9, 1.1),
+    "mpPlant": (0.01, 1.00),        "mqPlant": (0.01, 1.00),
+    "KpPLLPlant": (0.1, 10.0),      "KiPLLPlant": (0.1, 1000.0),
+    "KpPlantP": (0.1, 10.0),        "KiPlantP": (0.1, 100.0),
+    "KpPlantQ": (0.1, 10.0),        "KiPlantQ": (0.1, 100.0),
     "ωcPLLPlant": (float(2 * np.pi * 50), float(2 * np.pi * 1000)),
     "ωcPlant": (float(2 * np.pi * 0.1), float(2 * np.pi * 5)),
     "tDelay": (0.1, 1.0),
     # IBR1 Inverter-level parameters
-    "ωset": (1.0, 1.0),
-    "Vset": (0.9, 1.1),
-    "mp": (0.01, 1.00),
-    "mq": (0.01, 1.00),
-    "Rt": (0.01, 1.0),
-    "Lt": (0.01, 1.0),
-    "Rd": (0.0, 100.0),
-    "Cf": (0.01, 0.20),
-    "Rc": (0.01, 1.0),
-    "Lc": (0.01, 1.0),
-    "KpV": (0.1, 10.0),
-    "KiV": (0.1, 1000.0),
-    "KpC": (0.1, 10.0),
-    "KiC": (0.1, 1000.0),
+    "ωset": (1.0, 1.0),             "Vset": (0.9, 1.1),
+    "mp": (0.01, 1.00),             "mq": (0.01, 1.00),
+    "Rt": (0.01, 1.0),              "Lt": (0.01, 1.0),
+    "Rd": (0.0, 100.0),             "Cf": (0.01, 0.20),
+    "Rc": (0.01, 1.0),              "Lc": (0.01, 1.0),
+    "KpV": (0.1, 10.0),             "KiV": (0.1, 1000.0),
+    "KpC": (0.1, 10.0),             "KiC": (0.1, 1000.0),
     "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20)),
     # IBR2 parameters (with _IBR2 suffix)
-    "PsetPlant_IBR2": (0.0, 1.0),
-    "QsetPlant_IBR2": (-1.0, 1.0),
-    "ωsetPlant_IBR2": (1.0, 1.0),
-    "VsetPlant_IBR2": (0.9, 1.1),
-    "mpPlant_IBR2": (0.01, 1.00),
-    "mqPlant_IBR2": (0.01, 1.00),
-    "KpPLLPlant_IBR2": (0.1, 10.0),
-    "KiPLLPlant_IBR2": (0.1, 1000.0),
-    "KpPlantP_IBR2": (0.1, 10.0),
-    "KiPlantP_IBR2": (0.1, 100.0),
-    "KpPlantQ_IBR2": (0.1, 10.0),
-    "KiPlantQ_IBR2": (0.1, 100.0),
+    "PsetPlant_IBR2": (0.0, 1.0),   "QsetPlant_IBR2": (-1.0, 1.0),
+    "ωsetPlant_IBR2": (1.0, 1.0),   "VsetPlant_IBR2": (0.9, 1.1),
+    "mpPlant_IBR2": (0.01, 1.00),   "mqPlant_IBR2": (0.01, 1.00),
+    "KpPLLPlant_IBR2": (0.1, 10.0), "KiPLLPlant_IBR2": (0.1, 1000.0),
+    "KpPlantP_IBR2": (0.1, 10.0),   "KiPlantP_IBR2": (0.1, 100.0),
+    "KpPlantQ_IBR2": (0.1, 10.0),   "KiPlantQ_IBR2": (0.1, 100.0),
     "ωcPLLPlant_IBR2": (float(2 * np.pi * 50), float(2 * np.pi * 1000)),
     "ωcPlant_IBR2": (float(2 * np.pi * 0.1), float(2 * np.pi * 5)),
     "tDelay_IBR2": (0.1, 1.0),
-    "ωset_IBR2": (1.0, 1.0),
-    "Vset_IBR2": (0.9, 1.1),
-    "mp_IBR2": (0.01, 1.00),
-    "mq_IBR2": (0.01, 1.00),
-    "Rt_IBR2": (0.01, 1.0),
-    "Lt_IBR2": (0.01, 1.0),
-    "Rd_IBR2": (0.0, 100.0),
-    "Cf_IBR2": (0.01, 0.20),
-    "Rc_IBR2": (0.01, 1.0),
-    "Lc_IBR2": (0.01, 1.0),
-    "KpV_IBR2": (0.1, 10.0),
-    "KiV_IBR2": (0.1, 1000.0),
-    "KpC_IBR2": (0.1, 10.0),
-    "KiC_IBR2": (0.1, 1000.0),
+    "ωset_IBR2": (1.0, 1.0),        "Vset_IBR2": (0.9, 1.1),
+    "mp_IBR2": (0.01, 1.00),        "mq_IBR2": (0.01, 1.00),
+    "Rt_IBR2": (0.01, 1.0),         "Lt_IBR2": (0.01, 1.0),
+    "Rd_IBR2": (0.0, 100.0),        "Cf_IBR2": (0.01, 0.20),
+    "Rc_IBR2": (0.01, 1.0),         "Lc_IBR2": (0.01, 1.0),
+    "KpV_IBR2": (0.1, 10.0),        "KiV_IBR2": (0.1, 1000.0),
+    "KpC_IBR2": (0.1, 10.0),        "KiC_IBR2": (0.1, 1000.0),
     "ωc_IBR2": (float(2 * np.pi * 1), float(2 * np.pi * 20)),
     # Line1 parameters
-    "Rline1": (0.01, 1.0),
-    "Lline1": (0.01, 1.0),
+    "Rline1": (0.01, 1.0),          "Lline1": (0.01, 1.0),
     # Line2 parameters
-    "Rline2": (0.01, 1.0),
-    "Lline2": (0.01, 1.0),
+    "Rline2": (0.01, 1.0),          "Lline2": (0.01, 1.0),
     # Load parameters
-    "Rload": (0.5, 10.0),
-    "Lload": (0.1, 10.0),
-    "Rx": (100, 1000)
+    "Rload": (0.5, 10.0),           "Lload": (0.1, 10.0),
+    "Rx": (100.0, 1000.0)
 }
 
 # Default values
 default_values = {
     # IBR1 Plant-level parameters
-    "PsetPlant": 0.1,
-    "QsetPlant": 0.0,
-    "ωsetPlant": 1.0,
-    "VsetPlant": 1.0,
-    "mpPlant": 1.00,
-    "mqPlant": 1.00,
-    "KpPLLPlant": 1.8,
-    "KiPLLPlant": 160.0,
-    "KpPlantP": 0.10,
-    "KiPlantP": 6.00,
-    "KpPlantQ": 0.10,
-    "KiPlantQ": 6.00,
+    "PsetPlant": 0.1,       "QsetPlant": 0.0,
+    "ωsetPlant": 1.0,       "VsetPlant": 1.0,
+    "mpPlant": 1.00,        "mqPlant": 1.00,
+    "KpPLLPlant": 1.8,      "KiPLLPlant": 160.0,
+    "KpPlantP": 0.10,       "KiPlantP": 6.00,
+    "KpPlantQ": 0.10,       "KiPlantQ": 6.00,
     "ωcPLLPlant": float(2 * np.pi * 100),
     "ωcPlant": float(2 * np.pi * 1),
     "tDelay": 0.25,
     # IBR1 Inverter-level parameters
-    "ωset": 1.0,
-    "Vset": 1.0,
-    "mp": 0.05,
-    "mq": 0.05,
-    "Rt": 0.02,
-    "Lt": 0.10,
-    "Rd": 0.00,
-    "Cf": 0.05,
-    "Rc": 0.10/4,
-    "Lc": 0.50/4,
-    "KpV": 0.9,
-    "KiV": 8.0,
-    "KpC": 0.4,
-    "KiC": 8.0,
+    "ωset": 1.0,            "Vset": 1.0,
+    "mp": 0.05,             "mq": 0.05,
+    "Rt": 0.02,             "Lt": 0.10,
+    "Rd": 0.00,             "Cf": 0.05,
+    "Rc": 0.10/4,           "Lc": 0.50/4,
+    "KpV": 0.9,             "KiV": 8.0,
+    "KpC": 0.4,             "KiC": 8.0,
     "ωc": float(2 * np.pi * 5),
     # IBR2 parameters (with _IBR2 suffix)
-    "PsetPlant_IBR2": 0.1,
-    "QsetPlant_IBR2": 0.0,
-    "ωsetPlant_IBR2": 1.0,
-    "VsetPlant_IBR2": 1.0,
-    "mpPlant_IBR2": 1.00,
-    "mqPlant_IBR2": 1.00,
-    "KpPLLPlant_IBR2": 1.8,
-    "KiPLLPlant_IBR2": 160.0,
-    "KpPlantP_IBR2": 0.10,
-    "KiPlantP_IBR2": 6.00,
-    "KpPlantQ_IBR2": 0.10,
-    "KiPlantQ_IBR2": 6.00,
+    "PsetPlant_IBR2": 0.1,  "QsetPlant_IBR2": 0.0,
+    "ωsetPlant_IBR2": 1.0,  "VsetPlant_IBR2": 1.0,
+    "mpPlant_IBR2": 1.00,   "mqPlant_IBR2": 1.00,
+    "KpPLLPlant_IBR2": 1.8, "KiPLLPlant_IBR2": 160.0,
+    "KpPlantP_IBR2": 0.10,  "KiPlantP_IBR2": 6.00,
+    "KpPlantQ_IBR2": 0.10,  "KiPlantQ_IBR2": 6.00,
     "ωcPLLPlant_IBR2": float(2 * np.pi * 100),
     "ωcPlant_IBR2": float(2 * np.pi * 1),
     "tDelay_IBR2": 0.25,
-    "ωset_IBR2": 1.0,
-    "Vset_IBR2": 1.0,
-    "mp_IBR2": 0.05,
-    "mq_IBR2": 0.05,
-    "Rt_IBR2": 0.02,
-    "Lt_IBR2": 0.10,
-    "Rd_IBR2": 0.00,
-    "Cf_IBR2": 0.05,
-    "Rc_IBR2": 0.10/4,
-    "Lc_IBR2": 0.50/4,
-    "KpV_IBR2": 0.9,
-    "KiV_IBR2": 8.0,
-    "KpC_IBR2": 0.4,
-    "KiC_IBR2": 8.0,
+    "ωset_IBR2": 1.0,       "Vset_IBR2": 1.0,
+    "mp_IBR2": 0.05,        "mq_IBR2": 0.05,
+    "Rt_IBR2": 0.02,        "Lt_IBR2": 0.10,
+    "Rd_IBR2": 0.00,        "Cf_IBR2": 0.05,
+    "Rc_IBR2": 0.10/4,      "Lc_IBR2": 0.50/4,
+    "KpV_IBR2": 0.9,        "KiV_IBR2": 8.0,
+    "KpC_IBR2": 0.4,        "KiC_IBR2": 8.0,
     "ωc_IBR2": float(2 * np.pi * 5),
     # Line1 parameters
-    "Rline1": 0.10/4,
-    "Lline1": 0.50/4,
+    "Rline1": 0.10/4,       "Lline1": 0.50/4,
     # Line2 parameters
-    "Rline2": 0.10/4,
-    "Lline2": 0.50/4,
+    "Rline2": 0.10/4,       "Lline2": 0.50/4,
     # Load parameters
-    "Rload": 0.90,
-    "Lload": 0.4358,
-    "Rx": 100
+    "Rload": 0.90,          "Lload": 0.4358,
+    "Rx": 100.0
 }
 
+# Initialize session state
+for key in default_values:
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = 1
+
+def update_param(key):
+    st.session_state["needs_rerun"] = True
+
 def get_user_inputs():
-    """Creates user input controls for parameter tuning via the sidebar."""
+    """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
-
     # Create tabs for different parameter groups
-    ibr1_tab, ibr2_tab, line_tab, load_tab = st.sidebar.tabs(["IBR1 Parameters", "IBR2 Parameters", "Line Parameters", "Load Parameters"])
-
+    ibr1_tab, ibr2_tab, line_tab, load_tab = st.sidebar.tabs(["IBR1", "IBR2", "Line", "Load"])
     user_params = {}
-
     # IBR1 Parameters
     with ibr1_tab:
-        st.header("IBR1 Plant-Level Parameters")
+        st.header("Plant Level")
         ibr1_plant_params = [param for param in variable_ranges.keys()
                             if not param.endswith('_IBR2') and not param.startswith('Rline')
                             and not param.startswith('Lline') and param not in ['Rload', 'Lload', 'Rx']
                             and param.endswith('Plant')]
-
         for var in ibr1_plant_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"ibr1_plant_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
-        st.header("IBR1 Inverter-Level Parameters")
+        st.header("Inverter Level")
         ibr1_inv_params = [param for param in variable_ranges.keys()
                           if not param.endswith('_IBR2') and not param.startswith('Rline')
                           and not param.startswith('Lline') and param not in ['Rload', 'Lload', 'Rx']
                           and not param.endswith('Plant')]
-
         for var in ibr1_inv_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"ibr1_inv_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
     # IBR2 Parameters
     with ibr2_tab:
-        st.header("IBR2 Plant-Level Parameters")
+        st.header("Plant Level")
         ibr2_plant_params = [param for param in variable_ranges.keys()
                             if param.endswith('_IBR2') and param.endswith('Plant_IBR2')]
-
         for var in ibr2_plant_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var.replace('_IBR2', '')} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var.replace('_IBR2', '')} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"ibr2_plant_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
-        st.header("IBR2 Inverter-Level Parameters")
+        st.header("Inverter Level")
         ibr2_inv_params = [param for param in variable_ranges.keys()
                           if param.endswith('_IBR2') and not param.endswith('Plant_IBR2')]
-
         for var in ibr2_inv_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var.replace('_IBR2', '')} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var.replace('_IBR2', '')} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"ibr2_inv_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
     # Line Parameters
     with line_tab:
-        st.header("Line1 Parameters")
+        st.header("Line 1")
         line1_params = ['Rline1', 'Lline1']
         for var in line1_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"line1_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
-        st.header("Line2 Parameters")
+        st.header("Line 2")
         line2_params = ['Rline2', 'Lline2']
         for var in line2_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"line2_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
     # Load Parameters
     with load_tab:
-        st.header("Load Parameters")
         load_params = ['Rload', 'Lload', 'Rx']
         for var in load_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
-
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"load_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
-
     return user_params
 
 def prepare_simulation_parameters(user_params):
@@ -324,13 +240,10 @@ def prepare_simulation_parameters(user_params):
 
     for key, value in user_params.items():
         if key.endswith('_IBR2'):
-            # Remove the '_IBR2' suffix and add to IBR2 parameters
             ibr2_params[key.replace('_IBR2', '')] = value
         elif key.startswith('Rline1') or key.startswith('Lline1'):
-            # Add to Line1 parameters
             line1_params[key.replace('1', '')] = value
         elif key.startswith('Rline2') or key.startswith('Lline2'):
-            # Add to Line2 parameters
             line2_params[key.replace('2', '')] = value
         elif key in ['Rload', 'Lload', 'Rx']:
             load_params[key] = value
@@ -346,13 +259,10 @@ def prepare_simulation_parameters(user_params):
     }
 
 def run_simulation(user_params):
-    """Runs the Droop Plant + Droop Plant simulation with the current parameters."""
     sim_params = prepare_simulation_parameters(user_params)
     return case09main_droopPlant_droopPlant.main_droopPlant_droopPlant(sim_params)
 
 def visualization(testResults):
-    """Generates the eigenvalue and participation factor plots based on simulation output."""
-    # Define state variables
     state_variables = [
         'thetaPlant(IBR1)', 'epsilonPLLPlant(IBR1)', 'wPlant(IBR1)', 'epsilonP(IBR1)', 'epsilonQ(IBR1)', 'PoPlant(IBR1)', 'QoPlant(IBR1)',
         'PsetDelay(IBR1)', 'QsetDelay(IBR1)', 'Po(IBR1)', 'Qo(IBR1)', 'phid(IBR1)', 'phiq(IBR1)',
@@ -364,101 +274,86 @@ def visualization(testResults):
         'ilineD(Line2)', 'ilineQ(Line2)',
         'iloadD(Load)', 'iloadQ(Load)'
     ]
-
-    # The modal analysis data is expected to be stored at index 4 of the second element
     mode_data_raw = testResults[1][4]
-
-    # If the first entry is a header, skip it
-    if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
-        modes = mode_data_raw[1:]
-    else:
-        modes = mode_data_raw
-
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Allow user to select a mode for closer inspection
+    # Use session state for mode selection
     selected_mode = st.sidebar.slider(
         "Select a Mode",
-        1,
-        mode_range,
-        1,
-        key="mode_selector"  # Add unique key for mode selector
+        1, mode_range,
+        st.session_state.selected_mode,
+        key="mode_slider"
     )
+    st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
-
     parameter_data = testResults[1]
-    try:
-        eigenvalue_real = np.real(parameter_data[1][mode_index])
-        eigenvalue_imag = np.imag(parameter_data[1][mode_index])
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
+    mode_data = modes[mode_index]
+    participation_factors = mode_data[5] if len(mode_data) > 5 else []
+    if participation_factors:
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    else:
+        factor_magnitudes = []
+        dominant_state_names = []
 
-    try:
-        participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-        if participation_factors:
-            valid_factors = [
-                entry for entry in participation_factors
-                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
-            ]
-            state_locations = [entry[0] for entry in valid_factors]
-            factor_magnitudes = [entry[2] for entry in valid_factors]
-            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
-        else:
-            factor_magnitudes = []
-            dominant_state_names = []
-    except (IndexError, ValueError, TypeError):
-        st.error("Error parsing participation factors.")
-        return
-
-    # Layout the plots in two equal columns
+    # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
-
     with col1:
-        st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title=f"Participation Factor Distribution for Mode {selected_mode}",
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
                 width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
-
     with col2:
-        st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = []
         for mode_idx in range(mode_range):
             mode_values = np.zeros(len(state_variables))
-            try:
-                mode_participation = modes[mode_idx][5]
-                for entry in mode_participation:
-                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        mode_values[entry[0] - 1] = entry[2]
-            except (IndexError, ValueError):
-                pass
+            mode_participation = modes[mode_idx][5]
+            for entry in mode_participation:
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                    mode_values[entry[0] - 1] = entry[2]
             heatmap_data.append(mode_values)
-
-        mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
+        mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
             y=state_variables,
-            labels={"color": "Participation Factor"},
+            labels={
+                "x": "Modes",
+                "y": "State Variables",
+                "color": "Participation Factor"
+            },
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
             width=900, height=700
         )
+        heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-def main():
-    """Main function to handle user inputs, simulation, and visualization."""
-    st.title("Droop Plant + Droop Plant System Analysis")
+def run_simulation_and_visualization():
+    """Runs the simulation and visualization process"""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
+
+def main():
+    if "needs_rerun" not in st.session_state:
+        st.session_state["needs_rerun"] = False
+    run_simulation_and_visualization()
+    if st.session_state.get("needs_rerun", False):
+        st.session_state["needs_rerun"] = False
+        st.rerun()
 
 if __name__ == "__main__":
     main()
