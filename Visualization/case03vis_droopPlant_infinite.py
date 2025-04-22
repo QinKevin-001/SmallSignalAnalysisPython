@@ -29,7 +29,7 @@ default_values = {
     'PsetPlant': 1.0,  'QsetPlant': 0.0,
     'wsetPlant': 1.0,  'VsetPlant': 1.0,
     'mpPlant': 0.05,   'mqPlant': 0.05,
-    'KpPLLplant': 1.8, 'KiPLLplant': 160,
+    'KpPLLplant': 1.8, 'KiPLLplant': 160.0,
     'KpPlantP': 0.10,  'KiPlantP': 6.0,
     'KpPlantQ': 0.10,  'KiPlantQ': 6.0,
     'wcpllPlant': 2 * np.pi * 100, 'wcPlant': 2 * np.pi * 5,
