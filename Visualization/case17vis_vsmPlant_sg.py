@@ -197,7 +197,7 @@ def visualization(testResults):
         "ilineD(Line2)", "ilineQ(Line2)", "IloadD(Load)", "IloadQ(Load)"
     ]
     mode_data_raw = testResults[1][4]
-    modes = mode_data_raw if not isinstance(mode_data_raw[0], list) else mode_data_raw[1:]
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
     # Use session state for mode selection
@@ -209,44 +209,35 @@ def visualization(testResults):
     )
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
-
-    # Display eigenvalue
-    try:
-        eigenvalue = testResults[1][1][mode_index]
-        st.sidebar.write(f"Eigenvalue: {eigenvalue.real:.3f} + {eigenvalue.imag:.3f}j")
-    except IndexError:
-        st.error("Eigenvalue data unavailable")
-        return
+    parameter_data = testResults[1]
+    mode_data = modes[mode_index]
+    participation_factors = mode_data[5] if len(mode_data) > 5 else []
+    if participation_factors:
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    else:
+        factor_magnitudes = []
+        dominant_state_names = []
 
     # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
-
     with col1:
-        # Participation factors pie chart
-        mode_data = modes[mode_index]
-        if len(mode_data) > 5:
-            participation_factors = mode_data[5]
-            valid_factors = [
-                entry for entry in participation_factors
-                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
-            ]
-            state_locations = [entry[0] for entry in valid_factors]
-            factor_magnitudes = [entry[2] for entry in valid_factors]
-            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
-
-            if factor_magnitudes:
-                pie_chart_fig = px.pie(
-                    names=dominant_state_names,
-                    values=factor_magnitudes,
-                    title=f"Participation Factor Analysis of Mode {selected_mode}",
-                    width=900, height=700
-                )
-                st.plotly_chart(pie_chart_fig, use_container_width=True)
-            else:
-                st.warning("No participation factor data available for this mode.")
-
+        if factor_magnitudes:
+            pie_chart_fig = px.pie(
+                names=dominant_state_names,
+                values=factor_magnitudes,
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
+                width=900, height=700
+            )
+            st.plotly_chart(pie_chart_fig, use_container_width=True)
+        else:
+            st.warning("No participation factor data available for this mode.")
     with col2:
-        # Participation factors heatmap
         heatmap_data = []
         for mode_idx in range(mode_range):
             mode_values = np.zeros(len(state_variables))
@@ -255,13 +246,16 @@ def visualization(testResults):
                 if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
                     mode_values[entry[0] - 1] = entry[2]
             heatmap_data.append(mode_values)
-
         mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
             y=state_variables,
-            labels={"x": "Modes", "y": "State Variables", "color": "Participation Factor"},
+            labels={
+                "x": "Modes",
+                "y": "State Variables",
+                "color": "Participation Factor"
+            },
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
             width=900, height=700
