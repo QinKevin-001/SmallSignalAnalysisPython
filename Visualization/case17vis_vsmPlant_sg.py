@@ -145,152 +145,188 @@ default_values = {
     "Lline": 0.1
 }
 
+# Initialize session state
+for key in default_values:
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = 1
+
+def update_param(key):
+    st.session_state["needs_rerun"] = True
 
 def get_user_inputs():
-    """Creates user input controls for parameter tuning via the sidebar."""
-    if "user_params" not in st.session_state:
-        st.session_state["user_params"] = default_values.copy()
+    """Creates user input controls inside the Simulation Parameters tab"""
+    st.sidebar.header("Simulation Parameters")
 
     # Create tabs for different parameter groups
     plant_tab, sg_tab, line_tab, load_tab = st.sidebar.tabs([
-        "VSM Plant", "SG", "Line", "Load"
+        "VSM Plant", "SG", "Line Parameters", "Load Parameters"
     ])
+
     user_params = {}
 
     # VSM Plant Parameters
     with plant_tab:
-        st.header("VSM Plant Parameters")
-        plant_params = [
-            "PsetPlant", "QsetPlant", "ωsetPlant", "VsetPlant", "KpPLLPlant", "KiPLLPlant",
-            "KpPlantP", "KiPlantP", "KpPlantQ", "KiPlantQ", "ωcPLLPlant", "ωcPlant",
-            "tDelay", "ωset", "Vset", "mp", "mq", "Rt", "Lt", "Rd", "Cf", "Rc", "Lc",
-            "J", "K", "τf"
-        ]
-        for var in plant_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
+        st.header("Plant Parameters")
+        plant_params = [param for param in variable_ranges.keys()
+                       if not param.endswith('_SG')
+                       and param not in ['Rload', 'Lload', 'Rx', 'Rline', 'Lline']]
+
+        # Group parameters for better organization
+        control_params = [p for p in plant_params if any(x in p for x in ['Kp', 'Ki', 'ωc'])]
+        vsm_params = [p for p in plant_params if p not in control_params]
+
+        st.subheader("Control Parameters")
+        for var in control_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"plant_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
+
+        st.subheader("VSM Parameters")
+        for var in vsm_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
 
     # SG Parameters
     with sg_tab:
-        st.header("SG Parameters")
-        sg_params = [var for var in variable_ranges.keys() if "_SG" in var]
-        for var in sg_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
+        sg_params = [param for param in variable_ranges.keys() if param.endswith('_SG')]
+
+        # Group SG parameters
+        control_params = [p for p in sg_params if any(x in p for x in ['K', 'T'])]
+        machine_params = [p for p in sg_params if p not in control_params]
+
+        st.subheader("Machine Parameters")
+        for var in machine_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"sg_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
+
+        st.subheader("Control Parameters")
+        for var in control_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
 
     # Line Parameters
     with line_tab:
-        st.header("Line Parameters")
-        line_params = ["Rline", "Lline"]
+        line_params = ['Rline', 'Lline']
         for var in line_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"line_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
 
     # Load Parameters
     with load_tab:
-        st.header("Load Parameters")
-        load_params = ["Rload", "Lload", "Rx"]
+        load_params = ['Rload', 'Lload', 'Rx']
         for var in load_params:
-            min_val, max_val = variable_ranges[var]
-            default = default_values.get(var, (min_val + max_val) / 2.0)
-            min_val, max_val, default = float(min_val), float(max_val), float(default)
-            step = float((max_val - min_val) / 100.0)
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
             user_params[var] = st.number_input(
-                f"{var} ({min_val:.3f} to {max_val:.3f})",
-                min_value=min_val,
-                max_value=max_val,
-                value=default,
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
                 step=step,
-                format="%.3f",
-                key=f"load_{var}"
+                key=var,
+                on_change=update_param,
+                args=(var,)
             )
 
     return user_params
 
-
 def prepare_simulation_parameters(user_params):
     """Prepares the parameters in the format expected by the simulation function."""
-    parasVSMPlant = {}
-    parasSG = {}
-    parasLine = {}
-    parasLoad = {}
+    vsm_plant_params = {}
+    sg_params = {}
+    line_params = {}
+    load_params = {}
 
     for key, value in user_params.items():
-        if key.endswith("_SG"):
-            new_key = key.replace("_SG", "")
-            parasSG[new_key] = value
-        elif key in ["Rline", "Lline"]:
-            parasLine[key] = value
-        elif key in ["Rload", "Lload", "Rx"]:
-            parasLoad[key] = value
+        if key.endswith('_SG'):
+            sg_params[key.replace('_SG', '')] = value
+        elif key in ['Rline', 'Lline']:
+            line_params[key] = value
+        elif key in ['Rload', 'Lload', 'Rx']:
+            load_params[key] = value
         else:
-            parasVSMPlant[key] = value
+            vsm_plant_params[key] = value
 
     return {
-        'parasVSMPlant': parasVSMPlant,
-        'parasSG': parasSG,
-        'parasLine': parasLine,
-        'parasLoad': parasLoad
+        'parasVSMPlant': vsm_plant_params,
+        'parasSG': sg_params,
+        'parasLine': line_params,
+        'parasLoad': load_params
     }
 
-
 def run_simulation(user_params):
-    """Runs the VSM Plant + SG simulation with the current parameters."""
     sim_params = prepare_simulation_parameters(user_params)
     return case17main_vsmPlant_sg.main_vsmPlant_sg(sim_params)
 
-
 def visualization(testResults):
-    """Generates the eigenvalue and participation factor plots based on simulation output."""
     state_variables = [
-        "thetaPlant(IBR1)", "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)", "epsilonQ(IBR1)", "PoPlant(IBR1)", "QoPlant(IBR1)",
-        "PsetDelay(IBR1)", "QsetDelay(IBR1)", "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)",
-        "psif(IBR1)", "iid(IBR1)", "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)", "ioq(IBR1)",
-        "theta(SG1)", "wr(SG1)", "psid(SG1)", "psiq(SG1)", "Eq1(SG1)", "Ed1(SG1)", "psi1d(SG1)", "psi2q(SG1)",
-        "P1(SG1)", "Pg(SG1)", "Pf(SG1)", "P2(SG1)", "vx(SG1)", "Efd(SG1)",
-        "ilineD(Line1)", "ilineQ(Line1)",
-        "ilineD(Line2)", "ilineQ(Line2)",
-        "IloadD(Load)", "IloadQ(Load)"
+        "thetaPlant(IBR1)", "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)",
+        "epsilonQ(IBR1)", "PoPlant(IBR1)", "QoPlant(IBR1)", "PsetDelay(IBR1)",
+        "QsetDelay(IBR1)", "Tef(IBR1)", "Qof(IBR1)", "Vof(IBR1)", "winv(IBR1)",
+        "psif(IBR1)", "iid(IBR1)", "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)", "iod(IBR1)",
+        "ioq(IBR1)", "theta(SG1)", "wr(SG1)", "psid(SG1)", "psiq(SG1)", "Eq1(SG1)",
+        "Ed1(SG1)", "psi1d(SG1)", "psi2q(SG1)", "P1(SG1)", "Pg(SG1)", "Pf(SG1)",
+        "P2(SG1)", "vx(SG1)", "Efd(SG1)", "ilineD(Line1)", "ilineQ(Line1)",
+        "ilineD(Line2)", "ilineQ(Line2)", "IloadD(Load)", "IloadQ(Load)"
     ]
 
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_selector")
+    # Use session state for mode selection
+    selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1, mode_range,
+        st.session_state.selected_mode,
+        key="mode_slider"
+    )
+    st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
 
     try:
@@ -301,53 +337,66 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors
-                     if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables)]
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+    # Layout for Pie Chart and Heatmap
+    col1, col2 = st.columns([1, 1])
 
-    col1, col2 = st.columns(2)
     with col1:
-        st.subheader(f"Participation Factors for Mode {mode_index + 1}")
-        if factor_magnitudes:
+        participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
+        if participation_factors:
+            valid_factors = [
+                (entry[0], float(entry[2])) for entry in participation_factors
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+            ]
+            factor_magnitudes = [entry[1] for entry in valid_factors]
+            dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
+
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                width=1000,
-                height=800
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
+                width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
-    with col2:
-        st.subheader("Heatmap of Participation Factors")
-        heatmap_data = np.zeros((len(state_variables), mode_range))
-        for mode_idx in range(mode_range):
-            if len(modes[mode_idx]) > 5:
-                for entry in modes[mode_idx][5]:
-                    if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                        heatmap_data[entry[0] - 1, mode_idx] = float(entry[2])
+        else:
+            st.warning("No participation factor data available for this mode.")
 
+    with col2:
+        heatmap_data = []
+        for mode_idx in range(mode_range):
+            mode_values = np.zeros(len(state_variables))
+            mode_participation = modes[mode_idx][5]
+            for entry in mode_participation:
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                    mode_values[entry[0] - 1] = entry[2]
+            heatmap_data.append(mode_values)
+
+        mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
-            heatmap_data,
-            x=[f"Mode {i + 1}" for i in range(mode_range)],
+            np.array(heatmap_data).T,
+            x=mode_labels,
             y=state_variables,
-            width=1000,
-            height=800,
-            aspect='auto'
+            labels={"x": "Modes", "y": "State Variables", "color": "Participation Factor"},
+            color_continuous_scale="Blues",
+            title="Participation Factors Heatmap",
+            width=900, height=700
         )
+        heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-
 def run_simulation_and_visualization():
+    """Runs the simulation and visualization process"""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
 
-
 def main():
+    if "needs_rerun" not in st.session_state:
+        st.session_state["needs_rerun"] = False
     st.title("VSM Plant + SG System Analysis")
     run_simulation_and_visualization()
-
+    if st.session_state.get("needs_rerun", False):
+        st.session_state["needs_rerun"] = False
+        st.rerun()
 
 if __name__ == "__main__":
     main()
