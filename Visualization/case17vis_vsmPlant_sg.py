@@ -342,78 +342,72 @@ def visualization(results):
         "P2(SG1)", "vx(SG1)", "Efd(SG1)", "ilineD(Line1)", "ilineQ(Line1)",
         "ilineD(Line2)", "ilineQ(Line2)", "IloadD(Load)", "IloadQ(Load)"
     ]
-
-    mode_data = results[1][4]
-    if isinstance(mode_data[0], list) and mode_data[0][0] == 'Mode':
-        modes = mode_data[1:]
-    else:
-        modes = mode_data
-
+    mode_data_raw = testResults[1][4]
+    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Mode selection with session state
+    # Use session state for mode selection
     selected_mode = st.sidebar.slider(
-        "Select Mode",
+        "Select a Mode",
         1, mode_range,
         st.session_state.selected_mode,
         key="mode_slider"
     )
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
+    parameter_data = testResults[1]
+    mode_data = modes[mode_index]
+    participation_factors = mode_data[5] if len(mode_data) > 5 else []
+    if participation_factors:
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    else:
+        factor_magnitudes = []
+        dominant_state_names = []
 
-    # Display eigenvalue
-    try:
-        eigenvalue = results[1][1][mode_index]
-        st.sidebar.write(f"Eigenvalue: {eigenvalue.real:.3f} + {eigenvalue.imag:.3f}j")
-    except IndexError:
-        st.error("Eigenvalue data unavailable")
-        return
-
-    # Create visualizations
-    col1, col2 = st.columns(2)
-
+    # Layout for Pie Chart and Heatmap
+    col1, col2 = st.columns([1, 1])
     with col1:
-        # Participation factors pie chart
-        mode_data = modes[mode_index]
-        if len(mode_data) > 5:
-            participation_factors = mode_data[5]
-            valid_factors = [
-                (entry[0], float(entry[2]))
-                for entry in participation_factors
-                if isinstance(entry[0], (int, np.integer))
-                and 1 <= entry[0] <= len(state_variables)
-            ]
-
-            if valid_factors:
-                magnitudes = [f[1] for f in valid_factors]
-                states = [state_variables[f[0]-1] for f in valid_factors]
-
-                fig_pie = px.pie(
-                    values=magnitudes,
-                    names=states,
-                    title=f"Mode {selected_mode} Participation Factors"
-                )
-                st.plotly_chart(fig_pie, use_container_width=True)
-            else:
-                st.warning("No valid participation factors for this mode")
-
+        if factor_magnitudes:
+            pie_chart_fig = px.pie(
+                names=dominant_state_names,
+                values=factor_magnitudes,
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
+                width=900, height=700
+            )
+            st.plotly_chart(pie_chart_fig, use_container_width=True)
+        else:
+            st.warning("No participation factor data available for this mode.")
     with col2:
-        # Participation factors heatmap
-        heatmap_data = np.zeros((len(state_variables), mode_range))
-        for idx, mode in enumerate(modes):
-            if len(mode) > 5:
-                for entry in mode[5]:
-                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        heatmap_data[entry[0]-1, idx] = float(entry[2])
-
-        fig_heatmap = px.imshow(
-            heatmap_data,
-            labels=dict(x="Mode", y="State Variable", color="Participation Factor"),
-            x=[f"Mode {i+1}" for i in range(mode_range)],
+        heatmap_data = []
+        for mode_idx in range(mode_range):
+            mode_values = np.zeros(len(state_variables))
+            mode_participation = modes[mode_idx][5]
+            for entry in mode_participation:
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                    mode_values[entry[0] - 1] = entry[2]
+            heatmap_data.append(mode_values)
+        mode_labels = list(range(1, mode_range + 1))
+        heatmap_fig = px.imshow(
+            np.array(heatmap_data).T,
+            x=mode_labels,
             y=state_variables,
-            aspect="auto"
+            labels={
+                "x": "Modes",
+                "y": "State Variables",
+                "color": "Participation Factor"
+            },
+            color_continuous_scale="Blues",
+            title="Participation Factors Heatmap",
+            width=900, height=700
         )
-        st.plotly_chart(fig_heatmap, use_container_width=True)
+        heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
+        st.plotly_chart(heatmap_fig, use_container_width=True)
 
 def main():
     st.title("VSM Plant + SG System Analysis")
