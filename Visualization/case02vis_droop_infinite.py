@@ -110,13 +110,10 @@ def visualization(testResults):
         heatmap_data = []
         for mode_idx in range(mode_range):
             mode_values = np.zeros(len(state_variables))
-            try:
-                mode_participation = modes[mode_idx][5]
-                for entry in mode_participation:
-                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
-                        mode_values[entry[0] - 1] = entry[2]
-            except (IndexError, ValueError):
-                pass
+            mode_participation = modes[mode_idx][5]
+            for entry in mode_participation:
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                    mode_values[entry[0] - 1] = entry[2]
             heatmap_data.append(mode_values)
         mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
