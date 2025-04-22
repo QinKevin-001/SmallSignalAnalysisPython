@@ -20,42 +20,46 @@ variable_ranges = {
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,
     'wset': 1.0, 'Vset': 1.0,
-    'mp': 0.05,  'mq': 0.05,
-    'Rc': 0.04,  'Lc': 0.20,
+    'mp': 0.05, 'mq': 0.05,
+    'Rc': 0.04, 'Lc': 0.20,
     'wc': float(2 * np.pi * 5)
 }
 
 # Initialize session state
 if "user_params" not in st.session_state:
     st.session_state.user_params = default_values.copy()
+    # Initialize input values in session state
+    for var in default_values:
+        st.session_state[f"input_{var}"] = default_values[var]
+
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
 
-def update_param(key, value):
-    """Callback function to update parameters"""
-    st.session_state.user_params[key] = value
 
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
 
+    user_params = {}
     for var, (min_val, max_val) in variable_ranges.items():
-        st.sidebar.number_input(
+        value = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=float(min_val),
             max_value=float(max_val),
             value=float(st.session_state.user_params[var]),
             step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"input_{var}",
-            on_change=update_param,
-            args=(var, st.session_state[f"input_{var}"])
+            key=f"input_{var}"
         )
+        user_params[var] = value
+        st.session_state.user_params[var] = value
 
-    return st.session_state.user_params
+    return user_params
+
 
 def run_simulation(user_params):
     """Calls case01main_droopSimplified_infinite.py with updated parameters"""
     return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)
+
 
 def visualization(testResults):
     """Generates plots based on testResults"""
@@ -151,14 +155,17 @@ def visualization(testResults):
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
+
 def run_simulation_and_visualization():
     """Runs the simulation and visualization process"""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
 
+
 def main():
     run_simulation_and_visualization()
+
 
 if __name__ == "__main__":
     main()
