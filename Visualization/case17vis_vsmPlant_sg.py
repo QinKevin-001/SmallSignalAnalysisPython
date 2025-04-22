@@ -330,7 +330,7 @@ def run_simulation(user_params):
     sim_params = prepare_simulation_parameters(user_params)
     return case17main_vsmPlant_sg.main_vsmPlant_sg(sim_params)
 
-def visualization(results):
+def visualization(testResults):
     """Creates visualization of simulation results"""
     state_variables = [
         "thetaPlant(IBR1)", "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)",
