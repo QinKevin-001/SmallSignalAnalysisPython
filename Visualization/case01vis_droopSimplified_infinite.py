@@ -25,33 +25,37 @@ default_values = {
     'wc': float(2 * np.pi * 5)
 }
 
+# Initialize session state
+if "user_params" not in st.session_state:
+    st.session_state.user_params = default_values.copy()
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = 1
+
+def update_param(key, value):
+    """Callback function to update parameters"""
+    st.session_state.user_params[key] = value
+
 def get_user_inputs():
-    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
-
-    # Ensure session state is initialized
-    if "user_params" not in st.session_state:
-        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
-
-    user_params = {}
-
-    # Create a Simulation Parameters Sidebar
+    """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
+
     for var, (min_val, max_val) in variable_ranges.items():
-        user_params[var] = st.sidebar.number_input(
+        st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=float(min_val),
             max_value=float(max_val),
-            value=float(st.session_state["user_params"].get(var, default_values[var])),
+            value=float(st.session_state.user_params[var]),
             step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"param_{var}"  # Unique key for each parameter
+            key=f"input_{var}",
+            on_change=update_param,
+            args=(var, st.session_state[f"input_{var}"])
         )
 
-    st.session_state["user_params"] = user_params
-    return user_params
+    return st.session_state.user_params
 
 def run_simulation(user_params):
-    """Calls case02main_droop_infinite.py with updated parameters and retrieves results"""
-    return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)  # Runs simulation automatically
+    """Calls case01main_droopSimplified_infinite.py with updated parameters"""
+    return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)
 
 def visualization(testResults):
     """Generates plots based on testResults"""
@@ -68,8 +72,13 @@ def visualization(testResults):
 
     mode_range = len(modes)
 
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1)
-    mode_index = selected_mode - 1
+    # Use session state for mode selection
+    st.session_state.selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1, mode_range,
+        st.session_state.selected_mode
+    )
+    mode_index = st.session_state.selected_mode - 1
 
     parameter_data = testResults[1]
     try:
@@ -102,24 +111,22 @@ def visualization(testResults):
         st.error("Error parsing participation factors.")
         return
 
-    # Layout for Pie Chart and Heatmap (Full Width)
-    col1, col2 = st.columns([1, 1])  # Equal width columns
+    # Layout for Pie Chart and Heatmap
+    col1, col2 = st.columns([1, 1])
 
     with col1:
-        #st.subheader(f"Participation Factor Distribution for Mode {selected_mode}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title=f"Participation Factor Analysis of Mode {selected_mode}",
-                width=900, height=700  # Increased size
+                title=f"Participation Factor Analysis of Mode {st.session_state.selected_mode}",
+                width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
 
     with col2:
-        #st.subheader("Heatmap of Participation Factors for All Modes")
         heatmap_data = []
         for mode_idx in range(mode_range):
             mode_values = np.zeros(len(state_variables))
@@ -139,22 +146,18 @@ def visualization(testResults):
             y=state_variables,
             labels={"color": "Participation Factor"},
             color_continuous_scale="Blues",
-            title=f"Participation Factors Heatmap",
-            width=900, height=700  # Increased size
+            title="Participation Factors Heatmap",
+            width=900, height=700
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
-    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
-    user_params = get_user_inputs()  # Get user parameters
-    testResults = run_simulation(user_params)  # Run simulation
-    visualization(testResults)  # Show visualization
+    """Runs the simulation and visualization process"""
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)
+    visualization(testResults)
 
-
-# ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    #st.title("Droop Simplified Infinite System Analysis")
     run_simulation_and_visualization()
 
 if __name__ == "__main__":
