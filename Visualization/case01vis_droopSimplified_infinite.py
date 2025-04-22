@@ -20,21 +20,21 @@ variable_ranges = {
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,
     'wset': 1.0, 'Vset': 1.0,
-    'mp': 0.05, 'mq': 0.05,
-    'Rc': 0.04, 'Lc': 0.20,
+    'mp': 0.05,  'mq': 0.05,
+    'Rc': 0.04,  'Lc': 0.20,
     'wc': float(2 * np.pi * 5)
 }
 
 # Initialize session state
-if "user_params" not in st.session_state:
-    st.session_state.user_params = default_values.copy()
-    # Initialize input values in session state
-    for var in default_values:
-        st.session_state[f"input_{var}"] = default_values[var]
+for key in default_values:
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
 
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
 
+def update_param(key):
+    st.session_state["needs_rerun"] = True
 
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab"""
@@ -42,24 +42,23 @@ def get_user_inputs():
 
     user_params = {}
     for var, (min_val, max_val) in variable_ranges.items():
-        value = st.sidebar.number_input(
+        step = round((float(max_val) - float(min_val)) / 100, 3)
+        user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=float(min_val),
             max_value=float(max_val),
-            value=float(st.session_state.user_params[var]),
-            step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"input_{var}"
+            value=st.session_state[var],
+            step=step,
+            key=var,
+            on_change=update_param,
+            args=(var,)
         )
-        user_params[var] = value
-        st.session_state.user_params[var] = value
 
     return user_params
-
 
 def run_simulation(user_params):
     """Calls case01main_droopSimplified_infinite.py with updated parameters"""
     return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)
-
 
 def visualization(testResults):
     """Generates plots based on testResults"""
@@ -77,12 +76,14 @@ def visualization(testResults):
     mode_range = len(modes)
 
     # Use session state for mode selection
-    st.session_state.selected_mode = st.sidebar.slider(
+    selected_mode = st.sidebar.slider(
         "Select a Mode",
         1, mode_range,
-        st.session_state.selected_mode
+        st.session_state.selected_mode,
+        key="mode_slider"
     )
-    mode_index = st.session_state.selected_mode - 1
+    st.session_state.selected_mode = selected_mode
+    mode_index = selected_mode - 1
 
     parameter_data = testResults[1]
     try:
@@ -123,7 +124,7 @@ def visualization(testResults):
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                title=f"Participation Factor Analysis of Mode {st.session_state.selected_mode}",
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
                 width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
@@ -155,17 +156,21 @@ def visualization(testResults):
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-
 def run_simulation_and_visualization():
     """Runs the simulation and visualization process"""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
 
-
 def main():
+    if "needs_rerun" not in st.session_state:
+        st.session_state["needs_rerun"] = False
+
     run_simulation_and_visualization()
 
+    if st.session_state.get("needs_rerun", False):
+        st.session_state["needs_rerun"] = False
+        st.rerun()
 
 if __name__ == "__main__":
     main()
