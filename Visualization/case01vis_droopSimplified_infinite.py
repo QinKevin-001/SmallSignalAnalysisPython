@@ -126,7 +126,7 @@ def visualization(testResults):
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
-        mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
+        mode_labels = [f"{i + 1}" for i in range(mode_range)]
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
