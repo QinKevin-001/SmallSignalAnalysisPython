@@ -3,45 +3,36 @@ import numpy as np
 import plotly.express as px
 from Main import case02main_droop_infinite
 
-# ----------------- 📌 Define Parameter Limits ----------------- #
+# User input Limits
 variable_ranges = {
-    "Pset": (0.0, 1.0),
-    "Qset": (-1.0, 1.0),
-    "ωset": (1.0, 1.0),
-    "Vset": (0.9, 1.1),
-    "mp": (0.01, 1.00),
-    "mq": (0.01, 1.00),
-    "Rt": (0.01, 1.0),
-    "Lt": (0.01, 1.0),
-    "Rd": (0.0, 100.0),
-    "Cf": (0.01, 0.20),
-    "Rc": (0.01, 1.0),
-    "Lc": (0.01, 1.0),
-    "KpV": (0.1, 10.0),
-    "KiV": (0.1, 1000.0),
-    "KpC": (0.1, 10.0),
-    "KiC": (0.1, 1000.0),
-    "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
+    "Pset": (0.0, 1.0), "Qset": (-1.0, 1.0),
+    "wset": (1.0, 1.0), "Vset": (0.9, 1.1),
+    "mp": (0.01, 1.00), "mq": (0.01, 1.00),
+    "Rt": (0.01, 1.0), "Lt": (0.01, 1.0),
+    "Rd": (0.0, 100.0), "Cf": (0.01, 0.20),
+    "Rc": (0.01, 1.0), "Lc": (0.01, 1.0),
+    "KpV": (0.1, 10.0), "KiV": (0.1, 1000.0),
+    "KpC": (0.1, 10.0), "KiC": (0.1, 1000.0),
+    "wc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
 }
 
-# Default values
+# Preloaded values
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
-    'ωset': 1.0, 'Vset': 1.0,  # setpoints
+    'wset': 1.0, 'Vset': 1.0,  # setpoints
     'mp': 0.05, 'mq': 0.05,  # droop gains
     'Rt': 0.02, 'Lt': 0.10,  # LCL filter
     'Rd': 0.00, 'Cf': 0.05,  # LCL filter
     'Rc': 0.04, 'Lc': 0.20,  # LCL filter
     'KpV': 1.8, 'KiV': 16.0,  # voltage loop PI gains
     'KpC': 0.4 * 5 * 2, 'KiC': 12.0 * 2,  # current loop PI gains
-    'ωc': float(2 * np.pi * 5)  # power filter cut-off frequency
+    'wc': float(2 * np.pi * 5)  # power filter cut-off frequency
 }
 
 # Initialize session state
 for key in default_values:
     if key not in st.session_state:
         st.session_state[key] = default_values[key]
-
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
 
@@ -51,7 +42,6 @@ def update_param(key):
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
-
     user_params = {}
     for var, (min_val, max_val) in variable_ranges.items():
         step = round((float(max_val) - float(min_val)) / 100, 3)
@@ -65,7 +55,6 @@ def get_user_inputs():
             on_change=update_param,
             args=(var,)
         )
-
     return user_params
 
 def run_simulation(user_params):
@@ -78,7 +67,6 @@ def visualization(testResults):
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
     ]
-
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
@@ -92,20 +80,17 @@ def visualization(testResults):
     )
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
-
     try:
         mode_data = modes[mode_index]
     except IndexError:
         st.error("Mode data is unavailable.")
         return
-
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
         eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
     except IndexError:
         st.error("Eigenvalue data is unavailable.")
         return
-
     try:
         participation_factors = mode_data[5] if len(mode_data) > 5 else []
         if participation_factors:
@@ -122,10 +107,8 @@ def visualization(testResults):
     except (IndexError, ValueError, TypeError):
         st.error("Error parsing participation factors.")
         return
-
     # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
-
     with col1:
         if factor_magnitudes:
             pie_chart_fig = px.pie(
@@ -137,7 +120,6 @@ def visualization(testResults):
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
-
     with col2:
         heatmap_data = []
         for mode_idx in range(mode_range):
@@ -150,7 +132,6 @@ def visualization(testResults):
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
-
         mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
@@ -177,9 +158,7 @@ def run_simulation_and_visualization():
 def main():
     if "needs_rerun" not in st.session_state:
         st.session_state["needs_rerun"] = False
-
     run_simulation_and_visualization()
-
     if st.session_state.get("needs_rerun", False):
         st.session_state["needs_rerun"] = False
         st.rerun()
