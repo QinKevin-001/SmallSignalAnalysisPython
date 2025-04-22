@@ -24,7 +24,7 @@ variable_ranges = {
     "ωc": (float(2 * np.pi * 1), float(2 * np.pi * 20))
 }
 
-# Default values from `case02main_droop_infinite.py`
+# Default values
 default_values = {
     'Pset': 1.0, 'Qset': 0.0,  # setpoints
     'ωset': 1.0, 'Vset': 1.0,  # setpoints
@@ -37,48 +37,41 @@ default_values = {
     'ωc': float(2 * np.pi * 5)  # power filter cut-off frequency
 }
 
+# Initialize session state
+for key in default_values:
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
 
-# ----------------- 📌 Sidebar: Simulation Parameters ----------------- #
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = 1
+
+def update_param(key):
+    st.session_state["needs_rerun"] = True
+
 def get_user_inputs():
-    """Creates user input controls inside the Simulation Parameters tab, ensuring unique widget keys."""
-
-    # Ensure session state is initialized
-    if "user_params" not in st.session_state:
-        st.session_state["user_params"] = {key: default_values[key] for key in variable_ranges}
+    """Creates user input controls inside the Simulation Parameters tab"""
+    st.sidebar.header("Simulation Parameters")
 
     user_params = {}
-
-    # Create a Simulation Parameters Sidebar
-    st.sidebar.header("Simulation Parameters")
     for var, (min_val, max_val) in variable_ranges.items():
+        step = round((float(max_val) - float(min_val)) / 100, 3)
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=float(min_val),
             max_value=float(max_val),
-            value=float(st.session_state["user_params"].get(var, default_values[var])),
-            step=round((float(max_val) - float(min_val)) / 100, 3),
-            key=f"param_{var}"  # Unique key for each parameter
+            value=st.session_state[var],
+            step=step,
+            key=var,
+            on_change=update_param,
+            args=(var,)
         )
 
-    st.session_state["user_params"] = user_params
     return user_params
 
-
-# ----------------- 📌 Sidebar: Mode Selection ----------------- #
-def get_mode_selection(mode_range):
-    """Creates a mode selection dropdown inside the sidebar."""
-    st.sidebar.header("Mode Selection")
-    selected_mode = st.sidebar.slider("Select a Mode", 1, mode_range, 1, key="mode_slider")
-    return selected_mode - 1  # Convert to zero-based index
-
-
-# ----------------- 📌 Simulation Execution ----------------- #
 def run_simulation(user_params):
     """Runs the simulation using the selected parameters."""
     return case02main_droop_infinite.main_droop_infinite(user_params)
 
-
-# ----------------- 📌 Visualization ----------------- #
 def visualization(testResults):
     """Generates plots based on testResults."""
     state_variables = [
@@ -90,8 +83,21 @@ def visualization(testResults):
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
-    # Get mode selection from the sidebar
-    mode_index = get_mode_selection(mode_range)
+    # Use session state for mode selection
+    selected_mode = st.sidebar.slider(
+        "Select a Mode",
+        1, mode_range,
+        st.session_state.selected_mode,
+        key="mode_slider"
+    )
+    st.session_state.selected_mode = selected_mode
+    mode_index = selected_mode - 1
+
+    try:
+        mode_data = modes[mode_index]
+    except IndexError:
+        st.error("Mode data is unavailable.")
+        return
 
     try:
         eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
@@ -100,57 +106,78 @@ def visualization(testResults):
         st.error("Eigenvalue data is unavailable.")
         return
 
-    participation_factors = modes[mode_index][5] if len(modes[mode_index]) > 5 else []
-    valid_factors = [(entry[0], float(entry[2])) for entry in participation_factors if isinstance(entry[0], int)]
+    try:
+        participation_factors = mode_data[5] if len(mode_data) > 5 else []
+        if participation_factors:
+            valid_factors = [
+                entry for entry in participation_factors
+                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+            ]
+            state_locations = [entry[0] for entry in valid_factors]
+            factor_magnitudes = [entry[2] for entry in valid_factors]
+            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+        else:
+            factor_magnitudes = []
+            dominant_state_names = []
+    except (IndexError, ValueError, TypeError):
+        st.error("Error parsing participation factors.")
+        return
 
-    factor_magnitudes = [entry[1] for entry in valid_factors]
-    dominant_state_names = [state_variables[entry[0] - 1] for entry in valid_factors]
-
+    # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.subheader(f"Participation Factor Distribution for Mode {mode_index + 1}")
         if factor_magnitudes:
             pie_chart_fig = px.pie(
                 names=dominant_state_names,
                 values=factor_magnitudes,
-                width=1000,
-                height=800
+                title=f"Participation Factor Analysis of Mode {selected_mode}",
+                width=900, height=700
             )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
+        else:
+            st.warning("No participation factor data available for this mode.")
 
     with col2:
-        st.subheader("Heatmap of Participation Factors for All Modes")
-        heatmap_data = [np.zeros(len(state_variables)) for _ in range(mode_range)]
-
+        heatmap_data = []
         for mode_idx in range(mode_range):
-            for entry in modes[mode_idx][5]:
-                if isinstance(entry[0], int) and 1 <= entry[0] <= len(state_variables):
-                    heatmap_data[mode_idx][entry[0] - 1] = float(entry[2])
+            mode_values = np.zeros(len(state_variables))
+            try:
+                mode_participation = modes[mode_idx][5]
+                for entry in mode_participation:
+                    if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
+                        mode_values[entry[0] - 1] = entry[2]
+            except (IndexError, ValueError):
+                pass
+            heatmap_data.append(mode_values)
 
+        mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
-            x=[f"Mode {i + 1}" for i in range(mode_range)],
+            x=mode_labels,
             y=state_variables,
-            width=1000,
-            height=800
+            labels={"color": "Participation Factor"},
+            color_continuous_scale="Blues",
+            title="Participation Factors Heatmap",
+            width=900, height=700
         )
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-
-# ----------------- 📌 Run Simulation & Visualization ----------------- #
 def run_simulation_and_visualization():
-    """Runs the simulation and visualization process, ensuring parameters are not duplicated."""
-    user_params = get_user_inputs()  # Get user parameters
-    testResults = run_simulation(user_params)  # Run simulation
-    visualization(testResults)  # Show visualization
+    """Runs the simulation and visualization process"""
+    user_params = get_user_inputs()
+    testResults = run_simulation(user_params)
+    visualization(testResults)
 
-
-# ----------------- 📌 Main Page Layout ----------------- #
 def main():
-    st.title("Droop Infinite System Analysis")
+    if "needs_rerun" not in st.session_state:
+        st.session_state["needs_rerun"] = False
+
     run_simulation_and_visualization()
 
+    if st.session_state.get("needs_rerun", False):
+        st.session_state["needs_rerun"] = False
+        st.rerun()
 
 if __name__ == "__main__":
     main()
