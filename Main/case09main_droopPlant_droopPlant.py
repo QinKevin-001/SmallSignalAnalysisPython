@@ -74,9 +74,9 @@ def main_droopPlant_droopPlant(user_params=None):
         if 'parasIBR2' in user_params:
             parasIBR2.update({k: float(v) for k, v in user_params['parasIBR2'].items()})
         if 'parasLine1' in user_params:
-            parasLine1.update({k: float(v) for k, v in user_params['parasIBR2'].items()})
+            parasLine1.update({k: float(v) for k, v in user_params['parasLine1'].items()})
         if 'parasLine2' in user_params:
-            parasLine2.update({k: float(v) for k, v in user_params['parasIBR2'].items()})
+            parasLine2.update({k: float(v) for k, v in user_params['parasLine2'].items()})
         if 'parasLoad' in user_params:
             parasLoad.update({k: float(v) for k, v in user_params['parasLoad'].items()})
 
