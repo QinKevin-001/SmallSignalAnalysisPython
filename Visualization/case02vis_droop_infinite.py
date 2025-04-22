@@ -58,11 +58,9 @@ def get_user_inputs():
     return user_params
 
 def run_simulation(user_params):
-    """Runs the simulation using the selected parameters."""
     return case02main_droop_infinite.main_droop_infinite(user_params)
 
 def visualization(testResults):
-    """Generates plots based on testResults."""
     state_variables = [
         "Theta0", "Po0", "Qo0", "Phid0", "Phiq0", "Gammad0", "Gammaq0",
         "Iid0", "Iiq0", "Vcd0", "Vcq0", "Iod0", "Ioq0"
@@ -80,33 +78,21 @@ def visualization(testResults):
     )
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
-    try:
-        mode_data = modes[mode_index]
-    except IndexError:
-        st.error("Mode data is unavailable.")
-        return
-    try:
-        eigenvalue_real = float(np.real(testResults[1][1][mode_index]))
-        eigenvalue_imag = float(np.imag(testResults[1][1][mode_index]))
-    except IndexError:
-        st.error("Eigenvalue data is unavailable.")
-        return
-    try:
-        participation_factors = mode_data[5] if len(mode_data) > 5 else []
-        if participation_factors:
-            valid_factors = [
-                entry for entry in participation_factors
-                if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
-            ]
-            state_locations = [entry[0] for entry in valid_factors]
-            factor_magnitudes = [entry[2] for entry in valid_factors]
-            dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
-        else:
-            factor_magnitudes = []
-            dominant_state_names = []
-    except (IndexError, ValueError, TypeError):
-        st.error("Error parsing participation factors.")
-        return
+    parameter_data = testResults[1]
+    mode_data = modes[mode_index]
+    participation_factors = mode_data[5] if len(mode_data) > 5 else []
+    if participation_factors:
+        valid_factors = [
+            entry for entry in participation_factors
+            if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables)
+        ]
+        state_locations = [entry[0] for entry in valid_factors]
+        factor_magnitudes = [entry[2] for entry in valid_factors]
+        dominant_state_names = [state_variables[loc - 1] for loc in state_locations]
+    else:
+        factor_magnitudes = []
+        dominant_state_names = []
+
     # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
     with col1:
