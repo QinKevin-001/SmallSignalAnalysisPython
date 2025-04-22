@@ -97,94 +97,83 @@ for key in default_values:
         st.session_state[key] = default_values[key]
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
-if "needs_rerun" not in st.session_state:
-    st.session_state.needs_rerun = False
 
 def update_param(key):
     st.session_state["needs_rerun"] = True
 
-def create_parameter_input(col, var, prefix=""):
-    """Creates a number input for a parameter in the given column"""
-    min_val, max_val = variable_ranges[var]
-    step = float(round((float(max_val) - float(min_val)) / 100, 3))
-    display_name = var.replace(prefix, '') if prefix else var
-    return col.number_input(
-        f"{display_name} ({min_val:.3f} to {max_val:.3f})",
-        min_value=float(min_val),
-        max_value=float(max_val),
-        value=float(st.session_state[var]),
-        step=step,
-        key=var,
-        on_change=update_param,
-        args=(var,)
-    )
-
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
-    ibr1_tab, ibr2_tab, line_tab, load_tab = st.sidebar.tabs([
-        "IBR1 (Droop Plant)", "IBR2 (VSM Plant)", "Line", "Load"
-    ])
+
+    # Create tabs for different parameter groups
+    ibr1_tab, ibr2_tab, line_tab, load_tab = st.sidebar.tabs(["IBR1 (Droop Plant)", "IBR2 (VSM Plant)", "Line", "Load"])
 
     user_params = {}
 
-    # IBR1 Plant-Level Parameters
+    # IBR1 (Droop Plant) Parameters
     with ibr1_tab:
-        st.header("Plant Level Parameters")
-        ibr1_plant_params = [param for param in variable_ranges.keys()
-                             if not param.endswith('_IBR2') and 'Plant' in param and param not in ['Rline1', 'Lline1', 'Rline2', 'Lline2', 'Rload', 'Lload', 'Rx']]
-        for i in range(0, len(ibr1_plant_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr1_plant_params[i]] = create_parameter_input(col1, ibr1_plant_params[i])
-            if i + 1 < len(ibr1_plant_params):
-                user_params[ibr1_plant_params[i + 1]] = create_parameter_input(col2, ibr1_plant_params[i + 1])
+        ibr1_params = [param for param in variable_ranges.keys()
+                       if not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx', 'Rline1', 'Lline1', 'Rline2', 'Lline2']]
+        for var in ibr1_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
 
-        st.header("System Level Parameters")
-        ibr1_sys_params = [param for param in variable_ranges.keys()
-                           if not param.endswith('_IBR2') and 'Plant' not in param and param not in ['Rline1', 'Lline1', 'Rline2', 'Lline2', 'Rload', 'Lload', 'Rx']]
-        for i in range(0, len(ibr1_sys_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr1_sys_params[i]] = create_parameter_input(col1, ibr1_sys_params[i])
-            if i + 1 < len(ibr1_sys_params):
-                user_params[ibr1_sys_params[i + 1]] = create_parameter_input(col2, ibr1_sys_params[i + 1])
-
-    # IBR2 Parameters
+    # IBR2 (VSM Plant) Parameters
     with ibr2_tab:
-        st.header("Plant Level Parameters")
-        ibr2_plant_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2') and 'Plant' in param]
-        for i in range(0, len(ibr2_plant_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr2_plant_params[i]] = create_parameter_input(col1, ibr2_plant_params[i], '_IBR2')
-            if i + 1 < len(ibr2_plant_params):
-                user_params[ibr2_plant_params[i + 1]] = create_parameter_input(col2, ibr2_plant_params[i + 1], '_IBR2')
-
-        st.header("System Level Parameters")
-        ibr2_sys_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2') and 'Plant' not in param]
-        for i in range(0, len(ibr2_sys_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr2_sys_params[i]] = create_parameter_input(col1, ibr2_sys_params[i], '_IBR2')
-            if i + 1 < len(ibr2_sys_params):
-                user_params[ibr2_sys_params[i + 1]] = create_parameter_input(col2, ibr2_sys_params[i + 1], '_IBR2')
+        ibr2_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2')]
+        for var in ibr2_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var.replace('_IBR2', '')} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
 
     # Line Parameters
     with line_tab:
-        st.header("Line Parameters")
         line_params = ['Rline1', 'Lline1', 'Rline2', 'Lline2']
-        for i in range(0, len(line_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[line_params[i]] = create_parameter_input(col1, line_params[i])
-            if i + 1 < len(line_params):
-                user_params[line_params[i + 1]] = create_parameter_input(col2, line_params[i + 1])
+        for var in line_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
 
     # Load Parameters
     with load_tab:
-        st.header("Load Parameters")
         load_params = ['Rload', 'Lload', 'Rx']
-        for i in range(0, len(load_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[load_params[i]] = create_parameter_input(col1, load_params[i])
-            if i + 1 < len(load_params):
-                user_params[load_params[i + 1]] = create_parameter_input(col2, load_params[i + 1])
+        for var in load_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
 
     return user_params
 
@@ -221,7 +210,19 @@ def run_simulation(user_params):
     return case11main_droopPlant_vsmPlant.main_droopPlant_vsmPlant(sim_params)
 
 def visualization(testResults):
-    state_variables = [ ... ]  # Use your original list from Case 11
+    state_variables = [
+        "thetaPlant(IBR1)", "epsilonPLLPlant(IBR1)", "wPlant(IBR1)", "epsilonP(IBR1)", "epsilonQ(IBR1)",
+        "PoPlant(IBR1)", "QoPlant(IBR1)", "PsetDelay(IBR1)", "QsetDelay(IBR1)", "Po(IBR1)", "Qo(IBR1)",
+        "phid(IBR1)", "phiq(IBR1)", "gammad(IBR1)", "gammaq(IBR1)", "iid(IBR1)", "iiq(IBR1)", "vcd(IBR1)", "vcq(IBR1)",
+        "iod(IBR1)", "ioq(IBR1)",
+        "thetaPlant(IBR2)", "epsilonPLLPlant(IBR2)", "wPlant(IBR2)", "epsilonP(IBR2)", "epsilonQ(IBR2)",
+        "PoPlant(IBR2)", "QoPlant(IBR2)", "PsetDelay(IBR2)", "QsetDelay(IBR2)", "theta(IBR2)", "Tef(IBR2)", "Qof(IBR2)",
+        "Vof(IBR2)", "winv(IBR2)", "psif(IBR2)", "iid(IBR2)", "iiq(IBR2)", "vcd(IBR2)", "vcq(IBR2)", "iod(IBR2)",
+        "ioq(IBR2)",
+        'ilineD(Line1)', 'ilineQ(Line1)',
+        'ilineD(Line2)', 'ilineQ(Line2)',
+        'iloadD(Load)', 'iloadQ(Load)'
+    ]
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
