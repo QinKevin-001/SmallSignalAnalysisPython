@@ -197,7 +197,7 @@ def visualization(testResults):
         "ilineD(Line2)", "ilineQ(Line2)", "IloadD(Load)", "IloadQ(Load)"
     ]
     mode_data_raw = testResults[1][4]
-    modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
+    modes = mode_data_raw if not isinstance(mode_data_raw[0], list) else mode_data_raw[1:]
     mode_range = len(modes)
 
     # Use session state for mode selection
