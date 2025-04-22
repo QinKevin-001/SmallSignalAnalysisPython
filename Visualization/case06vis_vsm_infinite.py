@@ -136,7 +136,6 @@ def run_simulation_and_visualization():
     visualization(testResults)
 
 def main():
-    st.title("VSM Infinite System Analysis")
     if "needs_rerun" not in st.session_state:
         st.session_state["needs_rerun"] = False
     run_simulation_and_visualization()
