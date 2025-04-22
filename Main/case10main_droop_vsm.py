@@ -41,19 +41,12 @@ def main_droop_vsm(user_params=None):
 
     # If user-defined parameters exist, update the default dictionary
     if user_params:
-        for key in parasIBR1.keys():
-            if key in user_params:
-                parasIBR1[key] = user_params[key]
-
-    if user_params:
-        for key in parasIBR2.keys():
-            if key in user_params:
-                parasIBR2[key] = user_params[key]
-
-    if user_params:
-        for key in parasLoad.keys():
-            if key in user_params:
-                parasLoad[key] = user_params[key]
+        if 'parasIBR1' in user_params:
+            parasIBR1.update({k: float(v) for k, v in user_params['parasIBR1'].items()})
+        if 'parasIBR2' in user_params:
+            parasIBR2.update({k: float(v) for k, v in user_params['parasIBR2'].items()})
+        if 'parasLoad' in user_params:
+            parasLoad.update({k: float(v) for k, v in user_params['parasLoad'].items()})
 
     # Column Names
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
