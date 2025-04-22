@@ -25,7 +25,6 @@ default_values = {
 for key in default_values:
     if key not in st.session_state:
         st.session_state[key] = default_values[key]
-
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
 
@@ -35,7 +34,6 @@ def update_param(key):
 def get_user_inputs():
     """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
-
     user_params = {}
     for var, (min_val, max_val) in variable_ranges.items():
         step = round((float(max_val) - float(min_val)) / 100, 3)
@@ -49,7 +47,6 @@ def get_user_inputs():
             on_change=update_param,
             args=(var,)
         )
-
     return user_params
 
 def run_simulation(user_params):
