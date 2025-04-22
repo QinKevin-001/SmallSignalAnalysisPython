@@ -126,7 +126,7 @@ def visualization(testResults):
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
-        mode_labels = [f"{i + 1}" for i in range(mode_range)]
+        mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
@@ -140,6 +140,7 @@ def visualization(testResults):
             title="Participation Factors Heatmap",
             width=900, height=700
         )
+        heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
 def run_simulation_and_visualization():
