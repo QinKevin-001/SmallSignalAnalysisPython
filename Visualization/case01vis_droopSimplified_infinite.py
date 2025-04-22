@@ -5,14 +5,10 @@ from Main import case01main_droopSimplified_infinite
 
 # User input Limits
 variable_ranges = {
-    "Pset": (0.0, 1.0),
-    "Qset": (-1.0, 1.0),
-    "wset": (1.0, 1.0),
-    "Vset": (0.9, 1.1),
-    "mp": (0.01, 1.00),
-    "mq": (0.01, 1.00),
-    "Rc": (0.01, 1.0),
-    "Lc": (0.01, 1.0),
+    "Pset": (0.0, 1.0), "Qset": (-1.0, 1.0),
+    "wset": (1.0, 1.0), "Vset": (0.9, 1.1),
+    "mp": (0.01, 1.00), "mq": (0.01, 1.00),
+    "Rc": (0.01, 1.0),  "Lc": (0.01, 1.0),
     "wc": (round(2 * np.pi * 1, 2), round(2 * np.pi * 20, 2))
 }
 
@@ -57,22 +53,17 @@ def get_user_inputs():
     return user_params
 
 def run_simulation(user_params):
-    """Calls case01main_droopSimplified_infinite.py with updated parameters"""
     return case01main_droopSimplified_infinite.main_droopSimplified_infinite(user_params)
 
 def visualization(testResults):
-    """Generates plots based on testResults"""
     state_variables = [
         "Theta0", "Po0", "Qo0", "Iod0", "Ioq0"
     ]
-
     mode_data_raw = testResults[1][4]
-
     if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode':
         modes = mode_data_raw[1:]
     else:
         modes = mode_data_raw
-
     mode_range = len(modes)
 
     # Use session state for mode selection
@@ -84,21 +75,18 @@ def visualization(testResults):
     )
     st.session_state.selected_mode = selected_mode
     mode_index = selected_mode - 1
-
     parameter_data = testResults[1]
     try:
         mode_data = modes[mode_index]
     except IndexError:
         st.error("Mode data is unavailable.")
         return
-
     try:
         eigenvalue_real = np.real(parameter_data[1][mode_index])
         eigenvalue_imag = np.imag(parameter_data[1][mode_index])
     except IndexError:
         st.error("Eigenvalue data is unavailable.")
         return
-
     try:
         participation_factors = mode_data[5] if len(mode_data) > 5 else []
         if participation_factors:
@@ -118,7 +106,6 @@ def visualization(testResults):
 
     # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
-
     with col1:
         if factor_magnitudes:
             pie_chart_fig = px.pie(
@@ -130,7 +117,6 @@ def visualization(testResults):
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
-
     with col2:
         heatmap_data = []
         for mode_idx in range(mode_range):
@@ -143,7 +129,6 @@ def visualization(testResults):
             except (IndexError, ValueError):
                 pass
             heatmap_data.append(mode_values)
-
         mode_labels = [f"Mode {i + 1}" for i in range(mode_range)]
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
@@ -165,9 +150,7 @@ def run_simulation_and_visualization():
 def main():
     if "needs_rerun" not in st.session_state:
         st.session_state["needs_rerun"] = False
-
     run_simulation_and_visualization()
-
     if st.session_state.get("needs_rerun", False):
         st.session_state["needs_rerun"] = False
         st.rerun()
