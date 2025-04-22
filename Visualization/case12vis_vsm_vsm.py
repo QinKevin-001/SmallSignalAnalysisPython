@@ -148,7 +148,6 @@ def run_simulation_and_visualization():
     visualization(testResults)
 
 def main():
-    st.title("VSM + VSM System Analysis")
     run_simulation_and_visualization()
 
 if __name__ == "__main__":
