@@ -67,29 +67,16 @@ def main_droopPlant_sg(user_params=None):
 
     # If user-defined parameters exist, update the default dictionary
     if user_params:
-        for key in parasIBR.keys():
-            if key in user_params:
-                parasIBR[key] = user_params[key]
-
-    if user_params:
-        for key in parasSG.keys():
-            if key in user_params:
-                parasSG[key] = user_params[key]
-
-    if user_params:
-        for key in parasLine1.keys():
-            if key in user_params:
-                parasLine1[key] = user_params[key]
-
-    if user_params:
-        for key in parasLine2.keys():
-            if key in user_params:
-                parasLine2[key] = user_params[key]
-
-    if user_params:
-        for key in parasLoad.keys():
-            if key in user_params:
-                parasLoad[key] = user_params[key]
+        if 'parasIBR' in user_params:
+            parasIBR.update({k: float(v) for k, v in user_params['parasIBR'].items()})
+        if 'parasSG' in user_params:
+            parasSG.update({k: float(v) for k, v in user_params['parasSG'].items()})
+        if 'parasLine1' in user_params:
+            parasLine1.update({k: float(v) for k, v in user_params['parasLine1'].items()})
+        if 'parasLine2' in user_params:
+            parasLine2.update({k: float(v) for k, v in user_params['parasLine2'].items()})
+        if 'parasLoad' in user_params:
+            parasLoad.update({k: float(v) for k, v in user_params['parasLoad'].items()})
 
     # Column Names
     testResults = [["Parameter", "Eigenvalues", "maxRealValue", "minDampingRatio", "modalAnalysis", "pfExitFlag"]]
