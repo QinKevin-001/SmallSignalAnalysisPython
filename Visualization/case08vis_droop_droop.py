@@ -58,77 +58,67 @@ default_values = {
 }
 
 # Initialize session state
-if "params" not in st.session_state:
-    st.session_state.params = default_values.copy()
+for key in default_values:
+    if key not in st.session_state:
+        st.session_state[key] = default_values[key]
 if "selected_mode" not in st.session_state:
     st.session_state.selected_mode = 1
-if "needs_rerun" not in st.session_state:
-    st.session_state.needs_rerun = False
 
-def create_parameter_input(col, param_name, prefix=""):
-    """Creates a number input for a parameter in the given column"""
-    min_val, max_val = variable_ranges[param_name]
-    step = float(round((float(max_val) - float(min_val)) / 100, 3))
-    display_name = param_name.replace(prefix, '') if prefix else param_name
-
-    value = col.number_input(
-        f"{display_name}",
-        min_value=float(min_val),
-        max_value=float(max_val),
-        value=float(st.session_state.params[param_name]),
-        step=step,
-        key=f"input_{param_name}"
-    )
-
-    if st.session_state.params[param_name] != value:
-        st.session_state.params[param_name] = value
-        st.session_state.needs_rerun = True
-
-    return value
+def update_param(key):
+    st.session_state["needs_rerun"] = True
 
 def get_user_inputs():
-    """Creates user input controls with parameters stacked two in a row"""
+    """Creates user input controls inside the Simulation Parameters tab"""
     st.sidebar.header("Simulation Parameters")
-
     # Create tabs for different parameter groups
     ibr1_tab, ibr2_tab, load_tab = st.sidebar.tabs(["IBR1", "IBR2", "Load"])
-
     user_params = {}
-
     # IBR1 Parameters
     with ibr1_tab:
-        st.header("IBR1 Parameters")
-        ibr1_params = [param for param in variable_ranges.keys()
-                      if not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx']]
-
-        for i in range(0, len(ibr1_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr1_params[i]] = create_parameter_input(col1, ibr1_params[i])
-            if i + 1 < len(ibr1_params):
-                user_params[ibr1_params[i+1]] = create_parameter_input(col2, ibr1_params[i+1])
-
+        ibr1_params = [param for param in variable_ranges.keys() if
+                      not param.endswith('_IBR2') and param not in ['Rload', 'Lload', 'Rx']]
+        for var in ibr1_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
     # IBR2 Parameters
     with ibr2_tab:
-        st.header("IBR2 Parameters")
         ibr2_params = [param for param in variable_ranges.keys() if param.endswith('_IBR2')]
-
-        for i in range(0, len(ibr2_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[ibr2_params[i]] = create_parameter_input(col1, ibr2_params[i], '_IBR2')
-            if i + 1 < len(ibr2_params):
-                user_params[ibr2_params[i+1]] = create_parameter_input(col2, ibr2_params[i+1], '_IBR2')
-
+        for var in ibr2_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var.replace('_IBR2', '')} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
     # Load Parameters
     with load_tab:
-        st.header("Load Parameters")
         load_params = ['Rload', 'Lload', 'Rx']
-
-        for i in range(0, len(load_params), 2):
-            col1, col2 = st.columns(2)
-            user_params[load_params[i]] = create_parameter_input(col1, load_params[i])
-            if i + 1 < len(load_params):
-                user_params[load_params[i+1]] = create_parameter_input(col2, load_params[i+1])
-
+        for var in load_params:
+            step = float(round((float(variable_ranges[var][1]) - float(variable_ranges[var][0])) / 100, 3))
+            user_params[var] = st.number_input(
+                f"{var} ({variable_ranges[var][0]} to {variable_ranges[var][1]})",
+                min_value=float(variable_ranges[var][0]),
+                max_value=float(variable_ranges[var][1]),
+                value=float(st.session_state[var]),
+                step=step,
+                key=var,
+                on_change=update_param,
+                args=(var,)
+            )
     return user_params
 
 def prepare_simulation_parameters(user_params):
@@ -139,12 +129,11 @@ def prepare_simulation_parameters(user_params):
 
     for key, value in user_params.items():
         if key.endswith('_IBR2'):
-            base_key = key.replace('_IBR2', '')
-            ibr2_params[base_key] = float(value)
+            ibr2_params[key.replace('_IBR2', '')] = value
         elif key in ['Rload', 'Lload', 'Rx']:
-            load_params[key] = float(value)
+            load_params[key] = value
         else:
-            ibr1_params[key] = float(value)
+            ibr1_params[key] = value
 
     return {
         'parasIBR1': ibr1_params,
@@ -164,11 +153,11 @@ def visualization(testResults):
         'iiq(IBR2)', 'vcd(IBR2)', 'vcq(IBR2)', 'iod(IBR2)', 'ioq(IBR2)',
         'iloadD(Load)', 'iloadQ(Load)'
     ]
-
     mode_data_raw = testResults[1][4]
     modes = mode_data_raw[1:] if isinstance(mode_data_raw[0], list) and mode_data_raw[0][0] == 'Mode' else mode_data_raw
     mode_range = len(modes)
 
+    # Use session state for mode selection
     selected_mode = st.sidebar.slider(
         "Select a Mode",
         1, mode_range,
@@ -176,11 +165,10 @@ def visualization(testResults):
         key="mode_slider"
     )
     st.session_state.selected_mode = selected_mode
-
     mode_index = selected_mode - 1
+    parameter_data = testResults[1]
     mode_data = modes[mode_index]
     participation_factors = mode_data[5] if len(mode_data) > 5 else []
-
     if participation_factors:
         valid_factors = [
             entry for entry in participation_factors
@@ -193,8 +181,8 @@ def visualization(testResults):
         factor_magnitudes = []
         dominant_state_names = []
 
+    # Layout for Pie Chart and Heatmap
     col1, col2 = st.columns([1, 1])
-
     with col1:
         if factor_magnitudes:
             pie_chart_fig = px.pie(
@@ -206,7 +194,6 @@ def visualization(testResults):
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
-
     with col2:
         heatmap_data = []
         for mode_idx in range(mode_range):
@@ -216,13 +203,16 @@ def visualization(testResults):
                 if isinstance(entry[0], (int, np.integer)) and 1 <= entry[0] <= len(state_variables):
                     mode_values[entry[0] - 1] = entry[2]
             heatmap_data.append(mode_values)
-
         mode_labels = list(range(1, mode_range + 1))
         heatmap_fig = px.imshow(
             np.array(heatmap_data).T,
             x=mode_labels,
             y=state_variables,
-            labels={"x": "Modes", "y": "State Variables", "color": "Participation Factor"},
+            labels={
+                "x": "Modes",
+                "y": "State Variables",
+                "color": "Participation Factor"
+            },
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
             width=900, height=700
@@ -230,12 +220,18 @@ def visualization(testResults):
         heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
-def main():
+def run_simulation_and_visualization():
+    """Runs the simulation and visualization process"""
     user_params = get_user_inputs()
     testResults = run_simulation(user_params)
     visualization(testResults)
-    if st.session_state.needs_rerun:
-        st.session_state.needs_rerun = False
+
+def main():
+    if "needs_rerun" not in st.session_state:
+        st.session_state["needs_rerun"] = False
+    run_simulation_and_visualization()
+    if st.session_state.get("needs_rerun", False):
+        st.session_state["needs_rerun"] = False
         st.rerun()
 
 if __name__ == "__main__":
