@@ -2,7 +2,7 @@ import numpy as np
 import cmath
 
 def steadystatevalue_sg(w, Vb, Io, parasSG):
-    # Extract parameters
+    # parameters
     Pset = parasSG['Pset']
     wset = parasSG['wset']
     Rs = parasSG['Rs']
@@ -22,48 +22,35 @@ def steadystatevalue_sg(w, Vb, Io, parasSG):
     Ta = parasSG['Ta']
     Tb = parasSG['Tb']
 
-    # Complex calculations
     VbD = Vb.real
     VbQ = Vb.imag
     PowerFactorAngle = cmath.phase(Vb) - cmath.phase(Io)
-
-    # Fix: Use complex impedance calculation
     Eq = Vb + (Rs + 1j * w * Lq) * Io
     RotorAngle = cmath.phase(Eq) - cmath.phase(Vb)
-
     Vbabs = abs(Vb)
     Vbd = Vbabs * np.sin(RotorAngle)
     Vbq = Vbabs * np.cos(RotorAngle)
-
     Ioabs = abs(Io)
     Iod = Ioabs * np.sin(RotorAngle + PowerFactorAngle)
     Ioq = Ioabs * np.cos(RotorAngle + PowerFactorAngle)
-
-    # Fix: Correct flux calculations
     Psid = (Rs * Ioq + Vbq) / w
     Psiq = -(Rs * Iod + Vbd) / w
-
     Ifd = (Psid + Ld * Iod) / Lmd
     Psi1d = -Lmd * Iod + Lmd * Ifd
     Psi2q = -Lmq * Ioq
-
     Eq1 = Psi1d + (Ld1 - Ll) * Iod
     Ed1 = -Psi2q - (Lq1 - Ll) * Ioq
     Efd = Lmd * Ifd
-
     dwr = w - wset
     Pd = Kg * dwr
     P1 = Pd - Kg * T2/T1 * dwr
     Pg = Pset - Pd
     Pf = Pg
     P2 = K2 * Pf
-
-    # Fix: Voltage calculations
     Vr = Efd / Ke
     Ve = Vr
     Vx = Vr - Ta/Tb * Ve
 
-    # Output state values
     Theta_0 = cmath.phase(Vb) + RotorAngle - np.pi/2
     steadyStateValuesX = np.array([
         Theta_0, w,      # Mechanical states

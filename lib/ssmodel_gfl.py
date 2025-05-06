@@ -1,13 +1,10 @@
-#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_gfl(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic variables
     theta, epsilonPLL, wf, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq = sp.symbols(
         'theta epsilonPLL wf Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq')
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
-
     # Parameters
     Pset = parasInverter['Pset']
     Qset = parasInverter['Qset']
@@ -29,7 +26,6 @@ def ssmodel_gfl(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, is
     KiC = parasInverter['KiC']
     wcpll = parasInverter['wcpll']
     wc = parasInverter['wc']
-
     # Algebraic equations
     vod = vcd + Rd * (iid - iod)
     voq = vcq + Rd * (iiq - ioq)
@@ -42,7 +38,6 @@ def ssmodel_gfl(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, is
     iiqRef = KpS * (Qo - Qref) + KiS * phiq
     vidRef = KpC * (iidRef - iid) + KiC * gammad - wset * Lt * iiq
     viqRef = KpC * (iiqRef - iiq) + KiC * gammaq + wset * Lt * iid
-
     # Ordinary differential equations
     f = sp.Matrix([
         wbase * (winv - wcom),
@@ -61,34 +56,25 @@ def ssmodel_gfl(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, is
         wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc,
         wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc
     ])
-
     IoD = iod * sp.cos(theta) - ioq * sp.sin(theta)
     IoQ = iod * sp.sin(theta) + ioq * sp.cos(theta)
-
     # State-Space Matrices
     stateVariables = ['theta', 'epsilonPLL', 'wf', 'Po', 'Qo', 'phid', 'phiq', 'gammad', 'gammaq', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
     x = sp.Matrix([theta, epsilonPLL, wf, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
-
-    # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([IoD, IoQ]).jacobian(x)
     CwSym = winv.diff(x)
-
-    # Substitute steady-state values
     subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
     A = np.array(Asym.subs(subs_dict).evalf(), dtype=float)
     B = np.array(Bsym.subs(subs_dict).evalf(), dtype=float)
     Bw = np.array(BwSym.subs(subs_dict).evalf(), dtype=float)
     C = np.array(Csym.subs(subs_dict).evalf(), dtype=float)
     Cw = np.array(CwSym.subs(subs_dict).evalf(), dtype=float)
-
     if isRef == 0:
         Cw = np.zeros((1, len(stateVariables)))
-
-    # Output
     stateMatrix = {
         'A': A,
         'B': B,

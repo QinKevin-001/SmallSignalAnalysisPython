@@ -1,9 +1,7 @@
-#DONT TOUCH
 import numpy as np
 import cmath
 
 def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
-    # Extract parameters
     KiPLLplant = parasIBR['KiPLLplant']
     KiPlantP   = parasIBR['KiPlantP']
     KiPlantQ   = parasIBR['KiPlantQ']
@@ -59,7 +57,7 @@ def steadystatevalue_droopPlant(w, Vb, Io, parasIBR):
     Vid = ViAbs * np.cos(ViAngle - VoAngle)
     Viq = ViAbs * np.sin(ViAngle - VoAngle)
 
-    # Steady-state calculations (MATLAB ordering)
+    # Steady-state calculations
     thetaPlant0   = VbAngle
     epsilonPLL0   = (w - wsetPlant) / KiPLLplant
     wPlant0       = w

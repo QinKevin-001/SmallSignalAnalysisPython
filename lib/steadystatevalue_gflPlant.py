@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 import cmath
 
@@ -68,11 +67,8 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     epsilonQ0 = (Qo - (Vset - Vod) / mq - QsetPlant) / KiPlantQ
     PoPlant0 = PoPlant
     QoPlant0 = QoPlant
-
-    # Calculate delay states as in the MATLAB code
     PsetDelay0 = Po - (wset - w) / mp
     QsetDelay0 = Qo - (Vset - Vod) / mq
-
     Theta0 = VoAngle
     epsilonPLL0 = (w - wset) / KiL
     wf0 = w
@@ -89,7 +85,7 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
     Iod0 = Iod
     Ioq0 = Ioq
 
-    # Build state vector with same ordering as MATLAB
+    # Build state vector
     steadyStateValuesX = np.array([
         thetaPlant0,        # 1. thetaPlant0
         epsilonPLLPlant0,   # 2. epsilonPLLPlant0
@@ -116,7 +112,6 @@ def steadystatevalue_gflPlant(w, Vb, Io, parasIBR):
         Iod0,               # 23. Iod0
         Ioq0                # 24. Ioq0
     ])
-
     steadyStateValuesU = np.array([VbD, VbQ, w])
 
     return steadyStateValuesX, steadyStateValuesU

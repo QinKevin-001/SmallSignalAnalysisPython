@@ -1,4 +1,3 @@
-# DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_sg import pf_func_ibr_sg

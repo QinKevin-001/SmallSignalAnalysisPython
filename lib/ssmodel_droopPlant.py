@@ -1,9 +1,7 @@
-#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic variables for 22 states (the ordering follows MATLAB)
     (thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
      PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Po, Qo,
      phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq) = sp.symbols(
@@ -43,7 +41,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     KiC         = parasIBR['KiC']
     wc          = parasIBR['wc']
 
-    # Algebraic equations (mirror MATLAB)
+    # Algebraic equations
     vbqPlant = -vbD * sp.sin(thetaPlant) + vbQ * sp.cos(thetaPlant)
     wpllPlant = KpPLLplant * vbqPlant + KiPLLplant * epsilonPLLPlant + wsetPlant
     VabsPlant = sp.sqrt(vbD**2 + vbQ**2)
@@ -54,7 +52,6 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
 
     vod = vcd + Rd * (iid - iod)
     voq = vcq + Rd * (iiq - ioq)
-    # IMPORTANT: Use the delay states in winv and vodRef expressions:
     winv = wset - mp * (Po - PsetDelay)
     vodRef = Vset - mq * (Qo - QsetDelay)
     voqRef = 0
@@ -67,7 +64,7 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
     ioD = (iod * sp.cos(theta) - ioq * sp.sin(theta))
     ioQ = (iod * sp.sin(theta) + ioq * sp.cos(theta))
 
-    # Define 22 differential equations (in the same order as MATLAB)
+    # Define 22 differential equations
     f = sp.Matrix([
         wbase * (wpllPlant - wcom),                                   # 1
         vbqPlant,                                                     # 2
@@ -93,13 +90,11 @@ def ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 
         wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc             # 22
     ])
 
-    # Create state and input vectors matching the 22 states
     x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
                    PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Po, Qo,
                    phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
 
-    # Calculate Jacobians with respect to x and u
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian(sp.Matrix([wcom]))

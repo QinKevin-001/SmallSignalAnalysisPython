@@ -1,20 +1,16 @@
-#DONT TOUCH
 import sympy as sp
 import numpy as np
 
-
 def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic variables
     (thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
      PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof, Vof,
      winv, psif, iid, iiq, vcd, vcq, iod, ioq) = sp.symbols(
         'thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant '
         'PsetDelay QsetDelay theta Tef Qof Vof winv psif iid iiq vcd vcq iod ioq',
         real=True)
-
     (vbD, vbQ, wcom) = sp.symbols('vbD vbQ wcom', real=True)
 
-    # Parameters from parasIBR (assumed to be a dictionary)
+    # Parameters
     PsetPlant = parasIBR['PsetPlant']
     QsetPlant = parasIBR['QsetPlant']
     wsetPlant = parasIBR['wsetPlant']
@@ -43,7 +39,6 @@ def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     J = parasIBR['J']
     K = parasIBR['K']
     tauf = parasIBR['tauf']
-
     # Algebraic equations
     vbqPlant = -vbD * sp.sin(thetaPlant) + vbQ * sp.cos(thetaPlant)
     wpllPlant = KpPLLplant * vbqPlant + KiPLLplant * epsilonPLLPlant + wsetPlant
@@ -61,7 +56,7 @@ def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     ioD = iod * sp.cos(theta) - ioq * sp.sin(theta)
     ioQ = iod * sp.sin(theta) + ioq * sp.cos(theta)
 
-    # Ordinary differential equations (f is a 21x1 column vector)
+    # Ordinary differential equations
     f1 = wbase * (wpllPlant - wcom)
     f2 = vbqPlant
     f3 = -wcpllPlant * wPlant + wcpllPlant * wpllPlant
@@ -83,40 +78,29 @@ def ssmodel_vsmPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     f19 = wbase * (iiq - ioq - winv * Cf * vcd) / Cf
     f20 = wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc
     f21 = wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc
-
     f = sp.Matrix([f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
                    f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21])
-
     # Define state and input variables
     stateVariables = ['thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ',
                       'PoPlant', 'QoPlant', 'PsetDelay', 'QsetDelay', 'theta', 'Tef', 'Qof',
                       'Vof', 'winv', 'psif', 'iid', 'iiq', 'vcd', 'vcq', 'iod', 'ioq']
-
     x = sp.Matrix([thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ,
                    PoPlant, QoPlant, PsetDelay, QsetDelay, theta, Tef, Qof,
                    Vof, winv, psif, iid, iiq, vcd, vcq, iod, ioq])
-
     u = sp.Matrix([vbD, vbQ, wcom])
-
-    # Compute Jacobians
     A_sym = f.jacobian(x)
     B_sym = f.jacobian([vbD, vbQ])
     Bw_sym = f.jacobian([wcom])
     C_sym = sp.Matrix([ioD, ioQ]).jacobian(x)
     Cw_sym = sp.Matrix([winv]).jacobian(x)
-
-    # Substitute the steady state values and convert to numerical (float) NumPy arrays
     subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
     A = np.array(A_sym.subs(subs_dict)).astype(np.float64)
     B = np.array(B_sym.subs(subs_dict)).astype(np.float64)
     Bw = np.array(Bw_sym.subs(subs_dict)).astype(np.float64)
     C = np.array(C_sym.subs(subs_dict)).astype(np.float64)
     Cw = np.array(Cw_sym.subs(subs_dict)).astype(np.float64)
-
     if isRef == 0:
         Cw = np.zeros((1, len(x)))
-
-    # Build the stateMatrix output dictionary
     stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),

@@ -1,9 +1,7 @@
-#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic variables (note the added PsetDelay and QsetDelay)
     thetaPlant, epsilonPLLPlant, wPlant, epsilonP, epsilonQ, \
     PoPlant, QoPlant, PsetDelay, QsetDelay, \
     theta, epsilonPLL, wf, Po, Qo, \
@@ -11,9 +9,7 @@ def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     vcd, vcq, iod, ioq = sp.symbols(
         'thetaPlant epsilonPLLPlant wPlant epsilonP epsilonQ PoPlant QoPlant PsetDelay QsetDelay '
         'theta epsilonPLL wf Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq')
-
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
-
     # Parameters
     PsetPlant  = parasIBR['PsetPlant']
     QsetPlant  = parasIBR['QsetPlant']
@@ -48,7 +44,6 @@ def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     KiC        = parasIBR['KiC']
     wcpll      = parasIBR['wcpll']
     wc         = parasIBR['wc']
-
     # Algebraic equations
     vbqPlant   = -vbD * sp.sin(thetaPlant) + vbQ * sp.cos(thetaPlant)
     wpllPlant  = KpPLLplant * vbqPlant + KiPLLplant * epsilonPLLPlant + wsetPlant
@@ -72,7 +67,7 @@ def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
     ioD        = iod * sp.cos(theta) - ioq * sp.sin(theta)
     ioQ        = iod * sp.sin(theta) + ioq * sp.cos(theta)
 
-    # Ordinary differential equations (24 equations)
+    # Ordinary differential equations
     f = sp.Matrix([
         wbase * (wpllPlant - wcom),                                 # Equation 1
         vbqPlant,                                                  # Equation 2
@@ -99,8 +94,6 @@ def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
         wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc,       # Equation 23
         wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc        # Equation 24
     ])
-
-    # State-space matrices
     stateVariables = [
         'thetaPlant', 'epsilonPLLPlant', 'wPlant', 'epsilonP', 'epsilonQ',
         'PoPlant', 'QoPlant', 'PsetDelay', 'QsetDelay', 'theta', 'epsilonPLL',
@@ -113,26 +106,19 @@ def ssmodel_gflPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, is
         Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq
     ])
     u = sp.Matrix([vbD, vbQ, wcom])
-
-    # Jacobians of the system equations with respect to state and input variables
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
     CwSym = sp.Matrix([winv]).jacobian(x)
-
-    # Substitute steady-state values
     substitutions = {**dict(zip(x, steadyStateValuesX)), **dict(zip(u, steadyStateValuesU))}
     A = np.array(Asym.subs(substitutions)).astype(float)
     B = np.array(Bsym.subs(substitutions)).astype(float)
     Bw = np.array(BwSym.subs(substitutions)).astype(float)
     C = np.array(Csym.subs(substitutions)).astype(float)
     Cw = np.array(CwSym.subs(substitutions)).astype(float)
-
     if isRef == 0:
         Cw = np.zeros((1, len(stateVariables)))
-
-    # Output
     stateMatrix = {
         'A': A,
         'B': B,

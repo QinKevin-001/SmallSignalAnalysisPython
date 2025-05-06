@@ -1,13 +1,9 @@
-#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_droopSimplified(wbase, paras_inverter, steady_state_values_x, steady_state_values_u, is_ref):
-    # Define symbolic variables
     theta, Po, Qo, iod, ioq = sp.symbols('theta Po Qo iod ioq')
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
-
-    # Parameters
     Pset = paras_inverter['Pset']
     Qset = paras_inverter['Qset']
     wset = paras_inverter['wset']

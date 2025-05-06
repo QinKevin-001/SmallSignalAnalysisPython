@@ -66,7 +66,6 @@ def ssmodel_droop_vsm(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticipat
     ssVarsLoad = np.array(stateMatrixLoad['ssVariables'], dtype=object)
 
     try:
-        # Try direct concatenation first
         ssVariables = np.vstack([ssVars1, ssVars2, ssVarsLoad])
     except ValueError:
 

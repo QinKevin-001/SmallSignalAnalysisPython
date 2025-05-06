@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibrPlant_infinite import pf_func_ibrPlant_infinite
@@ -18,14 +17,8 @@ def ssmodel_droopPlant_infinite(wbase, parasIBR, dominantParticipationFactorBoun
         full_output=True
     )
     pfExitFlag = ier
-
-    # Compute power flow results
     w, V1, V2, I = pf_calc_infinite(x, parasIBR)
-
-    # Compute steady-state values (the delay states are computed here)
     steadyStateValuesX, steadyStateValuesU = steadystatevalue_droopPlant(w, V1, I, parasIBR)
-
-    # Build the state-space model (with 22 states)
     stateMatrix = ssmodel_droopPlant(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 0)
     Asys = stateMatrix['A']
     ssVariables = stateMatrix['ssVariables']

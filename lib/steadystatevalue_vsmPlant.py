@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 import cmath
 
@@ -21,7 +20,6 @@ def steadystatevalue_vsmPlant(w, Vb, Io, parasIBR):
     Rc = parasIBR['Rc']
     Lc = parasIBR['Lc']
 
-    # Calculation
     imagUnit = 1j
     VbAngle = cmath.phase(Vb)
     VbD = Vb.real

@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 
 def steadystatevalue_load(w, Vb, parasLoad):
@@ -6,7 +5,6 @@ def steadystatevalue_load(w, Vb, parasLoad):
     Rload = parasLoad['Rload']
     Lload = parasLoad['Lload']
 
-    # Calculation
     imagUnit = 1j
     VbD = Vb.real
     VbQ = Vb.imag
@@ -14,8 +12,6 @@ def steadystatevalue_load(w, Vb, parasLoad):
     Iload = Vb / Zload
     IloadD = Iload.real
     IloadQ = Iload.imag
-
-    # Output
     steadyStateValuesX = np.array([IloadD, IloadQ])
     steadyStateValuesU = np.array([VbD, VbQ, w])
 

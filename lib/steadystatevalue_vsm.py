@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 import cmath
 
@@ -17,25 +16,20 @@ def steadystatevalue_vsm(w, Vo, Io, parasInverter):
     Vb = Vo - (Rc + imagUnit * w * Lc) * Io
     VbD = Vb.real
     VbQ = Vb.imag
-
     VoAbs = abs(Vo)
     VoAngle = cmath.phase(Vo)
     IoAbs = abs(Io)
     IoAngle = cmath.phase(Io)
-
     Ic = Vo / (Rd + 1 / (imagUnit * w * Cf))
     Vc = Vo - Rd * Ic
     VcAbs = abs(Vc)
     VcAngle = cmath.phase(Vc)
-
     Ii = Ic + Io
     IiAbs = abs(Ii)
     IiAngle = cmath.phase(Ii)
-
     Vi = Vo + (Rt + imagUnit * w * Lt) * Ii
     ViAbs = abs(Vi)
     ViAngle = cmath.phase(Vi)
-
     Vod = VoAbs * np.cos(VoAngle - ViAngle)
     Voq = VoAbs * np.sin(VoAngle - ViAngle)
     Iod = IoAbs * np.cos(IoAngle - ViAngle)
@@ -46,11 +40,9 @@ def steadystatevalue_vsm(w, Vo, Io, parasInverter):
     Iiq = IiAbs * np.sin(IiAngle - ViAngle)
     Vid = ViAbs * np.cos(ViAngle - ViAngle)
     Viq = ViAbs * np.sin(ViAngle - ViAngle)
-
     Po = Vod * Iod + Voq * Ioq
     Qo = Voq * Iod - Vod * Ioq
 
-    # Output
     Theta0 = ViAngle
     Tef0 = Po / wset
     Qof0 = Qo

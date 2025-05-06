@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 import cmath
 
@@ -14,7 +13,6 @@ def steadystatevalue_droop(w, Vo, Io, parasInverter):
     KiV = parasInverter['KiV']
     KiC = parasInverter['KiC']
 
-    # Calculation
     imagUnit = 1j
     Vb = Vo - (Rc + imagUnit*w*Lc)*Io
     VbD = Vb.real
@@ -46,7 +44,6 @@ def steadystatevalue_droop(w, Vo, Io, parasInverter):
     Vid = ViAbs*np.cos(ViAngle - VoAngle)
     Viq = ViAbs*np.sin(ViAngle - VoAngle)
 
-    # Output
     Theta0 = VoAngle
     Po0 = Po
     Qo0 = Qo

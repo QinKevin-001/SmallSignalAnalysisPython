@@ -7,8 +7,6 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
         'theta wr psid psiq Eq1 Ed1 psi1d psi2q P1 Pg Pf P2 vx Efd'
     )
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
-
-    # Extract parameters
     wset = parasSG['wset']
     Pset = parasSG['Pset']
     Vset = parasSG['Vset']
@@ -38,7 +36,6 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
     Tb = parasSG['Tb']
     Ke = parasSG['Ke']
     Te = parasSG['Te']
-
     # Algebraic equations
     vbd = vbD * sp.cos(theta) + vbQ * sp.sin(theta)
     vbq = -vbD * sp.sin(theta) + vbQ * sp.cos(theta)
@@ -49,7 +46,6 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
     vError = Vset - vAbs
     Pm = P2 + K1*Pf
     Tm = Pm/wr
-
     # System equations
     f = sp.Matrix([
         wbase*(wr - wcom),
@@ -67,22 +63,18 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
         1/Tb*(-vx - Ta/Tb*vError + vError),
         1/Te*(Ke*vx + Ke*Ta/Tb*vError - Efd)
     ])
-
     # Output equations
     ioD = iod*sp.cos(theta) - ioq*sp.sin(theta)
     ioQ = iod*sp.sin(theta) + ioq*sp.cos(theta)
-
     # State and input vectors
     x = sp.Matrix([theta, wr, psid, psiq, Eq1, Ed1, psi1d, psi2q, P1, Pg, Pf, P2, vx, Efd])
     u = sp.Matrix([vbD, vbQ, wcom])
-
     # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
     CwSym = wr.diff(x)
-
     # Substitute steady-state values
     subs_dict = dict(zip(list(x) + list(u), np.concatenate([steadyStateValuesX, steadyStateValuesU])))
     A = np.array(Asym.subs(subs_dict).evalf()).astype(np.float64)
@@ -90,10 +82,8 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
     Bw = np.array(BwSym.subs(subs_dict).evalf()).astype(np.float64)
     C = np.array(Csym.subs(subs_dict).evalf()).astype(np.float64)
     Cw = np.array(CwSym.subs(subs_dict).evalf()).astype(np.float64)
-
     if not isRef:
         Cw = np.zeros((1, len(x)))
-
     # State variable labels
     stateVariables = [
         ['theta', ''], ['wr', ''], ['psid', ''], ['psiq', ''],
@@ -101,7 +91,6 @@ def ssmodel_sg(wbase, parasSG, steadyStateValuesX, steadyStateValuesU, isRef):
         ['P1', ''], ['Pg', ''], ['Pf', ''], ['P2', ''],
         ['vx', ''], ['Efd', '']
     ]
-
     return {
         'A': A,
         'B': B,
