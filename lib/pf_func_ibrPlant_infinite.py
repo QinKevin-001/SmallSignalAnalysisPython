@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 
 def pf_func_ibrPlant_infinite(x, parasIBR):

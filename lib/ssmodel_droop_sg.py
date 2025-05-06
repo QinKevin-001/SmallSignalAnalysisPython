@@ -13,27 +13,17 @@ from lib.ssmodel_line import ssmodel_line
 from lib.ssmodel_load import ssmodel_load
 from lib.eigenvalue_analysis import eigenvalue_analysis
 
-
 def ssmodel_droop_sg(wbase, parasIBR, parasSG, parasLineSG, parasLoad, dominantParticipationFactorBoundary):
-    ## Power Flow Calculation
+    # Power Flow Calculation
     x0 = np.array([1, 0, 0, 1, 1, 1])
-    # Define parasLine1 and parasLine2 based on input parameters
-    parasLine1 = {}
-    if isinstance(parasIBR, dict):
-        parasLine1['Rline'] = parasIBR['Rc']
-        parasLine1['Lline'] = parasIBR['Lc']
-    else:
-        parasLine1['Rline'] = parasIBR.Rc
-        parasLine1['Lline'] = parasIBR.Lc
-
-    parasLine2 = {}
-    if isinstance(parasLineSG, dict):
-        parasLine2['Rline'] = parasLineSG['Rline']
-        parasLine2['Lline'] = parasLineSG['Lline']
-    else:
-        parasLine2['Rline'] = parasLineSG.Rline
-        parasLine2['Lline'] = parasLineSG.Lline
-
+    parasLine1 = {
+        'Rline' : parasIBR['Rc'],
+        'Lline' : parasIBR['Lc']
+    }
+    parasLine2 = {
+        'Rline' : parasLineSG['Rline'],
+        'Lline' : parasLineSG['Lline']
+    }
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibr_sg(x, parasIBR, parasSG, parasLine1, parasLine2, parasLoad),
         x0,
@@ -41,12 +31,9 @@ def ssmodel_droop_sg(wbase, parasIBR, parasSG, parasLineSG, parasLoad, dominantP
         maxfev=500,
         full_output=True
     )
-    pfExitFlag = ier  # Convergence status
-
-    # Calculate Power Flow outputs
+    pfExitFlag = ier
     w, V1, V2, V3, Io1, Io2 = pf_calc_ibr_sg(x, parasLine1, parasLine2, parasLoad)
-
-    ## Steady-State Values
+    # Steady-State Values
     steadyStateValuesX1, steadyStateValuesU1 = steadystatevalue_droop(w, V1, Io1, parasIBR)
     steadyStateValuesX2, steadyStateValuesU2 = steadystatevalue_sg(w, V2, Io2, parasSG)
     steadyStateValuesXLine, steadyStateValuesULine = steadystatevalue_line(w, V2, V3, parasLineSG)
@@ -57,101 +44,65 @@ def ssmodel_droop_sg(wbase, parasIBR, parasSG, parasLineSG, parasLoad, dominantP
         steadyStateValuesXLine,
         steadyStateValuesXLoad
     ])
-
-    ## Small-signal Modeling
+    # Small-signal Modeling
     stateMatrix1 = ssmodel_droop(wbase, parasIBR, steadyStateValuesX1, steadyStateValuesU1, 1)
     stateMatrix2 = ssmodel_sg(wbase, parasSG, steadyStateValuesX2, steadyStateValuesU2, 0)
     stateMatrixLine = ssmodel_line(wbase, parasLineSG, steadyStateValuesXLine, steadyStateValuesULine)
     stateMatrixLoad = ssmodel_load(wbase, parasLoad, steadyStateValuesXLoad, steadyStateValuesULoad)
-
-    # Extract matrices from state-space models
-    # Expected dimensions (from printed sizes):
-    # stateMatrix1: A1 (13,13), B1 (13,2), Bw1 (13,1), C1 (2,13), Cw1 (13,1)
-    A1   = stateMatrix1['A']
-    B1   = stateMatrix1['B']
-    Bw1  = stateMatrix1['Bw']
-    C1   = stateMatrix1['C']
-    Cw1  = stateMatrix1['Cw']
-
-    # stateMatrix2: A2 (14,14), B2 (14,2), Bw2 (14,1), C2 (2,14)
-    A2   = stateMatrix2['A']
-    B2   = stateMatrix2['B']
-    Bw2  = stateMatrix2['Bw']
-    C2   = stateMatrix2['C']
-
-    # stateMatrixLine: Aline (2,2), B1line (2,2), B2line (2,2), Bwline (2,1)
-    Aline   = stateMatrixLine['A']
-    B1line  = stateMatrixLine['B1']
-    B2line  = stateMatrixLine['B2']
-    Bwline  = stateMatrixLine['Bw']
-
-    # stateMatrixLoad: Aload (2,2), Bload (2,2), Bwload (2,1)
-    Aload   = stateMatrixLoad['A']
-    Bload   = stateMatrixLoad['B']
-    Bwload  = stateMatrixLoad['Bw']
-
-    # Define coupling matrices based on parasLoad parameters
-    Rx = parasLoad['Rx'] if isinstance(parasLoad, dict) else parasLoad.Rx
+    A1, B1, Bw1, C1, Cw1 = stateMatrix1['A'], stateMatrix1['B'], stateMatrix1['Bw'], stateMatrix1['C'], stateMatrix1['Cw']
+    A2, B2, Bw2, C2 = stateMatrix2['A'], stateMatrix2['B'], stateMatrix2['Bw'], stateMatrix2['C']
+    Aline, B1line, B2line, Bwline = stateMatrixLine['A'], stateMatrixLine['B1'], stateMatrixLine['B2'], stateMatrixLine['Bw']
+    Aload, Bload, Bwload = stateMatrixLoad['A'], stateMatrixLoad['B'], stateMatrixLoad['Bw']
+    Rx = parasLoad['Rx']
     Ngen1   = Rx * np.eye(2)
     Nline1  = Rx * np.eye(2)
     Nload   = -Rx * np.eye(2)
     Ngen2   = Rx * np.eye(2)
     Nline2  = -Rx * np.eye(2)
-
-    # Assemble the overall system matrix Asys using block matrices.
-    # Use .T on Cw matrices to ensure conformable multiplication.
-    # Row 1 (13 rows; columns: 13 + 14 + 2 + 2 = 31)
+    # Construct the overall system matrix
     row1 = np.hstack([
-        A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1,    # (13,13)
-        np.zeros((13, 14)),                    # (13,14)
-        B1 @ Nline1,                           # (13,2)
-        B1 @ Nload                             # (13,2)
+        A1 + Bw1 @ Cw1.T + B1 @ Ngen1 @ C1,
+        np.zeros((13, 14)),
+        B1 @ Nline1,
+        B1 @ Nload
     ])
-    # Row 2 (14 rows; 31 columns)
     row2 = np.hstack([
-        Bw2 @ Cw1.T,                           # (14,13)
-        A2 + B2 @ Ngen2 @ C2,                   # (14,14)
-        B2 @ Nline2,                           # (14,2)
-        np.zeros((14, 2))                       # (14,2)
+        Bw2 @ Cw1.T,
+        A2 + B2 @ Ngen2 @ C2,
+        B2 @ Nline2,
+        np.zeros((14, 2))
     ])
-    # Row 3 (2 rows; 31 columns)
     row3 = np.hstack([
-        Bwline @ Cw1.T + B2line @ Ngen1 @ C1,    # (2,13)
-        B1line @ Ngen2 @ C2,                     # (2,14)
-        Aline + B2line @ Nline1 + B1line @ Nline2, # (2,2)
-        B2line @ Nload                          # (2,2)
+        Bwline @ Cw1.T + B2line @ Ngen1 @ C1,
+        B1line @ Ngen2 @ C2,
+        Aline + B2line @ Nline1 + B1line @ Nline2,
+        B2line @ Nload
     ])
-    # Row 4 (2 rows; 31 columns)
     row4 = np.hstack([
-        Bwload @ Cw1.T + Bload @ Ngen1 @ C1,     # (2,13)
-        np.zeros((2, 14)),                      # (2,14)
-        Bload @ Nline1,                         # (2,2)
-        Aload + Bload @ Nload                    # (2,2)
+        Bwload @ Cw1.T + Bload @ Ngen1 @ C1,
+        np.zeros((2, 14)),
+        Bload @ Nline1,
+        Aload + Bload @ Nload
     ])
-
     Asys = np.vstack([row1, row2, row3, row4])
-    # Asys dimensions before deletion: (13+14+2+2, 31) = (31,31)
-
-    ## State Variable Labels
-    ssVar1    = np.array(stateMatrix1['ssVariables']).flatten()
-    ssVar2    = np.array(stateMatrix2['ssVariables']).flatten()
+    # State Variable Labels
+    def ensure_column(x):
+        arr = np.array(x)
+        return arr.flatten().reshape(-1, 1)
+    ssVar1 = np.array(stateMatrix1['ssVariables']).flatten()
+    ssVar2 = np.array(stateMatrix2['ssVariables']).flatten()
     ssVarLine = np.array(stateMatrixLine['ssVariables']).flatten()
     ssVarLoad = np.array(stateMatrixLoad['ssVariables']).flatten()
-
-    # Build labels dynamically to match the actual state variable lengths:
-    labels = (['IBR1'] * len(ssVar1) +
-              ['SG1'] * len(ssVar2) +
-              ['LineSG'] * len(ssVarLine) +
-              ['Load'] * len(ssVarLoad))
-    ssVariables = np.column_stack((
-        np.concatenate([ssVar1, ssVar2, ssVarLine, ssVarLoad]),
-        np.array(labels, dtype=object)
-    ))
-    # Remove the first row and first column from Asys and remove the corresponding state variable label
+    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLoad], axis=0)
+    labels = (
+            ['IBR1'] * len(ssVar1) +
+            ['SG1'] * len(ssVar2) +
+            ['LineSG'] * len(ssVarLine) +
+            ['Load'] * len(ssVarLoad)
+    )
+    ssVariables = np.column_stack((ssVariables, np.array(labels, dtype=object)))
     Asys = Asys[1:, 1:]
-    ssVariables = np.delete(ssVariables, 0, axis=0)
-
-    ## Eigenvalue Analysis
+    ssVariables = ssVariables[1:, :]
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
 
     return Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag

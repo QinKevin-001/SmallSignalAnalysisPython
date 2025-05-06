@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_ibr import pf_func_ibr_ibr
@@ -11,35 +10,31 @@ from lib.ssmodel_vsm import ssmodel_vsm
 from lib.ssmodel_load import ssmodel_load
 from lib.eigenvalue_analysis import eigenvalue_analysis
 
-
 def ssmodel_droop_vsm(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([1, 0, 0, 1, 1, 1])  # Initial condition
-    x, info, ier, msg = fsolve(lambda x: pf_func_ibr_ibr(x, parasIBR1, parasIBR2, parasLoad),
-                               x0, xtol=1e-6, maxfev=500, full_output=True)
-    pfExitFlag = ier  # Convergence flag
-
-    # Power flow outputs
+    x, info, ier, msg = fsolve(
+        lambda x: pf_func_ibr_ibr(x, parasIBR1, parasIBR2, parasLoad),
+        x0,
+        xtol=1e-6,
+        maxfev=500,
+        full_output=True
+    )
+    pfExitFlag = ier
     w, V1, V2, V3, Io1, Io2 = pf_calc_ibr_ibr(x, parasIBR1, parasIBR2)
-
     # Steady-State Values
     steadyStateValuesX1, steadyStateValuesU1 = steadystatevalue_droop(w, V1, Io1, parasIBR1)
     steadyStateValuesX2, steadyStateValuesU2 = steadystatevalue_vsm(w, V2, Io2, parasIBR2)
     steadyStateValuesXLoad, steadyStateValuesULoad = steadystatevalue_load(w, V3, parasLoad)
     steadyStateValuesX = np.concatenate((steadyStateValuesX1, steadyStateValuesX2, steadyStateValuesXLoad))
-
     # Small-signal Modeling
     stateMatrix1 = ssmodel_droop(wbase, parasIBR1, steadyStateValuesX1, steadyStateValuesU1, 1)
     stateMatrix2 = ssmodel_vsm(wbase, parasIBR2, steadyStateValuesX2, steadyStateValuesU2, 0)
     stateMatrixLoad = ssmodel_load(wbase, parasLoad, steadyStateValuesXLoad, steadyStateValuesULoad)
-
-    # Retrieve state-space matrices
     A1, B1, Bw1, C1, Cw1 = stateMatrix1['A'], stateMatrix1['B'], stateMatrix1['Bw'], stateMatrix1['C'], stateMatrix1[
         'Cw']
     A2, B2, Bw2, C2 = stateMatrix2['A'], stateMatrix2['B'], stateMatrix2['Bw'], stateMatrix2['C']
     Aload, Bload, Bloadw = stateMatrixLoad['A'], stateMatrixLoad['B'], stateMatrixLoad['Bw']
-
-    # Define Coupling Matrices
     Rx = parasLoad['Rx']
     Ngen1 = Rx * np.array([[1, 0], [0, 1]])
     Ngen2 = Rx * np.array([[1, 0], [0, 1]])
@@ -64,26 +59,19 @@ def ssmodel_droop_vsm(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticipat
     row3_block3 = Aload + Bload @ Nload
     row3 = np.hstack([row3_block1, row3_block2, row3_block3])
 
-    # Assemble the overall system matrix
     Asys = np.vstack([row1, row2, row3])
 
-    # Directly concatenate the ssVariables as in MATLAB
-    # First, ensure all are numpy arrays
     ssVars1 = np.array(stateMatrix1['ssVariables'], dtype=object)
     ssVars2 = np.array(stateMatrix2['ssVariables'], dtype=object)
     ssVarsLoad = np.array(stateMatrixLoad['ssVariables'], dtype=object)
 
-    # Vertical concatenation (similar to MATLAB's [a;b;c])
     try:
         # Try direct concatenation first
         ssVariables = np.vstack([ssVars1, ssVars2, ssVarsLoad])
     except ValueError:
-        # If that fails, create a new array with the right shape
-        # Based on MATLAB code, we expect 13 IBR1 states, 12 IBR2 states, and 2 Load states
+
         ssVariables = np.empty((13 + 12 + 2, 2), dtype=object)
 
-        # Fill in the first column with state variable names
-        # This assumes the first column of each ssVars contains the variable names
         if ssVars1.ndim == 2:
             ssVariables[:13, 0] = ssVars1[:, 0]
         else:
@@ -99,18 +87,13 @@ def ssmodel_droop_vsm(wbase, parasIBR1, parasIBR2, parasLoad, dominantParticipat
         else:
             ssVariables[25:27, 0] = ssVarsLoad
 
-    # Set the component labels exactly as in the MATLAB code
     ssVariables[:, 1] = np.array([
         'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1', 'IBR1',
         'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2', 'IBR2',
         'Load', 'Load'
     ], dtype=object)
-
-    # Remove the first row and first column (to match MATLAB 1-indexing)
     Asys = Asys[1:, 1:]
     ssVariables = ssVariables[1:, :]
-
-    # Perform eigenvalue analysis
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
 
     return Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag

@@ -1,14 +1,10 @@
-#DONT TOUCH
 import numpy as np
 import sympy as sp
 
 def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, isRef):
-    # Define symbolic variables
     theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq = sp.symbols(
-        'theta Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq'
-    )
+        'theta Po Qo phid phiq gammad gammaq iid iiq vcd vcq iod ioq')
     vbD, vbQ, wcom = sp.symbols('vbD vbQ wcom')
-
     # Parameters
     Pset = parasInverter['Pset']
     Qset = parasInverter['Qset']
@@ -27,7 +23,6 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     KpC = parasInverter['KpC']
     KiC = parasInverter['KiC']
     wc = parasInverter['wc']
-
     # Algebraic equations
     vod = vcd + Rd * (iid - iod)
     voq = vcq + Rd * (iiq - ioq)
@@ -40,7 +35,6 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
     iiqRef = KpV * (voqRef - voq) + KiV * phiq
     vidRef = KpC * (iidRef - iid) + KiC * gammad - wset * Lt * iiq
     viqRef = KpC * (iiqRef - iiq) + KiC * gammaq + wset * Lt * iid
-
     # Ordinary differential equations
     f = sp.Matrix([
         wbase * (winv - wcom),
@@ -57,11 +51,9 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
         wbase * (vod - vbd - Rc * iod + winv * Lc * ioq) / Lc,
         wbase * (voq - vbq - Rc * ioq - winv * Lc * iod) / Lc
     ])
-
     ioD = iod * sp.cos(theta) - ioq * sp.sin(theta)
     ioQ = iod * sp.sin(theta) + ioq * sp.cos(theta)
-
-    # Updated state variable definition as a 2-column structure.
+    # State-Space Matrices
     stateVariables = [
         ['theta', ''],
         ['Po', ''],
@@ -77,32 +69,24 @@ def ssmodel_droop(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, 
         ['iod', ''],
         ['ioq', '']
     ]
-
     x = sp.Matrix([theta, Po, Qo, phid, phiq, gammad, gammaq, iid, iiq, vcd, vcq, iod, ioq])
     u = sp.Matrix([vbD, vbQ, wcom])
-
-    # Calculate Jacobians
     Asym = f.jacobian(x)
     Bsym = f.jacobian(sp.Matrix([vbD, vbQ]))
     BwSym = f.jacobian(sp.Matrix([wcom]))
     Csym = sp.Matrix([ioD, ioQ]).jacobian(x)
     CwSym = winv.diff(x)
-
-    # Ensure steadyStateValuesX and steadyStateValuesU are 1D arrays
     steadyStateValuesX = np.array(steadyStateValuesX).flatten()
     steadyStateValuesU = np.array(steadyStateValuesU).flatten()
-
-    # Substitute steady-state values
     subs_dict = dict(zip(list(x) + list(u), np.concatenate((steadyStateValuesX, steadyStateValuesU))))
     A = Asym.subs(subs_dict).evalf()
     B = Bsym.subs(subs_dict).evalf()
     Bw = BwSym.subs(subs_dict).evalf()
     C = Csym.subs(subs_dict).evalf()
     Cw = CwSym.subs(subs_dict).evalf()
-
     if isRef == 0:
         Cw = sp.zeros(1, len(stateVariables))
-
+    # Output
     stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),

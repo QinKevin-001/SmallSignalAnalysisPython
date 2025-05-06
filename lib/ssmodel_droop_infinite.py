@@ -1,4 +1,3 @@
-#DONT TOUCH
 import numpy as np
 from scipy.optimize import fsolve
 from lib.pf_func_ibr_infinite import pf_func_ibr_infinite
@@ -10,7 +9,6 @@ from lib.eigenvalue_analysis import eigenvalue_analysis
 def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary):
     # Power Flow Calculation
     x0 = np.array([0, 1])
-    opts = {'xtol': 1e-6, 'maxfev': 500, 'factor': 0.1}
     x, info, ier, msg = fsolve(
         lambda x: pf_func_ibr_infinite(x, parasIBR),
         x0,
@@ -18,20 +16,14 @@ def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
         maxfev=500,
         full_output=True
     )
-    pfExitFlag = ier  # fsolve exit flag
-
-    # Power flow calculations
+    pfExitFlag = ier
     w, V1, V2, I = pf_calc_infinite(x, parasIBR)
-
     # Steady-State Values
     steadyStateValuesX, steadyStateValuesU = steadystatevalue_droop(w, V2, I, parasIBR)
-
     # Small-signal Modeling
     stateMatrix = ssmodel_droop(wbase, parasIBR, steadyStateValuesX, steadyStateValuesU, 0)
     Asys = stateMatrix['A']
     ssVariables = stateMatrix['ssVariables']
-
-    # Assign labels to the state variables (now each row is a 2-element list)
     if isinstance(ssVariables, list):
         for row in ssVariables:
             row[1] = 'IBR'
@@ -39,7 +31,6 @@ def ssmodel_droop_infinite(wbase, parasIBR, dominantParticipationFactorBoundary)
         ssVariables[:, 1] = ['IBR'] * ssVariables.shape[0]
     else:
         raise TypeError("Unsupported type for ssVariables")
-
     eigenvalueAnalysisResults = eigenvalue_analysis(Asys, ssVariables, dominantParticipationFactorBoundary)
 
     return Asys, steadyStateValuesX, eigenvalueAnalysisResults, pfExitFlag
