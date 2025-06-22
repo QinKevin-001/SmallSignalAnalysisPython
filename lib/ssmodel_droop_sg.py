@@ -92,7 +92,7 @@ def ssmodel_droop_sg(wbase, parasIBR, parasSG, parasLineSG, parasLoad, dominantP
     ssVar2 = np.array(stateMatrix2['ssVariables']).flatten()
     ssVarLine = np.array(stateMatrixLine['ssVariables']).flatten()
     ssVarLoad = np.array(stateMatrixLoad['ssVariables']).flatten()
-    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLoad], axis=0)
+    ssVariables = np.concatenate([ssVar1, ssVar2, ssVarLine, ssVarLoad], axis=0)
     labels = (
             ['IBR1'] * len(ssVar1) +
             ['SG1'] * len(ssVar2) +
