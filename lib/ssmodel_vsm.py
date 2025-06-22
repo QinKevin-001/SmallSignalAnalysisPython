@@ -66,7 +66,7 @@ def ssmodel_vsm(wbase, parasInverter, steadyStateValuesX, steadyStateValuesU, is
 
     if isRef == 0:
         Cw = sp.zeros(1, len(stateVariables))
-        stateMatrix = {
+    stateMatrix = {
         'A': np.array(A).astype(float),
         'B': np.array(B).astype(float),
         'Bw': np.array(Bw).astype(float),
