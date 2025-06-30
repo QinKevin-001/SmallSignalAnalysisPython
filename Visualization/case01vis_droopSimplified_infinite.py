@@ -37,7 +37,6 @@ def get_user_inputs():
     user_params = {}
     for var, (min_val, max_val) in variable_ranges.items():
         step = round((float(max_val) - float(min_val)) / 100, 3)
-        # numeric input box
         user_params[var] = st.sidebar.number_input(
             f"{var} ({min_val} to {max_val})",
             min_value=float(min_val),
@@ -46,22 +45,8 @@ def get_user_inputs():
             step=step,
             key=var,
             on_change=update_param,
-            args=(var,),
+            args=(var,)
         )
-        if max_val != min_val:
-            slider_key = f"{var}_slider"
-            slider_val = st.sidebar.slider(
-                "",
-                min_val, max_val, float(st.session_state[var]),
-                step=max(step, 0.001),
-                key=slider_key,
-                on_change=update_param,
-                args=(var,),
-            )
-            # keep numeric input and slider synchronized
-            if slider_val != st.session_state[var]:
-                st.session_state[var] = slider_val
-                user_params[var] = slider_val
     return user_params
 
 def run_simulation(user_params):
