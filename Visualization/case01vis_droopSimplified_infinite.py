@@ -45,7 +45,7 @@ def get_user_inputs():
             step=step,
             key=var,
             on_change=update_param,
-            args=(var,)
+            args=(var,),
         )
     return user_params
 
