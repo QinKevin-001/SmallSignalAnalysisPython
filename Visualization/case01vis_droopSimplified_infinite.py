@@ -48,10 +48,10 @@ def get_user_inputs():
             on_change=update_param,
             args=(var,),
         )
-        # NEW slider located just below
+        # slider located just below the box
         slider_key = f"{var}_slider"
         slider_val = st.sidebar.slider(
-            "",  # optional empty label so it appears right under the textbox
+            "",
             min_val, max_val, float(st.session_state[var]),
             step=step,
             key=slider_key,
