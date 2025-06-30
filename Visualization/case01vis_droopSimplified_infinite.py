@@ -48,20 +48,20 @@ def get_user_inputs():
             on_change=update_param,
             args=(var,),
         )
-        # slider located just below the box
-        slider_key = f"{var}_slider"
-        slider_val = st.sidebar.slider(
-            "",
-            min_val, max_val, float(st.session_state[var]),
-            step=step,
-            key=slider_key,
-            on_change=update_param,
-            args=(var,),
-        )
-        # keep numeric input and slider synchronized
-        if slider_val != st.session_state[var]:
-            st.session_state[var] = slider_val
-            user_params[var] = slider_val
+        if max_val != min_val:
+            slider_key = f"{var}_slider"
+            slider_val = st.sidebar.slider(
+                "",
+                min_val, max_val, float(st.session_state[var]),
+                step=max(step, 0.001),
+                key=slider_key,
+                on_change=update_param,
+                args=(var,),
+            )
+            # keep numeric input and slider synchronized
+            if slider_val != st.session_state[var]:
+                st.session_state[var] = slider_val
+                user_params[var] = slider_val
     return user_params
 
 def run_simulation(user_params):
