@@ -147,7 +147,7 @@ if st.session_state.selected_case:
 
         # Position the button at the bottom left
         if st.button("⬅️ Back to Home", key="home_button"):
-            with st.toast("Returning to home..."): time.sleep(1)
+            #with st.toast("Returning to home..."): time.sleep(1)
             st.session_state.selected_case = None
             st.rerun()
 
@@ -198,7 +198,7 @@ else:
     def handle_case_click(case_title):
         with open("interaction_log.txt", "a") as log:
             log.write(f"{datetime.now().isoformat()} - Clicked: {case_title}\n")
-        with st.toast("Loading case..."): time.sleep(1)
+        #with st.toast("Loading case..."): time.sleep(1)
         st.session_state.selected_case = case_title
         st.rerun()
 
