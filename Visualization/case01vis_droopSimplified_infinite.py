@@ -94,10 +94,6 @@ def visualization(testResults):
                 title=f"Participation Factor Analysis of Mode {selected_mode}",
                 width=900, height=700
             )
-            pie_chart_fig.update_layout(
-                font=dict(size=18),  # Increase global font size
-                title_font=dict(size=22)  # Increase title size
-            )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
@@ -126,12 +122,6 @@ def visualization(testResults):
             color_continuous_scale="Blues",
             title="Participation Factors Heatmap",
             width=900, height=700
-        )
-        heatmap_fig.update_layout(
-            font=dict(size=16),  # Adjust overall font size
-            title_font=dict(size=22),
-            xaxis_title_font=dict(size=18),
-            yaxis_title_font=dict(size=18)
         )
         heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
