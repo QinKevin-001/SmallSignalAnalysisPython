@@ -94,6 +94,10 @@ def visualization(testResults):
                 title=f"Participation Factor Analysis of Mode {selected_mode}",
                 width=900, height=700
             )
+            pie_chart_fig.update_layout(
+                font=dict(size=30),  # Increase global font size
+                title_font=dict(size=30)  # Increase title size
+            )
             st.plotly_chart(pie_chart_fig, use_container_width=True)
         else:
             st.warning("No participation factor data available for this mode.")
