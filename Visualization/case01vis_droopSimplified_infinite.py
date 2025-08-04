@@ -127,6 +127,12 @@ def visualization(testResults):
             title="Participation Factors Heatmap",
             width=900, height=700
         )
+        heatmap_fig.update_layout(
+            font=dict(size=30),  # Adjust overall font size
+            title_font=dict(size=30),
+            xaxis_title_font=dict(size=30),
+            yaxis_title_font=dict(size=30)
+        )
         heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
 
