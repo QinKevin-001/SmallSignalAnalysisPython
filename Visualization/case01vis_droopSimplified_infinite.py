@@ -131,7 +131,9 @@ def visualization(testResults):
             font=dict(size=30),  # Adjust overall font size
             title_font=dict(size=30),
             xaxis_title_font=dict(size=30),
-            yaxis_title_font=dict(size=30)
+            yaxis_title_font=dict(size=30),
+            xaxis=dict(tickfont=dict(size=25)),
+            yaxis=dict(tickfont=dict(size=25))
         )
         heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
         st.plotly_chart(heatmap_fig, use_container_width=True)
