@@ -269,7 +269,7 @@ def visualization(testResults):
             title_font=dict(size=30),
             xaxis_title_font=dict(size=30),
             yaxis_title_font=dict(size=30),
-            xaxis=dict(tickfont=dict(size=20)),
+            xaxis=dict(tickfont=dict(size=15)),
             yaxis=dict(tickfont=dict(size=15))
         )
         heatmap_fig.update_xaxes(tickmode='linear', tick0=1, dtick=1)
